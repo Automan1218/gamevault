@@ -8,7 +8,8 @@ import { Inter } from 'next/font/google';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { ConfigProvider } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
-import './globals.css';
+import '@/app/globals.css';
+import React from "react";
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,8 +25,6 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="zh-CN">
-        <body className={inter.className}>
         <AntdRegistry>
             <ConfigProvider
                 locale={zhCN}
@@ -39,7 +38,5 @@ export default function RootLayout({
                 {children}
             </ConfigProvider>
         </AntdRegistry>
-        </body>
-        </html>
     );
 }
