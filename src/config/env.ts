@@ -1,9 +1,11 @@
 // src/config/env.ts
 export const ENV = {
     // API Configuration
-    AUTH_API_URL: 'http://localhost:8080/api',
-    // 论坛服务用你自己的
-    FORUM_API_URL: 'http://localhost:8080/api',
+    FORUM_API_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8081/api',
+
+    // 第三方认证 API (仅用于登录/注册)
+    AUTH_API_URL: process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://172.20.10.3:8080/api',
+
 
     // Application Configuration
     APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'GameVault',
@@ -34,6 +36,11 @@ export const ENV = {
     ENABLE_DARK_MODE: process.env.NEXT_PUBLIC_ENABLE_DARK_MODE !== 'false',
     ENABLE_NOTIFICATIONS: process.env.NEXT_PUBLIC_ENABLE_NOTIFICATIONS !== 'false',
 } as const;
-
+if (process.env.NODE_ENV === 'development') {
+    console.log('Environment configuration:', {
+        FORUM_API_URL: ENV.FORUM_API_URL,
+        AUTH_API_URL: ENV.AUTH_API_URL,
+    });
+}
 // Type for environment variables
 export type EnvConfig = typeof ENV;
