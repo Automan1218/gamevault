@@ -6,13 +6,56 @@ import {
     RegisterRequest,
     User
 } from '@/types/api';
+import { ENV } from '@/config/env';
 
 export class AuthApi {
+    private static async authRequest<T>(
+        endpoint: string,
+        options: RequestInit = {}
+    ): Promise<T> {
+        const url = `${ENV.AUTH_API_URL}${endpoint}`;
+        console.log('Auth request to:', url);
+
+        try {
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    ...options.headers,
+                },
+            });
+
+            if (!response.ok) {
+                let errorMessage = `认证失败: ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                } catch {
+                    // 无法解析错误响应
+                }
+                throw new Error(errorMessage);
+            }
+
+            const text = await response.text();
+            if (!text) return {} as T;
+
+            return JSON.parse(text);
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error('Auth request failed:', error);
+                throw error;
+            }
+            throw new Error('认证请求失败');
+        }
+    }
     // User login
     static async login(credentials: LoginRequest): Promise<LoginResponse> {
         try {
-            const response = await apiClient.post<LoginResponse>('/auth/login', credentials);
-
+            const response = await this.authRequest<LoginResponse>('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify(credentials)
+            });
             // Store token in client
             if (response.token) {
                 apiClient.setAuthToken(response.token);
@@ -28,7 +71,10 @@ export class AuthApi {
     // User registration
     static async register(userData: RegisterRequest): Promise<LoginResponse> {
         try {
-            const response = await apiClient.post<LoginResponse>('/auth/register', userData);
+            const response = await this.authRequest<LoginResponse>('/auth/register', {
+                method: 'POST',
+                body: JSON.stringify(userData)
+            });
 
             // Store token in client
             if (response.token) {

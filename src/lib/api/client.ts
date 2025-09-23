@@ -1,38 +1,49 @@
-// src/api/client.ts
+// src/lib/api/client.ts
 import { ENV } from '@/config/env';
 
-// Request configuration
 interface RequestConfig extends RequestInit {
     timeout?: number;
 }
 
-// API Client class
 export class ApiClient {
     private baseURL: string;
     private defaultTimeout: number;
 
     constructor() {
+        // 使用你自己的 Spring Boot API (端口 8081)
         this.baseURL = ENV.FORUM_API_URL;
         this.defaultTimeout = ENV.API_TIMEOUT;
+
+        // 调试日志
+        console.log('[API Client] Initialized with:', {
+            baseURL: this.baseURL,
+            timeout: this.defaultTimeout
+        });
     }
 
-    // Generic request method with error handling
     private async request<T>(
         endpoint: string,
         config: RequestConfig = {}
     ): Promise<T> {
         const { timeout = this.defaultTimeout, ...requestConfig } = config;
 
-        // Create abort controller for timeout
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeout);
 
+        const url = `${this.baseURL}${endpoint}`;
+        console.log('[API Request]', requestConfig.method || 'GET', url); // 调试日志
+
         try {
-            const response = await fetch(`${this.baseURL}${endpoint}`, {
+            const token = this.getAuthToken();
+
+            const response = await fetch(url, {
                 ...requestConfig,
                 signal: controller.signal,
+                mode: 'cors',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
                     ...requestConfig.headers,
                 },
             });
@@ -40,39 +51,51 @@ export class ApiClient {
             clearTimeout(timeoutId);
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(
-                    errorData.message ||
-                    `HTTP error! status: ${response.status}`
-                );
+                let errorMessage = `HTTP error! status: ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                } catch {
+                    // 无法解析错误响应
+                }
+                console.error('[API Error]', url, errorMessage);
+                throw new Error(errorMessage);
             }
 
-            return await response.json();
+            const text = await response.text();
+            if (!text) {
+                return {} as T;
+            }
+
+            try {
+                return JSON.parse(text);
+            } catch {
+                console.warn('[API Warning] Response is not JSON:', text);
+                return text as unknown as T;
+            }
         } catch (error) {
             clearTimeout(timeoutId);
 
-            // 正确处理 unknown 类型的 error
             if (error instanceof Error) {
                 if (error.name === 'AbortError') {
-                    throw new Error('Request timeout');
+                    throw new Error('请求超时');
                 }
-                console.error(`API request failed: ${endpoint}`, error.message);
+                if (error.message.includes('Failed to fetch')) {
+                    console.error('[API Error] CORS/Network error:', error);
+                    throw new Error('无法连接到服务器，请检查网络或联系管理员');
+                }
                 throw error;
-            } else {
-                // 处理非 Error 类型的错误
-                console.error(`API request failed: ${endpoint}`, error);
-                throw new Error('An unexpected error occurred');
             }
+
+            throw new Error('发生未知错误');
         }
     }
 
-    // GET request
     async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
         const url = params ? `${endpoint}?${new URLSearchParams(params)}` : endpoint;
         return this.request<T>(url, { method: 'GET' });
     }
 
-    // POST request
     async post<T>(endpoint: string, data?: any): Promise<T> {
         return this.request<T>(endpoint, {
             method: 'POST',
@@ -80,7 +103,6 @@ export class ApiClient {
         });
     }
 
-    // PUT request
     async put<T>(endpoint: string, data?: any): Promise<T> {
         return this.request<T>(endpoint, {
             method: 'PUT',
@@ -88,12 +110,10 @@ export class ApiClient {
         });
     }
 
-    // DELETE request
     async delete<T>(endpoint: string): Promise<T> {
         return this.request<T>(endpoint, { method: 'DELETE' });
     }
 
-    // PATCH request
     async patch<T>(endpoint: string, data?: any): Promise<T> {
         return this.request<T>(endpoint, {
             method: 'PATCH',
@@ -101,33 +121,50 @@ export class ApiClient {
         });
     }
 
-    // Set authorization header
+    // Token 管理
     setAuthToken(token: string) {
-        // Store token for future requests
-        localStorage.setItem('auth_token', token);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('auth_token', token);
+            console.log('[Auth] Token saved');
+        }
     }
 
-    // Get authorization header
-    private getAuthHeaders(): Record<string, string> {
-        const token = localStorage.getItem('auth_token');
-        return token ? { Authorization: `Bearer ${token}` } : {};
+    getAuthToken(): string | null {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('auth_token');
+        }
+        return null;
     }
 
-    // Authenticated request
+    clearAuthToken() {
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('auth_token');
+            console.log('[Auth] Token cleared');
+        }
+    }
+
+    isAuthenticated(): boolean {
+        return !!this.getAuthToken();
+    }
+
+    // 需要认证的请求
     async authenticatedRequest<T>(
         endpoint: string,
         config: RequestConfig = {}
     ): Promise<T> {
-        const authHeaders = this.getAuthHeaders();
+        const token = this.getAuthToken();
+        if (!token) {
+            throw new Error('未登录，请先登录');
+        }
+
         return this.request<T>(endpoint, {
             ...config,
             headers: {
-                ...authHeaders,
+                'Authorization': `Bearer ${token}`,
                 ...config.headers,
             },
         });
     }
 }
 
-// Create singleton instance
 export const apiClient = new ApiClient();

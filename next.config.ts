@@ -1,7 +1,16 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+    async rewrites() {
+        return [
+            {
+                source: '/api/:path*',
+                destination: 'http://172.20.10.3:8080/api/:path*', // 指向你的后端 API
+            },
+        ]
+    },
     experimental: {
+
         // turbopack: false
         esmExternals: 'loose'
     },
