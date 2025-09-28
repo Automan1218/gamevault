@@ -8,9 +8,9 @@ interface RequestConfig extends RequestInit {
 export class ApiClient {
     private baseURL: string;
     private defaultTimeout: number;
-
+    private authToken: string | null = null;
     constructor() {
-        // 使用你自己的 Spring Boot API (端口 8081)
+
         this.baseURL = ENV.FORUM_API_URL;
         this.defaultTimeout = ENV.API_TIMEOUT;
 
@@ -123,6 +123,7 @@ export class ApiClient {
 
     // Token 管理
     setAuthToken(token: string) {
+        this.authToken = token;
         if (typeof window !== 'undefined') {
             localStorage.setItem('auth_token', token);
             console.log('[Auth] Token saved');
@@ -130,6 +131,7 @@ export class ApiClient {
     }
 
     getAuthToken(): string | null {
+        if (this.authToken) return this.authToken;
         if (typeof window !== 'undefined') {
             return localStorage.getItem('auth_token');
         }
@@ -137,6 +139,7 @@ export class ApiClient {
     }
 
     clearAuthToken() {
+        this.authToken = null;
         if (typeof window !== 'undefined') {
             localStorage.removeItem('auth_token');
             console.log('[Auth] Token cleared');

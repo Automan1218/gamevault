@@ -44,11 +44,12 @@ import {
     UserAddOutlined,
     UserOutlined,
 } from '@ant-design/icons';
-
+import GlobalNavigation from '@/app/components/layout/GlobalNavigation';
 // Import API from your existing API files
 import { PostsApi, Post } from '@/lib/api/posts';
 import { AuthApi } from '@/lib/api/auth';
 import { useForum } from "@/app/features/forum/hooks/useForum";
+import AppHeader from "@/app/components/layout/AppHeader";
 
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
@@ -87,16 +88,16 @@ export default function ForumPage() {
     const isLoggedIn = mounted ? AuthApi.isAuthenticated() : false;
 
     // 获取当前用户信息
-    const fetchCurrentUser = async () => {
-        if (mounted && AuthApi.isAuthenticated()) {
-            try {
-                const user = await AuthApi.getCurrentUser();
-                setCurrentUser(user);
-            } catch (error) {
-                console.error('获取用户信息失败:', error);
-            }
-        }
-    };
+    // const fetchCurrentUser = async () => {
+    //     if (mounted && AuthApi.isAuthenticated()) {
+    //         try {
+    //             const user = await AuthApi.getCurrentUser();
+    //             setCurrentUser(user);
+    //         } catch (error) {
+    //             console.error('获取用户信息失败:', error);
+    //         }
+    //     }
+    // };
 
     // 搜索帖子
     const handleSearch = async (keyword: string) => {
@@ -150,9 +151,9 @@ export default function ForumPage() {
     };
 
     // 初始化数据
-    useEffect(() => {
-        fetchCurrentUser();
-    }, [fetchCurrentUser, mounted]);
+    // useEffect(() => {
+    //     fetchCurrentUser();
+    // }, [fetchCurrentUser, mounted]);
 
     // 渲染帖子卡片
     const renderPostCard = (post: Post) => (
@@ -303,91 +304,37 @@ export default function ForumPage() {
             <ProLayout
                 title="GameVault 论坛"
                 logo="📝"
-                onClick={() => false}
                 layout="top"
                 contentWidth="Fixed"
                 fixedHeader
                 navTheme={darkMode ? "realDark" : "light"}
-                route={{
-                    path: '/forum',
-                    routes: [
-                        { path: '/', name: '返回首页', icon: <HomeOutlined /> },
-                        { path: '/forum', name: '论坛首页', icon: <MessageOutlined /> },
-                        { path: '/forum/latest', name: '最新帖子', icon: <FileTextOutlined /> },
-                        { path: '/forum/hot', name: '热门帖子', icon: <LikeOutlined /> },
-                    ],
-                }}
-                menuItemRender={(item) => (
-                    <div
-                        onClick={() => {
-                            if (item.path === '/') {
-                                router.push('/');
-                            } else if (item.path === '/forum') {
-                                // 已在当前页面，刷新数据
-                                refresh();
-                            } else if (item.path === '/forum/latest') {
-                                setActiveTab('latest');
-                            } else if (item.path === '/forum/hot') {
-                                setActiveTab('hot');
-                            }
-                        }}
-                        style={{ cursor: 'pointer' }}
-                    >
-                        {item.icon}
-                        <span style={{ marginLeft: 8 }}>{item.name}</span>
-                    </div>
+                headerContentRender={() => (
+                    <Row align="middle" style={{ width: '100%' }}>
+                        <Col flex="auto">
+                            <GlobalNavigation />
+                        </Col>
+                        <Col>
+                            <Space size="large">
+                                <Search
+                                    placeholder="搜索帖子"
+                                    style={{ width: 240 }}
+                                    loading={searchLoading}
+                                    onSearch={handleSearch}
+                                    enterButton
+                                />
+                                <AppHeader />
+                            </Space>
+                        </Col>
+                    </Row>
                 )}
                 rightContentRender={() => (
-                    <Space size="large">
-                        <Search
-                            placeholder="搜索帖子"
-                            style={{ width: 240 }}
-                            loading={searchLoading}
-                            onSearch={handleSearch}
-                            enterButton
-                        />
-
-                        {isLoggedIn ? (
-                            <>
-                                <Badge count={5} dot>
-                                    <BellOutlined
-                                        style={{ fontSize: 20, cursor: 'pointer' }}
-                                        onClick={() => router.push(navigationRoutes.notifications)}
-                                    />
-                                </Badge>
-                                <Avatar
-                                    src={currentUser?.avatarUrl}
-                                    icon={!currentUser?.avatarUrl && <UserOutlined />}
-                                    onClick={() => router.push(navigationRoutes.profile(currentUser.userId))}
-                                    style={{ cursor: 'pointer' }}
-                                />
-                            </>
-                        ) : (
-                            <Space>
-                                <Button
-                                    type="text"
-                                    icon={<LoginOutlined />}
-                                    onClick={() => router.push(navigationRoutes.login)}
-                                >
-                                    登录
-                                </Button>
-                                <Button
-                                    type="primary"
-                                    icon={<UserAddOutlined />}
-                                    onClick={() => router.push(navigationRoutes.register)}
-                                >
-                                    注册
-                                </Button>
-                            </Space>
-                        )}
-
-                        <Button
-                            type="text"
-                            onClick={() => setDarkMode(!darkMode)}
-                            icon={darkMode ? '☀️' : '🌙'}
-                        />
-                    </Space>
+                    <Button
+                        type="text"
+                        onClick={() => setDarkMode(!darkMode)}
+                        icon={darkMode ? '☀️' : '🌙'}
+                    />
                 )}
+                menuRender={false}
             >
                 <PageContainer
                     header={{ title: null, breadcrumb: {} }}

@@ -30,6 +30,7 @@ import {
 } from '@ant-design/icons';
 import { AuthApi } from '@/lib/api/auth';
 import { LoginRequest, RegisterRequest } from '@/types/api';
+import {navigationRoutes} from "@/lib/navigation";
 
 const { Title, Text, Link } = Typography;
 const { TabPane } = Tabs;
@@ -51,7 +52,7 @@ export default function LoginPage() {
 
             // 跳转到首页或之前的页面
             setTimeout(() => {
-                router.push('/');
+                router.push(navigationRoutes.forum);
             }, 500);
         } catch (error: any) {
             message.error(error.message || '登录失败，请检查用户名和密码');
