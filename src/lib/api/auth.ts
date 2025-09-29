@@ -95,7 +95,9 @@ export class AuthApi {
     // User logout
     static async logout(): Promise<void> {
         try {
-            await apiClient.post('/auth/logout');
+            await this.authRequest<void>('/auth/logout', {
+                method: 'POST'
+            });
         } catch (error) {
             console.error('Logout failed:', error);
         } finally {
