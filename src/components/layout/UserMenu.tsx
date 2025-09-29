@@ -159,6 +159,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           个人资料
         </span>
       ),
+      className: 'user-menu-item',
       style: { 
         padding: '12px 16px',
         background: 'rgba(31, 41, 55, 0.8)',
@@ -166,24 +167,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
         borderRadius: '8px',
         margin: '2px 8px',
         cursor: 'pointer',
-      },
-      onMouseEnter: (e) => {
-        const target = e.domEvent.currentTarget as HTMLElement;
-        target.style.background = 'rgba(99, 102, 241, 0.2)';
-        target.style.borderLeft = '3px solid #6366f1';
-        const icon = target.querySelector('.anticon') as HTMLElement;
-        const label = target.querySelector('span') as HTMLElement;
-        if (icon) icon.style.color = '#8b5cf6';
-        if (label) label.style.color = '#e0e7ff';
-      },
-      onMouseLeave: (e) => {
-        const target = e.domEvent.currentTarget as HTMLElement;
-        target.style.background = 'rgba(31, 41, 55, 0.8)';
-        target.style.borderLeft = '3px solid transparent';
-        const icon = target.querySelector('.anticon') as HTMLElement;
-        const label = target.querySelector('span') as HTMLElement;
-        if (icon) icon.style.color = '#6366f1';
-        if (label) label.style.color = '#ffffff';
+        borderLeft: '3px solid transparent',
       },
     },
     {
@@ -198,6 +182,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           游戏库
         </span>
       ),
+      className: 'user-menu-item',
       style: { 
         padding: '12px 16px',
         background: 'rgba(31, 41, 55, 0.8)',
@@ -205,24 +190,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
         borderRadius: '8px',
         margin: '2px 8px',
         cursor: 'pointer',
-      },
-      onMouseEnter: (e) => {
-        const target = e.domEvent.currentTarget as HTMLElement;
-        target.style.background = 'rgba(99, 102, 241, 0.2)';
-        target.style.borderLeft = '3px solid #6366f1';
-        const icon = target.querySelector('.anticon') as HTMLElement;
-        const label = target.querySelector('span') as HTMLElement;
-        if (icon) icon.style.color = '#8b5cf6';
-        if (label) label.style.color = '#e0e7ff';
-      },
-      onMouseLeave: (e) => {
-        const target = e.domEvent.currentTarget as HTMLElement;
-        target.style.background = 'rgba(31, 41, 55, 0.8)';
-        target.style.borderLeft = '3px solid transparent';
-        const icon = target.querySelector('.anticon') as HTMLElement;
-        const label = target.querySelector('span') as HTMLElement;
-        if (icon) icon.style.color = '#6366f1';
-        if (label) label.style.color = '#ffffff';
+        borderLeft: '3px solid transparent',
       },
     },
     {
@@ -237,6 +205,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           愿望单
         </span>
       ),
+      className: 'user-menu-item',
       style: { 
         padding: '12px 16px',
         background: 'rgba(31, 41, 55, 0.8)',
@@ -244,24 +213,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
         borderRadius: '8px',
         margin: '2px 8px',
         cursor: 'pointer',
-      },
-      onMouseEnter: (e) => {
-        const target = e.domEvent.currentTarget as HTMLElement;
-        target.style.background = 'rgba(99, 102, 241, 0.2)';
-        target.style.borderLeft = '3px solid #6366f1';
-        const icon = target.querySelector('.anticon') as HTMLElement;
-        const label = target.querySelector('span') as HTMLElement;
-        if (icon) icon.style.color = '#8b5cf6';
-        if (label) label.style.color = '#e0e7ff';
-      },
-      onMouseLeave: (e) => {
-        const target = e.domEvent.currentTarget as HTMLElement;
-        target.style.background = 'rgba(31, 41, 55, 0.8)';
-        target.style.borderLeft = '3px solid transparent';
-        const icon = target.querySelector('.anticon') as HTMLElement;
-        const label = target.querySelector('span') as HTMLElement;
-        if (icon) icon.style.color = '#6366f1';
-        if (label) label.style.color = '#ffffff';
+        borderLeft: '3px solid transparent',
       },
     },
     {
@@ -276,6 +228,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           好友
         </span>
       ),
+      className: 'user-menu-item',
       style: { 
         padding: '12px 16px',
         background: 'rgba(31, 41, 55, 0.8)',
@@ -283,24 +236,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
         borderRadius: '8px',
         margin: '2px 8px',
         cursor: 'pointer',
-      },
-      onMouseEnter: (e) => {
-        const target = e.domEvent.currentTarget as HTMLElement;
-        target.style.background = 'rgba(99, 102, 241, 0.2)';
-        target.style.borderLeft = '3px solid #6366f1';
-        const icon = target.querySelector('.anticon') as HTMLElement;
-        const label = target.querySelector('span') as HTMLElement;
-        if (icon) icon.style.color = '#8b5cf6';
-        if (label) label.style.color = '#e0e7ff';
-      },
-      onMouseLeave: (e) => {
-        const target = e.domEvent.currentTarget as HTMLElement;
-        target.style.background = 'rgba(31, 41, 55, 0.8)';
-        target.style.borderLeft = '3px solid transparent';
-        const icon = target.querySelector('.anticon') as HTMLElement;
-        const label = target.querySelector('span') as HTMLElement;
-        if (icon) icon.style.color = '#6366f1';
-        if (label) label.style.color = '#ffffff';
+        borderLeft: '3px solid transparent',
       },
     },
     {
@@ -315,6 +251,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           设置
         </span>
       ),
+      className: 'user-menu-item',
       style: { 
         padding: '12px 16px',
         background: 'rgba(31, 41, 55, 0.8)',
@@ -322,24 +259,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
         borderRadius: '8px',
         margin: '2px 8px',
         cursor: 'pointer',
-      },
-      onMouseEnter: (e) => {
-        const target = e.domEvent.currentTarget as HTMLElement;
-        target.style.background = 'rgba(99, 102, 241, 0.2)';
-        target.style.borderLeft = '3px solid #6366f1';
-        const icon = target.querySelector('.anticon') as HTMLElement;
-        const label = target.querySelector('span') as HTMLElement;
-        if (icon) icon.style.color = '#8b5cf6';
-        if (label) label.style.color = '#e0e7ff';
-      },
-      onMouseLeave: (e) => {
-        const target = e.domEvent.currentTarget as HTMLElement;
-        target.style.background = 'rgba(31, 41, 55, 0.8)';
-        target.style.borderLeft = '3px solid transparent';
-        const icon = target.querySelector('.anticon') as HTMLElement;
-        const label = target.querySelector('span') as HTMLElement;
-        if (icon) icon.style.color = '#6366f1';
-        if (label) label.style.color = '#ffffff';
+        borderLeft: '3px solid transparent',
       },
     },
     {
@@ -361,6 +281,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           退出登录
         </span>
       ),
+      className: 'user-menu-item logout-item',
       style: { 
         padding: '12px 16px',
         background: 'rgba(31, 41, 55, 0.8)',
@@ -368,24 +289,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
         borderRadius: '8px',
         margin: '2px 8px',
         cursor: 'pointer',
-      },
-      onMouseEnter: (e) => {
-        const target = e.domEvent.currentTarget as HTMLElement;
-        target.style.background = 'rgba(239, 68, 68, 0.2)';
-        target.style.borderLeft = '3px solid #ef4444';
-        const icon = target.querySelector('.anticon') as HTMLElement;
-        const label = target.querySelector('span') as HTMLElement;
-        if (icon) icon.style.color = '#fca5a5';
-        if (label) label.style.color = '#fecaca';
-      },
-      onMouseLeave: (e) => {
-        const target = e.domEvent.currentTarget as HTMLElement;
-        target.style.background = 'rgba(31, 41, 55, 0.8)';
-        target.style.borderLeft = '3px solid transparent';
-        const icon = target.querySelector('.anticon') as HTMLElement;
-        const label = target.querySelector('span') as HTMLElement;
-        if (icon) icon.style.color = '#ef4444';
-        if (label) label.style.color = '#ef4444';
+        borderLeft: '3px solid transparent',
       },
     },
   ];
