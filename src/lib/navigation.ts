@@ -52,6 +52,7 @@ export const navigationRoutes = {
     favorites: '/favorites',
     settings: '/settings',
     notifications: '/notifications',
+    library: '/library', // 游戏库路由
 
     // 板块相关 - 更新跳转目标
     games: '/dashboard/forum/category/games',        // 游戏板块跳转到forum的游戏分类

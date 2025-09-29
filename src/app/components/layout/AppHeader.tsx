@@ -9,6 +9,7 @@ import {
     LogoutOutlined,
     SettingOutlined,
     UserOutlined,
+    AppstoreOutlined,
 } from '@ant-design/icons';
 import { AuthApi } from '@/lib/api/auth';
 import { UsersApi } from '@/lib/api/users'; // 如为默认导出，请改为：import UsersApi from '@/api/users';
@@ -45,6 +46,7 @@ export default function AppHeader() {
     const goProfile = () => router.push(userId ? navigationRoutes.profile(userId) : '/profile');
     const goMyPosts = () => router.push(navigationRoutes.myPosts);
     const goFavorites = () => router.push(navigationRoutes.favorites);
+    const goLibrary = () => router.push(navigationRoutes.library);
     const goSettings = () => router.push(navigationRoutes.settings);
     const goNotifications = () => router.push(navigationRoutes.notifications);
     const handleLogout = () => {
@@ -54,6 +56,7 @@ export default function AppHeader() {
 
     const userMenuItems: MenuProps['items'] = [
         { key: 'profile', label: '个人中心', icon: <UserOutlined /> },
+        { key: 'library', label: '游戏库', icon: <AppstoreOutlined /> },
         { key: 'my-posts', label: '我的发帖', icon: <FileTextOutlined /> },
         { key: 'favorites', label: '我的收藏', icon: <HeartOutlined /> },
         { type: 'divider' },
@@ -78,6 +81,9 @@ export default function AppHeader() {
                             switch (key) {
                                 case 'profile':
                                     goProfile();
+                                    break;
+                                case 'library':
+                                    goLibrary();
                                     break;
                                 case 'my-posts':
                                     goMyPosts();
