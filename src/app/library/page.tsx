@@ -5,7 +5,7 @@ import { ProTable } from "@ant-design/pro-components";
 import { App, Tabs, Badge, Button, Card, Pagination, List } from "antd";
 import { PlaySquareOutlined, ShoppingCartOutlined, EyeOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import type { ProColumns } from "@ant-design/pro-components";
-import { PageContainer, GameCard, EmptyState, UserMenu } from '@/components/layout';
+import { PageContainer, GameCard, EmptyState, Menubar } from '@/components/layout';
 import { SearchForm } from '@/components/forms';
 import { ActivationCodesModal, OrderDetailModal } from '@/components/modals';
 import { navigationRoutes } from '@/lib/navigation';
@@ -112,43 +112,8 @@ export default function LibraryPage() {
 
   return (
     <>
-      {/* 返回商城按钮 - 页面左上角 */}
-      <div style={{ 
-        position: 'fixed',
-        top: 20,
-        left: 20,
-        zIndex: 1000,
-      }}>
-        <Button
-          type="primary"
-          icon={<ArrowLeftOutlined />}
-          onClick={() => router.push(navigationRoutes.home)}
-          style={{
-            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-            border: 'none',
-            borderRadius: 8,
-            height: 40,
-            paddingLeft: 20,
-            paddingRight: 20,
-            fontWeight: 500,
-            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
-            transition: 'all 0.3s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 6px 16px rgba(99, 102, 241, 0.4)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)';
-          }}
-        >
-          返回商城
-        </Button>
-      </div>
-
-      {/* 用户菜单 - 页面右上角 */}
-      <UserMenu username="Unknown" />
+      {/* 顶部导航栏 */}
+      <Menubar currentPath="/library" />
 
       <PageContainer
         title="我的游戏库"

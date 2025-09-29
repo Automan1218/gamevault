@@ -212,7 +212,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
               linear-gradient(135deg, #0f172a 0%, #111827 50%, #0b1220 100%)
             `
             : "transparent",
-          padding: "32px",
+          padding: "96px 32px 32px 32px", // 顶部增加64px为Menubar留出空间
           position: "relative",
           overflow: "hidden",
         }}

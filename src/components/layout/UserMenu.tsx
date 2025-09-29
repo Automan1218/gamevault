@@ -315,13 +315,9 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
       <Button
         type="text"
         style={{
-          position: 'fixed',
-          top: 20,
-          right: 20,
-          zIndex: 1000,
-          height: 48,
+          height: 40,
           padding: '8px 16px',
-          background: 'rgba(31, 41, 55, 0.9)',
+          background: 'rgba(31, 41, 55, 0.8)',
           border: '1px solid rgba(75, 85, 99, 0.3)',
           borderRadius: '12px',
           backdropFilter: 'blur(10px)',

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { App, Card, Tabs, Form, Button, Avatar, Upload, Alert, Row, Col, Divider, Typography, Space, Badge, Tooltip } from "antd";
 import { UserOutlined, LockOutlined, MailOutlined, CameraOutlined, ArrowLeftOutlined, ExclamationCircleOutlined, SafetyOutlined, SecurityScanOutlined, KeyOutlined, EditOutlined, CheckCircleOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import { PageContainer, UserMenu } from '@/components/layout';
+import { PageContainer, Menubar } from '@/components/layout';
 import { CustomButton, CustomInput, CustomPasswordInput } from '@/components/ui';
 import { AuthApi } from '@/lib/api/auth';
 import { navigationRoutes } from '@/lib/navigation';
@@ -591,43 +591,8 @@ export default function SettingsPage() {
 
   return (
     <>
-      {/* 返回按钮 - 页面左上角 */}
-      <div style={{ 
-        position: 'fixed',
-        top: 20,
-        left: 20,
-        zIndex: 1000,
-      }}>
-        <Button
-          type="primary"
-          icon={<ArrowLeftOutlined />}
-          onClick={() => router.push(navigationRoutes.library)}
-          style={{
-            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-            border: 'none',
-            borderRadius: 8,
-            height: 40,
-            paddingLeft: 20,
-            paddingRight: 20,
-            fontWeight: 500,
-            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
-            transition: 'all 0.3s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 6px 16px rgba(99, 102, 241, 0.4)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)';
-          }}
-        >
-          返回游戏库
-        </Button>
-      </div>
-
-      {/* 用户菜单 - 页面右上角 */}
-      <UserMenu username={userInfo?.username || "Unknown"} />
+      {/* 顶部导航栏 */}
+      <Menubar currentPath="/settings" />
 
       <PageContainer
         title="账户设置"
