@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Dropdown, Avatar, Button, Spin } from 'antd';
-import { UserOutlined, PlaySquareOutlined, HeartOutlined, TeamOutlined, SettingOutlined, DownOutlined } from '@ant-design/icons';
+import { UserOutlined, PlaySquareOutlined, HeartOutlined, TeamOutlined, SettingOutlined, DownOutlined, LogoutOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { useRouter } from 'next/navigation';
 import { navigationRoutes } from '@/lib/navigation';
@@ -53,6 +53,21 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
   const displayEmail = user?.email || "未设置邮箱";
   const displayAvatar = user?.profile?.avatar || avatar;
 
+  // 处理退出登录
+  const handleLogout = async () => {
+    try {
+      await AuthApi.logout();
+      setUser(null);
+      // 跳转到登录页面
+      router.push('/auth/login');
+    } catch (err) {
+      console.error('退出登录失败:', err);
+      // 即使API调用失败，也要清除本地状态
+      setUser(null);
+      router.push('/auth/login');
+    }
+  };
+
   const handleMenuClick: MenuProps['onClick'] = (e) => {
     const { key } = e;
     
@@ -75,6 +90,10 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
       case 'settings':
         // 设置页面路由（暂时跳转到首页）
         router.push('/');
+        break;
+      case 'logout':
+        // 退出登录
+        handleLogout();
         break;
       default:
         break;
@@ -321,6 +340,52 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
         const label = target.querySelector('span') as HTMLElement;
         if (icon) icon.style.color = '#6366f1';
         if (label) label.style.color = '#ffffff';
+      },
+    },
+    {
+      type: 'divider',
+      style: {
+        background: 'rgba(255, 255, 255, 0.1)',
+        margin: '8px 0',
+      },
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined style={{ color: '#ef4444', transition: 'color 0.2s ease' }} />,
+      label: (
+        <span style={{ 
+          color: '#ef4444',
+          transition: 'color 0.2s ease',
+          fontWeight: 500,
+        }}>
+          退出登录
+        </span>
+      ),
+      style: { 
+        padding: '12px 16px',
+        background: 'rgba(31, 41, 55, 0.8)',
+        transition: 'all 0.2s ease',
+        borderRadius: '8px',
+        margin: '2px 8px',
+        cursor: 'pointer',
+      },
+      onMouseEnter: (e) => {
+        const target = e.domEvent.currentTarget as HTMLElement;
+        target.style.background = 'rgba(239, 68, 68, 0.2)';
+        target.style.borderLeft = '3px solid #ef4444';
+        const icon = target.querySelector('.anticon') as HTMLElement;
+        const label = target.querySelector('span') as HTMLElement;
+        if (icon) icon.style.color = '#fca5a5';
+        if (label) label.style.color = '#fecaca';
+      },
+      onMouseLeave: (e) => {
+        const target = e.domEvent.currentTarget as HTMLElement;
+        target.style.background = 'rgba(31, 41, 55, 0.8)';
+        target.style.borderLeft = '3px solid transparent';
+        const icon = target.querySelector('.anticon') as HTMLElement;
+        const label = target.querySelector('span') as HTMLElement;
+        if (icon) icon.style.color = '#ef4444';
+        if (label) label.style.color = '#ef4444';
       },
     },
   ];
