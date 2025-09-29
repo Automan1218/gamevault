@@ -713,7 +713,7 @@ import { useRouter } from 'next/navigation';
 import { navigationRoutes } from '@/lib/navigation';
 
 import type { MenuProps } from 'antd';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     ProLayout,
     ProCard,
@@ -766,6 +766,8 @@ import {
     TeamOutlined,
     TrophyOutlined,
     RocketOutlined,
+    LogoutOutlined,
+    LoginOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
@@ -955,6 +957,7 @@ const communityPosts = [
 
 const GameVaultHomepage = () => {
     const [mounted, setMounted] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const router = useRouter();
 
@@ -973,6 +976,17 @@ const GameVaultHomepage = () => {
         setMounted(true);
     }, []);
 
+    // 检查登录状态
+    useEffect(() => {
+        if (mounted) {
+            const checkLoginStatus = () => {
+                const token = localStorage.getItem('access_token') || localStorage.getItem('token') || localStorage.getItem('auth_token');
+                setIsLoggedIn(!!token);
+            };
+            checkLoginStatus();
+        }
+    }, [mounted]);
+
     const toggleLike = (gameId: string | number) => {
         setLikedGames(prev => {
             const newSet = new Set(prev);
@@ -985,13 +999,29 @@ const GameVaultHomepage = () => {
         });
     };
 
+    // 处理登录
+    const handleLogin = () => {
+        router.push(navigationRoutes.login);
+    };
+
+    // 处理登出
+    const handleLogout = () => {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('token');
+        localStorage.removeItem('auth_token');
+        setIsLoggedIn(false);
+        router.push('/');
+    };
+
     const userMenuItems: MenuProps['items'] = [
         { key: 'profile', icon: <UserOutlined />, label: '个人资料' },
-        { key: 'library', icon: <AppstoreOutlined />, label: '游戏库' },
+        { key: 'library', icon: <AppstoreOutlined />, label: '游戏库', onClick: () => router.push('/library') },
         { key: 'wishlist', icon: <HeartOutlined />, label: '愿望单' },
         { key: 'friends', icon: <TeamOutlined />, label: '好友' },
         { type: 'divider' },
         { key: 'settings', icon: <SettingOutlined />, label: '设置' },
+        { type: 'divider' },
+        { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', onClick: handleLogout },
     ];
     // 避免SSR hydration问题
     if (!mounted) {
@@ -1025,19 +1055,39 @@ const GameVaultHomepage = () => {
                                     style={{ width: 300 }}
                                     prefix={<SearchOutlined />}
                                 />
-                                <Badge count={3} size="small">
-                                    <Button type="text" icon={<BellOutlined />} style={{ color: '#fff' }} />
-                                </Badge>
-                                <Badge count={2} size="small">
-                                    <Button type="text" icon={<ShoppingCartOutlined />} style={{ color: '#fff' }} />
-                                </Badge>
-                                <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-                                    <Avatar
-                                        size="small"
-                                        icon={<UserOutlined />}
-                                        style={{ cursor: 'pointer' }}
-                                    />
-                                </Dropdown>
+                                {isLoggedIn && (
+                                    <>
+                                        <Badge count={3} size="small">
+                                            <Button type="text" icon={<BellOutlined />} style={{ color: '#fff' }} />
+                                        </Badge>
+                                        <Badge count={2} size="small">
+                                            <Button type="text" icon={<ShoppingCartOutlined />} style={{ color: '#fff' }} />
+                                        </Badge>
+                                    </>
+                                )}
+                                {isLoggedIn ? (
+                                    <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+                                        <Avatar
+                                            size="small"
+                                            icon={<UserOutlined />}
+                                            style={{ cursor: 'pointer' }}
+                                        />
+                                    </Dropdown>
+                                ) : (
+                                    <Button 
+                                        type="primary" 
+                                        icon={<LoginOutlined />}
+                                        onClick={handleLogin}
+                                        style={{
+                                            background: 'linear-gradient(90deg, #FF6B6B 0%, #4ECDC4 100%)',
+                                            border: 'none',
+                                            borderRadius: '6px',
+                                            fontWeight: 500,
+                                        }}
+                                    >
+                                        登录
+                                    </Button>
+                                )}
                             </Space>
                         </Col>
                     </Row>
