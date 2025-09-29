@@ -25,8 +25,8 @@ export default function LoginPage() {
             setLoading(true);
             const response = await AuthApi.login(values);
             if (response.token) {
-                // 统一使用 access_token 作为存储键名
-                localStorage.setItem('access_token', response.token);
+                // 统一使用 auth_token 作为存储键名
+                localStorage.setItem('auth_token', response.token);
                 message.success('登录成功！');
                 router.push(redirect);
             } else {
