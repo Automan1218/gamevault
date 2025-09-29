@@ -137,13 +137,26 @@ export class AuthApi {
     // Change password
     static async changePassword(oldPassword: string, newPassword: string): Promise<void> {
         try {
-            await apiClient.authenticatedRequest('/auth/change-password', {
+            await this.authRequest('/auth/change-password', {
                 method: 'PUT',
                 body: JSON.stringify({ oldPassword, newPassword }),
             });
         } catch (error) {
             console.error('Password change failed:', error);
             throw new Error('密码修改失败');
+        }
+    }
+
+    // Change email
+    static async changeEmail(password: string, newEmail: string): Promise<void> {
+        try {
+            await this.authRequest('/auth/change-email', {
+                method: 'PUT',
+                body: JSON.stringify({ password, newEmail }),
+            });
+        } catch (error) {
+            console.error('Email change failed:', error);
+            throw new Error('邮箱修改失败');
         }
     }
 

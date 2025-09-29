@@ -29,7 +29,7 @@ export class AuthApi {
       throw new Error(result?.message || "登录失败");
     }
     // 存储 token
-    localStorage.setItem("access_token", result.token);
+    localStorage.setItem("auth_token", result.token);
     return result;
   }
 
@@ -44,7 +44,7 @@ export class AuthApi {
       throw new Error(result?.message || "注册失败");
     }
     // 存储 token
-    localStorage.setItem("access_token", result.token);
+    localStorage.setItem("auth_token", result.token);
     return result;
   }
 

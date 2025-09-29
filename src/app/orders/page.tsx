@@ -24,7 +24,7 @@ export default function OrdersPage() {
   useEffect(() => {
     (async () => {
       try {
-        const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+        const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
         const res = await fetch(`/api/orders`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
         const d = await res.json();
         if (!res.ok) throw new Error(d?.message || "加载失败");

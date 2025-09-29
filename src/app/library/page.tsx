@@ -41,7 +41,7 @@ export default function LibraryPage() {
     (async () => {
       try {
         setLoading(true);
-        const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+        const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
         const res = await fetch(`/api/library`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
         const data = await res.json();
         if (!res.ok) throw new Error(data?.message || "加载失败");
@@ -99,7 +99,7 @@ export default function LibraryPage() {
           fontWeight: 500,
         }}
         onClick={async () => {
-      const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+      const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
       const res = await fetch(`/api/orders/${r.orderId}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       const d = await res.json();
       if (res.ok) { setOrderDetail(d); setOrderOpen(true); } else { message.error(d?.message || '获取详情失败'); }
@@ -148,7 +148,7 @@ export default function LibraryPage() {
       </div>
 
       {/* 用户菜单 - 页面右上角 */}
-      <UserMenu username="DawnZYC" />
+      <UserMenu username="Unknown" />
 
       <PageContainer
         title="我的游戏库"
@@ -244,7 +244,7 @@ export default function LibraryPage() {
               showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条记录`,
             }}
             request={async (params) => {
-              const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+              const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
               const res = await fetch(`/api/orders`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
               const d = await res.json();
               if (!res.ok) return { success: false, data: [], total: 0 } as any;
