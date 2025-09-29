@@ -1,20 +1,57 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Dropdown, Avatar, Button } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Dropdown, Avatar, Button, Spin } from 'antd';
 import { UserOutlined, PlaySquareOutlined, HeartOutlined, TeamOutlined, SettingOutlined, DownOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { useRouter } from 'next/navigation';
 import { navigationRoutes } from '@/lib/navigation';
+import { AuthApi } from '@/lib/api/auth';
+import { User } from '@/types/api';
 
 interface UserMenuProps {
   username?: string;
   avatar?: string;
 }
 
-function UserMenu({ username = "DawnZYC", avatar }: UserMenuProps) {
+function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 获取当前用户信息
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // 检查是否有token
+        if (!AuthApi.isAuthenticated()) {
+          setUser(null);
+          return;
+        }
+
+        const userData = await AuthApi.getCurrentUser();
+        setUser(userData);
+      } catch (err) {
+        console.error('获取用户信息失败:', err);
+        setError(err instanceof Error ? err.message : '获取用户信息失败');
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
+
+  // 使用获取到的用户数据或props
+  const displayUsername = user?.username || propUsername || "用户";
+  const displayEmail = user?.email || "未设置邮箱";
+  const displayAvatar = user?.profile?.avatar || avatar;
 
   const handleMenuClick: MenuProps['onClick'] = (e) => {
     const { key } = e;
@@ -54,11 +91,12 @@ function UserMenu({ username = "DawnZYC", avatar }: UserMenuProps) {
           padding: '12px 16px', 
           borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
           background: 'rgba(31, 41, 55, 0.8)',
+          cursor: 'default',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <Avatar 
               size={40} 
-              src={avatar}
+              src={displayAvatar}
               icon={<UserOutlined />}
               style={{ 
                 background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
@@ -72,68 +110,217 @@ function UserMenu({ username = "DawnZYC", avatar }: UserMenuProps) {
                 fontSize: '16px',
                 marginBottom: 2,
               }}>
-                {username}
+                {displayUsername}
               </div>
               <div style={{ 
                 color: '#9ca3af', 
                 fontSize: '14px',
               }}>
-                Your personal account
+                {displayEmail}
               </div>
             </div>
           </div>
         </div>
       ),
       disabled: true,
+      style: {
+        cursor: 'default',
+        pointerEvents: 'none',
+      },
     },
     {
       key: 'profile',
-      icon: <UserOutlined style={{ color: '#6366f1' }} />,
-      label: '个人资料',
+      icon: <UserOutlined style={{ color: '#6366f1', transition: 'color 0.2s ease' }} />,
+      label: (
+        <span style={{ 
+          color: '#ffffff',
+          transition: 'color 0.2s ease',
+          fontWeight: 500,
+        }}>
+          个人资料
+        </span>
+      ),
       style: { 
-        color: '#ffffff',
         padding: '12px 16px',
         background: 'rgba(31, 41, 55, 0.8)',
+        transition: 'all 0.2s ease',
+        borderRadius: '8px',
+        margin: '2px 8px',
+        cursor: 'pointer',
+      },
+      onMouseEnter: (e) => {
+        const target = e.domEvent.currentTarget as HTMLElement;
+        target.style.background = 'rgba(99, 102, 241, 0.2)';
+        target.style.borderLeft = '3px solid #6366f1';
+        const icon = target.querySelector('.anticon') as HTMLElement;
+        const label = target.querySelector('span') as HTMLElement;
+        if (icon) icon.style.color = '#8b5cf6';
+        if (label) label.style.color = '#e0e7ff';
+      },
+      onMouseLeave: (e) => {
+        const target = e.domEvent.currentTarget as HTMLElement;
+        target.style.background = 'rgba(31, 41, 55, 0.8)';
+        target.style.borderLeft = '3px solid transparent';
+        const icon = target.querySelector('.anticon') as HTMLElement;
+        const label = target.querySelector('span') as HTMLElement;
+        if (icon) icon.style.color = '#6366f1';
+        if (label) label.style.color = '#ffffff';
       },
     },
     {
       key: 'library',
-      icon: <PlaySquareOutlined style={{ color: '#6366f1' }} />,
-      label: '游戏库',
+      icon: <PlaySquareOutlined style={{ color: '#6366f1', transition: 'color 0.2s ease' }} />,
+      label: (
+        <span style={{ 
+          color: '#ffffff',
+          transition: 'color 0.2s ease',
+          fontWeight: 500,
+        }}>
+          游戏库
+        </span>
+      ),
       style: { 
-        color: '#ffffff',
         padding: '12px 16px',
         background: 'rgba(31, 41, 55, 0.8)',
+        transition: 'all 0.2s ease',
+        borderRadius: '8px',
+        margin: '2px 8px',
+        cursor: 'pointer',
+      },
+      onMouseEnter: (e) => {
+        const target = e.domEvent.currentTarget as HTMLElement;
+        target.style.background = 'rgba(99, 102, 241, 0.2)';
+        target.style.borderLeft = '3px solid #6366f1';
+        const icon = target.querySelector('.anticon') as HTMLElement;
+        const label = target.querySelector('span') as HTMLElement;
+        if (icon) icon.style.color = '#8b5cf6';
+        if (label) label.style.color = '#e0e7ff';
+      },
+      onMouseLeave: (e) => {
+        const target = e.domEvent.currentTarget as HTMLElement;
+        target.style.background = 'rgba(31, 41, 55, 0.8)';
+        target.style.borderLeft = '3px solid transparent';
+        const icon = target.querySelector('.anticon') as HTMLElement;
+        const label = target.querySelector('span') as HTMLElement;
+        if (icon) icon.style.color = '#6366f1';
+        if (label) label.style.color = '#ffffff';
       },
     },
     {
       key: 'wishlist',
-      icon: <HeartOutlined style={{ color: '#6366f1' }} />,
-      label: '愿望单',
+      icon: <HeartOutlined style={{ color: '#6366f1', transition: 'color 0.2s ease' }} />,
+      label: (
+        <span style={{ 
+          color: '#ffffff',
+          transition: 'color 0.2s ease',
+          fontWeight: 500,
+        }}>
+          愿望单
+        </span>
+      ),
       style: { 
-        color: '#ffffff',
         padding: '12px 16px',
         background: 'rgba(31, 41, 55, 0.8)',
+        transition: 'all 0.2s ease',
+        borderRadius: '8px',
+        margin: '2px 8px',
+        cursor: 'pointer',
+      },
+      onMouseEnter: (e) => {
+        const target = e.domEvent.currentTarget as HTMLElement;
+        target.style.background = 'rgba(99, 102, 241, 0.2)';
+        target.style.borderLeft = '3px solid #6366f1';
+        const icon = target.querySelector('.anticon') as HTMLElement;
+        const label = target.querySelector('span') as HTMLElement;
+        if (icon) icon.style.color = '#8b5cf6';
+        if (label) label.style.color = '#e0e7ff';
+      },
+      onMouseLeave: (e) => {
+        const target = e.domEvent.currentTarget as HTMLElement;
+        target.style.background = 'rgba(31, 41, 55, 0.8)';
+        target.style.borderLeft = '3px solid transparent';
+        const icon = target.querySelector('.anticon') as HTMLElement;
+        const label = target.querySelector('span') as HTMLElement;
+        if (icon) icon.style.color = '#6366f1';
+        if (label) label.style.color = '#ffffff';
       },
     },
     {
       key: 'friends',
-      icon: <TeamOutlined style={{ color: '#6366f1' }} />,
-      label: '好友',
+      icon: <TeamOutlined style={{ color: '#6366f1', transition: 'color 0.2s ease' }} />,
+      label: (
+        <span style={{ 
+          color: '#ffffff',
+          transition: 'color 0.2s ease',
+          fontWeight: 500,
+        }}>
+          好友
+        </span>
+      ),
       style: { 
-        color: '#ffffff',
         padding: '12px 16px',
         background: 'rgba(31, 41, 55, 0.8)',
+        transition: 'all 0.2s ease',
+        borderRadius: '8px',
+        margin: '2px 8px',
+        cursor: 'pointer',
+      },
+      onMouseEnter: (e) => {
+        const target = e.domEvent.currentTarget as HTMLElement;
+        target.style.background = 'rgba(99, 102, 241, 0.2)';
+        target.style.borderLeft = '3px solid #6366f1';
+        const icon = target.querySelector('.anticon') as HTMLElement;
+        const label = target.querySelector('span') as HTMLElement;
+        if (icon) icon.style.color = '#8b5cf6';
+        if (label) label.style.color = '#e0e7ff';
+      },
+      onMouseLeave: (e) => {
+        const target = e.domEvent.currentTarget as HTMLElement;
+        target.style.background = 'rgba(31, 41, 55, 0.8)';
+        target.style.borderLeft = '3px solid transparent';
+        const icon = target.querySelector('.anticon') as HTMLElement;
+        const label = target.querySelector('span') as HTMLElement;
+        if (icon) icon.style.color = '#6366f1';
+        if (label) label.style.color = '#ffffff';
       },
     },
     {
       key: 'settings',
-      icon: <SettingOutlined style={{ color: '#6366f1' }} />,
-      label: '设置',
+      icon: <SettingOutlined style={{ color: '#6366f1', transition: 'color 0.2s ease' }} />,
+      label: (
+        <span style={{ 
+          color: '#ffffff',
+          transition: 'color 0.2s ease',
+          fontWeight: 500,
+        }}>
+          设置
+        </span>
+      ),
       style: { 
-        color: '#ffffff',
         padding: '12px 16px',
         background: 'rgba(31, 41, 55, 0.8)',
+        transition: 'all 0.2s ease',
+        borderRadius: '8px',
+        margin: '2px 8px',
+        cursor: 'pointer',
+      },
+      onMouseEnter: (e) => {
+        const target = e.domEvent.currentTarget as HTMLElement;
+        target.style.background = 'rgba(99, 102, 241, 0.2)';
+        target.style.borderLeft = '3px solid #6366f1';
+        const icon = target.querySelector('.anticon') as HTMLElement;
+        const label = target.querySelector('span') as HTMLElement;
+        if (icon) icon.style.color = '#8b5cf6';
+        if (label) label.style.color = '#e0e7ff';
+      },
+      onMouseLeave: (e) => {
+        const target = e.domEvent.currentTarget as HTMLElement;
+        target.style.background = 'rgba(31, 41, 55, 0.8)';
+        target.style.borderLeft = '3px solid transparent';
+        const icon = target.querySelector('.anticon') as HTMLElement;
+        const label = target.querySelector('span') as HTMLElement;
+        if (icon) icon.style.color = '#6366f1';
+        if (label) label.style.color = '#ffffff';
       },
     },
   ];
@@ -190,7 +377,7 @@ function UserMenu({ username = "DawnZYC", avatar }: UserMenuProps) {
       >
         <Avatar 
           size={32} 
-          src={avatar}
+          src={displayAvatar}
           icon={<UserOutlined />}
           style={{ 
             background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
@@ -202,7 +389,11 @@ function UserMenu({ username = "DawnZYC", avatar }: UserMenuProps) {
           fontWeight: 500,
           fontSize: '14px',
         }}>
-          {username}
+          {loading ? (
+            <Spin size="small" style={{ color: '#ffffff' }} />
+          ) : (
+            displayUsername
+          )}
         </span>
         <DownOutlined style={{ 
           color: '#9ca3af', 

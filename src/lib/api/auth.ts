@@ -16,12 +16,16 @@ export class AuthApi {
         const url = `${ENV.AUTH_API_URL}${endpoint}`;
         console.log('Auth request to:', url);
 
+        // 获取token
+        const token = this.getToken();
+        
         try {
             const response = await fetch(url, {
                 ...options,
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
                     ...options.headers,
                 },
             });
@@ -103,7 +107,7 @@ export class AuthApi {
     // Get current user info
     static async getCurrentUser(): Promise<User> {
         try {
-            const response = await apiClient.authenticatedRequest<User>('/auth/me');
+            const response = await this.authRequest<User>('/auth/me');
             return response;
         } catch (error) {
             console.error('Failed to get current user:', error);
