@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { PageContainer, ProTable, ProColumns } from "@ant-design/pro-components";
+import { ProTable, ProColumns } from "@ant-design/pro-components";
 import { App, Tag } from "antd";
 import Link from "next/link";
+import { PageContainer, Menubar } from '@/components/layout';
 
 // 对齐 order_items 表
 type OrderItemRow = {
@@ -44,15 +45,25 @@ export default function OrdersPage() {
   ];
 
   return (
-    <PageContainer header={{ title: "购买记录" }}>
-      <ProTable<OrderItemRow>
-        rowKey="id"
-        columns={columns}
-        dataSource={data}
-        search={false}
-        pagination={{ pageSize: 10 }}
-      />
-    </PageContainer>
+    <>
+      {/* 顶部导航栏 */}
+      <Menubar currentPath="/orders" />
+      
+      <PageContainer
+        title="购买记录"
+        subtitle="查看您的订单历史 • 管理购买记录"
+        showBackground={true}
+        showDecorations={true}
+      >
+        <ProTable<OrderItemRow>
+          rowKey="id"
+          columns={columns}
+          dataSource={data}
+          search={false}
+          pagination={{ pageSize: 10 }}
+        />
+      </PageContainer>
+    </>
   );
 }
 

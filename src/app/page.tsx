@@ -711,6 +711,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { navigationRoutes } from '@/lib/navigation';
+import { Menubar } from '@/components/layout';
 
 import type { MenuProps } from 'antd';
 import React, { useState, useEffect } from 'react';
@@ -1028,70 +1029,14 @@ const GameVaultHomepage = () => {
 
     return (
         <ConfigProvider theme={{ algorithm: darkAlgorithm }}>
-            <ProLayout
-                title="GameVault"
-                logo="https://via.placeholder.com/40x40/6366f1/ffffff?text=GV"
-                layout="top"
-                fixedHeader
-                navTheme="realDark"
-                contentWidth="Fixed"
-                breakpoint={false}
-                headerContentRender={() => (
-                    <Row align="middle" style={{ width: '100%' }}>
-                        <Col flex="auto">
-                            <Space size="large">
-                                <Button type="text" style={{ color: '#fff' }}>商店</Button>
-                                <Button type="text" style={{ color: '#fff' }} onClick={handleCommunityClick}>Forum</Button>
-                                <Button type="text" style={{ color: '#fff' }}>游戏库</Button>
-                                <Button type="text" style={{ color: '#fff' }}>市场</Button>
-                            </Space>
-                        </Col>
-                        <Col>
-                            <Space size="middle">
-                                <Search
-                                    placeholder="搜索游戏"
-                                    style={{ width: 300 }}
-                                    prefix={<SearchOutlined />}
-                                />
-                                {isLoggedIn && (
-                                    <>
-                                        <Badge count={3} size="small">
-                                            <Button type="text" icon={<BellOutlined />} style={{ color: '#fff' }} />
-                                        </Badge>
-                                        <Badge count={2} size="small">
-                                            <Button type="text" icon={<ShoppingCartOutlined />} style={{ color: '#fff' }} />
-                                        </Badge>
-                                    </>
-                                )}
-                                {isLoggedIn ? (
-                                    <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-                                        <Avatar
-                                            size="small"
-                                            icon={<UserOutlined />}
-                                            style={{ cursor: 'pointer' }}
-                                        />
-                                    </Dropdown>
-                                ) : (
-                                    <Button 
-                                        type="primary" 
-                                        icon={<LoginOutlined />}
-                                        onClick={handleLogin}
-                                        style={{
-                                            background: 'linear-gradient(90deg, #FF6B6B 0%, #4ECDC4 100%)',
-                                            border: 'none',
-                                            borderRadius: '6px',
-                                            fontWeight: 500,
-                                        }}
-                                    >
-                                        登录
-                                    </Button>
-                                )}
-                            </Space>
-                        </Col>
-                    </Row>
-                )}
-            >
-                <div style={{ background: '#0a0a0a', minHeight: '100vh', padding: '20px 0' }}>
+            {/* 顶部导航栏 */}
+            <Menubar currentPath="/" />
+            
+            <div style={{ 
+                background: '#0a0a0a', 
+                minHeight: '100vh', 
+                padding: '96px 0 20px 0' // 顶部增加64px为Menubar留出空间
+            }}>
                     {/* 轮播大图 */}
                     <Carousel autoplay style={{ marginBottom: 24 }}>
                         {featuredGames.map(game => (
@@ -1517,7 +1462,6 @@ const GameVaultHomepage = () => {
                         </Col>
                     </Row>
                 </div>
-            </ProLayout>
         </ConfigProvider>
     );
 };
