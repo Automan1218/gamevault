@@ -1,10 +1,10 @@
 
 "use client";
 
-import React, { useState } from 'react';
-import { App, Button } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { App, Button, Alert } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { AuthApi } from '@/api/auth';
+import { AuthApi } from '@/lib/api/auth';
 import { LoginRequest, RegisterRequest } from '@/types/api';
 import { LoginForm } from '@/components/forms';
 import { CustomTitle, CustomButton } from '@/components/ui';
@@ -16,8 +16,19 @@ export default function LoginPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirect = searchParams.get('redirect') || '/library';
+    const messageParam = searchParams.get('message');
     
     const [loading, setLoading] = useState(false);
+    const [showMessage, setShowMessage] = useState<string | null>(null);
+
+    // 检查URL参数并显示相应消息
+    useEffect(() => {
+        if (messageParam === 'password_changed') {
+            setShowMessage('密码修改成功，请重新登录');
+        } else if (messageParam === 'email_changed') {
+            setShowMessage('邮箱修改成功，请重新登录');
+        }
+    }, [messageParam]);
 
     // 处理登录
     const handleLogin = async (values: LoginRequest) => {
@@ -111,6 +122,21 @@ export default function LoginPage() {
                     欢迎回来
                 </CustomTitle>
             </div>
+
+            {/* 显示重定向消息 */}
+            {showMessage && (
+                <Alert
+                    message={showMessage}
+                    type="success"
+                    showIcon
+                    style={{
+                        marginBottom: 24,
+                        background: 'rgba(34, 197, 94, 0.1)',
+                        border: '1px solid rgba(34, 197, 94, 0.3)',
+                        borderRadius: 8,
+                    }}
+                />
+            )}
 
             <LoginForm
                 onLogin={handleLogin}

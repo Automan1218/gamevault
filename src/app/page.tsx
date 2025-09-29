@@ -980,7 +980,7 @@ const GameVaultHomepage = () => {
     useEffect(() => {
         if (mounted) {
             const checkLoginStatus = () => {
-                const token = localStorage.getItem('access_token') || localStorage.getItem('token') || localStorage.getItem('auth_token');
+                const token = localStorage.getItem('auth_token');
                 setIsLoggedIn(!!token);
             };
             checkLoginStatus();
@@ -1006,8 +1006,6 @@ const GameVaultHomepage = () => {
 
     // 处理登出
     const handleLogout = () => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('token');
         localStorage.removeItem('auth_token');
         setIsLoggedIn(false);
         router.push('/');

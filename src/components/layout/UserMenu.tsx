@@ -88,8 +88,8 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
         router.push('/');
         break;
       case 'settings':
-        // 设置页面路由（暂时跳转到首页）
-        router.push('/');
+        // 设置页面路由
+        router.push('/settings');
         break;
       case 'logout':
         // 退出登录
