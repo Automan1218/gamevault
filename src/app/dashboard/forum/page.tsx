@@ -7,26 +7,22 @@ import { useRouter } from 'next/navigation';
 import { Menubar } from '@/components/layout';
 import {
     Avatar,
-    Badge,
     Button,
     Card,
     Col,
     Divider,
     Empty,
-    Input,
     message,
     Row,
     Space,
     Spin,
-    Statistic,
-    Tabs,
     Tag,
     Typography,
     ConfigProvider,
-    theme,
+    List,
+    Carousel,
 } from 'antd';
 import {
-    BellOutlined,
     CommentOutlined,
     EyeOutlined,
     FileTextOutlined,
@@ -34,17 +30,21 @@ import {
     LikeOutlined,
     MessageOutlined,
     PlusOutlined,
-    ShareAltOutlined,
     UserOutlined,
+    FireOutlined,
+    ClockCircleOutlined,
+    StarOutlined,
+    TrophyOutlined,
+    CrownOutlined,
 } from '@ant-design/icons';
 // Import API from your existing API files
-import { PostsApi } from '@/lib/api/posts';
 import { AuthApi } from '@/lib/api/auth';
 import { useForum } from "@/app/features/forum/hooks/useForum";
 import { ForumPost } from "@/app/features/forum/types/forumTypes";
+import { darkTheme, cardStyle } from '@/components/common/theme';
+import '@/components/common/animations.css';
 
 const { Title, Text, Paragraph } = Typography;
-const { Search } = Input;
 
 export default function ForumPage() {
     const {
@@ -59,67 +59,59 @@ export default function ForumPage() {
     } = useForum();
 
     const router = useRouter();
-    const [darkMode, setDarkMode] = useState(true);
-    const [searchLoading, setSearchLoading] = useState(false);
-    const [currentUser, setCurrentUser] = useState<any>(null);
     const [activeTab, setActiveTab] = useState('latest');
     const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
     const [mounted, setMounted] = useState(false);
 
-    // 论坛统计数据
-    const [forumStats] = useState({
-        totalPosts: 8542,
-        todayPosts: 128,
-        onlineUsers: 892,
-    });
+    // 热门游戏数据
+    const hotGames = [
+        {
+            id: 1,
+            name: '原神',
+            nameEn: 'Genshin Impact',
+            description: '开放世界冒险游戏',
+            icon: '🎮',
+            gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            players: '125万在线',
+            posts: '8.5K 讨论',
+        },
+        {
+            id: 2,
+            name: '英雄联盟',
+            nameEn: 'League of Legends',
+            description: '经典MOBA竞技游戏',
+            icon: '⚔️',
+            gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            players: '98万在线',
+            posts: '12.3K 讨论',
+        },
+        {
+            id: 3,
+            name: 'CS:GO',
+            nameEn: 'Counter-Strike: Global Offensive',
+            description: '第一人称射击游戏',
+            icon: '🔫',
+            gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            players: '76万在线',
+            posts: '6.8K 讨论',
+        },
+        {
+            id: 4,
+            name: '瓦罗兰特',
+            nameEn: 'Valorant',
+            description: '战术射击竞技游戏',
+            icon: '💎',
+            gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            players: '54万在线',
+            posts: '4.2K 讨论',
+        },
+    ];
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
     const isLoggedIn = mounted ? AuthApi.isAuthenticated() : false;
-
-    // 获取当前用户信息
-    // const fetchCurrentUser = async () => {
-    //     if (mounted && AuthApi.isAuthenticated()) {
-    //         try {
-    //             const user = await AuthApi.getCurrentUser();
-    //             setCurrentUser(user);
-    //         } catch (error) {
-    //             console.error('获取用户信息失败:', error);
-    //         }
-    //     }
-    // };
-
-    // 搜索帖子
-    const handleSearch = async (keyword: string) => {
-        if (!keyword.trim()) {
-            refresh();
-            return;
-        }
-
-        try {
-            setSearchLoading(true);
-            const response = await PostsApi.searchPosts(keyword, 0, 20);
-            message.success(`找到 ${response.totalCount} 条相关内容`);
-        } catch (error) {
-            console.error('搜索失败:', error);
-            message.error('搜索失败，请稍后重试');
-        } finally {
-            setSearchLoading(false);
-        }
-    };
-
-    // 删除帖子
-    const handleDeletePost = async (postId: number) => {
-        try {
-            await PostsApi.deletePost(postId);
-            message.success('删除成功');
-            refresh();
-        } catch (error) {
-            message.error('删除失败');
-        }
-    };
 
     // 点赞帖子
     const handleLikePost = async (postId: number) => {
@@ -142,237 +134,588 @@ export default function ForumPage() {
         }
     };
 
-    // 初始化数据
-    // useEffect(() => {
-    //     fetchCurrentUser();
-    // }, [fetchCurrentUser, mounted]);
-
     // 渲染帖子卡片
     const renderPostCard = (post: ForumPost) => (
         <Card
             hoverable
+            className="animate-card-hover"
             style={{
-                marginBottom: 16,
-                background: darkMode ? '#1a1a1a' : '#fff',
-                borderColor: darkMode ? '#333' : '#f0f0f0',
+                marginBottom: 20,
+                ...cardStyle,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
             }}
+            bodyStyle={{ padding: '24px' }}
             onClick={() => router.push(navigationRoutes.postDetail(post.contentId))}
         >
-            <Space direction="vertical" style={{ width: '100%' }}>
-                <div>
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                {/* 帖子头部：标签和时间 */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Space size="small">
-                        <Tag color="blue">讨论</Tag>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                            {new Date(post.createdDate).toLocaleDateString()}
-                        </Text>
+                        <Tag 
+                            color="purple" 
+                            style={{
+                                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '2px 12px',
+                                fontSize: '12px',
+                                fontWeight: 600,
+                            }}
+                        >
+                            讨论
+                        </Tag>
+                        {post.viewCount > 1000 && (
+                            <Tag 
+                                icon={<FireOutlined />}
+                                color="error" 
+                                style={{
+                                    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    padding: '2px 12px',
+                                    fontSize: '12px',
+                                    fontWeight: 600,
+                                }}
+                            >
+                                热门
+                            </Tag>
+                        )}
                     </Space>
+                    <Text 
+                        type="secondary" 
+                        style={{ 
+                            fontSize: '13px',
+                            color: '#9ca3af',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                        }}
+                    >
+                        <ClockCircleOutlined />
+                        {new Date(post.createdDate).toLocaleDateString()}
+                    </Text>
                 </div>
 
-                <Title level={4} style={{
-                    margin: '8px 0',
-                    color: darkMode ? '#fff' : '#000',
-                    fontSize: '18px',
+                {/* 帖子标题 */}
+                <Title 
+                    level={4} 
+                    style={{
+                        margin: 0,
+                        color: '#f9fafb',
+                        fontSize: '20px',
                     fontWeight: 600,
-                }}>
+                        lineHeight: 1.4,
+                    }}
+                >
                     {post.title}
                 </Title>
 
+                {/* 帖子内容摘要 */}
                 {post.bodyPlain && (
                     <Paragraph
                         ellipsis={{ rows: 2 }}
                         style={{
-                            margin: '8px 0',
-                            color: darkMode ? '#999' : '#666'
+                            margin: 0,
+                            color: '#9ca3af',
+                            fontSize: '14px',
+                            lineHeight: 1.6,
                         }}
                     >
-                        {post.bodyPlain.substring(0, 150)}...
+                        {post.bodyPlain.substring(0, 150)}
                     </Paragraph>
                 )}
 
-                <Space split={<Divider type="vertical" />}>
-                    <Space size={4}>
+                <Divider style={{ margin: '12px 0', borderColor: 'rgba(99, 102, 241, 0.2)' }} />
+
+                {/* 帖子底部：作者和互动数据 */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    {/* 作者信息 */}
+                    <Space size="small">
                         <Avatar
-                            size="small"
+                            size={32}
                             icon={<UserOutlined />}
-                            style={{ backgroundColor: '#87d068' }}
+                            style={{ 
+                                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                                border: '2px solid rgba(99, 102, 241, 0.3)',
+                            }}
                         />
-                        <Text type="secondary">
+                        <Text style={{ color: '#d1d5db', fontSize: '14px', fontWeight: 500 }}>
                                     {post.authorNickname || post.authorUsername || post.authorName || `用户${post.authorId}`}
                         </Text>
                     </Space>
-                </Space>
 
-                <Row gutter={24} style={{ marginTop: 12 }}>
-                    <Col span={6}>
-                        <Statistic
-                            value={post.viewCount || 0}
-                            prefix={<EyeOutlined />}
-                            valueStyle={{ fontSize: 14, color: darkMode ? '#a0a0a0' : '#666' }}
-                        />
-                    </Col>
-                    <Col span={6}>
-                        <Statistic
-                            value={post.replyCount || 0}
-                            prefix={<MessageOutlined />}
-                            valueStyle={{ fontSize: 14, color: darkMode ? '#a0a0a0' : '#666' }}
-                        />
-                    </Col>
-                    <Col span={6}>
-                        <Statistic
-                            value={post.likeCount + (likedPosts.has(post.contentId) ? 1 : 0)}
-                            prefix={
-                                <LikeOutlined
-                                    style={{ color: likedPosts.has(post.contentId) ? '#ff4d4f' : undefined }}
-                                />
-                            }
-                            valueStyle={{
-                                fontSize: 14,
-                                color: likedPosts.has(post.contentId) ? '#ff4d4f' : darkMode ? '#a0a0a0' : '#666'
-                            }}
-                        />
-                    </Col>
-                    <Col span={6}>
-                        <Space>
-                            <Button
-                                type="text"
-                                icon={<HeartOutlined />}
-                                size="small"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    message.info('收藏功能开发中');
-                                }}
-                            >
-                                收藏
-                            </Button>
-                            <Button
-                                type="text"
-                                icon={<ShareAltOutlined />}
-                                size="small"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    message.info('分享功能开发中');
-                                }}
-                            >
-                                分享
-                            </Button>
-                            {currentUser && currentUser.userId === post.authorId && (
-                                <Button
-                                    type="text"
-                                    danger
-                                    size="small"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeletePost(post.contentId);
-                                    }}
-                                >
-                                    删除
-                                </Button>
-                            )}
+                    {/* 互动数据 */}
+                    <Space size="large">
+                        <Space size={4} style={{ color: '#9ca3af', fontSize: '14px' }}>
+                            <EyeOutlined />
+                            <span>{post.viewCount || 0}</span>
                         </Space>
-                    </Col>
-                </Row>
+                        <Space size={4} style={{ color: '#9ca3af', fontSize: '14px' }}>
+                            <MessageOutlined />
+                            <span>{post.replyCount || 0}</span>
+                </Space>
+                        <Space 
+                            size={4} 
+                            style={{ 
+                                color: likedPosts.has(post.contentId) ? '#ef4444' : '#9ca3af', 
+                                fontSize: '14px',
+                                cursor: 'pointer',
+                            }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                handleLikePost(post.contentId);
+                            }}
+                        >
+                            <LikeOutlined />
+                            <span>{post.likeCount + (likedPosts.has(post.contentId) ? 1 : 0)}</span>
+                        </Space>
+                    </Space>
+                </div>
             </Space>
         </Card>
     );
 
-    // 主题配置
-    const darkTheme = {
-        algorithm: theme.darkAlgorithm,
-        token: {
-            colorPrimary: '#1890ff',
-            colorBgContainer: '#1a1a1a',
-            colorBgElevated: '#262626',
-            colorBgLayout: '#0d0d0d',
-        },
+    // 渲染热门话题侧边栏
+    const renderHotTopics = () => {
+        const hotTopics = [
+            { id: 1, title: '最新游戏推荐', icon: <FireOutlined />, count: 2341 },
+            { id: 2, title: '游戏攻略分享', icon: <TrophyOutlined />, count: 1892 },
+            { id: 3, title: '玩家交流', icon: <CommentOutlined />, count: 1654 },
+            { id: 4, title: '游戏评测', icon: <StarOutlined />, count: 1423 },
+            { id: 5, title: '游戏新闻', icon: <FileTextOutlined />, count: 1201 },
+        ];
+
+        return (
+            <Card 
+                title={
+                    <Space>
+                        <FireOutlined style={{ color: '#ef4444' }} />
+                        <span style={{ color: '#f9fafb', fontSize: '16px', fontWeight: 600 }}>热门话题</span>
+                    </Space>
+                }
+                style={{
+                    ...cardStyle,
+                    marginBottom: 20,
+                }}
+                bodyStyle={{ padding: '16px' }}
+            >
+                <List
+                    dataSource={hotTopics}
+                    renderItem={(topic, index) => (
+                        <List.Item
+                            style={{
+                                border: 'none',
+                                padding: '12px',
+                                borderRadius: '8px',
+                                marginBottom: '8px',
+                                background: 'rgba(31, 41, 55, 0.5)',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'rgba(99, 102, 241, 0.15)';
+                                e.currentTarget.style.transform = 'translateX(4px)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'rgba(31, 41, 55, 0.5)';
+                                e.currentTarget.style.transform = 'translateX(0)';
+                            }}
+                        >
+                            <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                                <Space>
+                                    <span style={{ 
+                                        color: index < 3 ? '#ef4444' : '#9ca3af',
+                                        fontWeight: 'bold',
+                                        fontSize: '16px',
+                                    }}>
+                                        {index + 1}
+                                    </span>
+                                    <span style={{ color: '#6366f1' }}>{topic.icon}</span>
+                                    <Text style={{ color: '#d1d5db', fontSize: '14px' }}>{topic.title}</Text>
+                                </Space>
+                                <Text type="secondary" style={{ fontSize: '12px', color: '#9ca3af' }}>
+                                    {topic.count}
+                                </Text>
+                            </Space>
+                        </List.Item>
+                    )}
+                />
+            </Card>
+        );
+    };
+
+    // 渲染活跃用户侧边栏
+    const renderActiveUsers = () => {
+        const activeUsers = [
+            { id: 1, name: '游戏达人01', posts: 245, icon: '🏆' },
+            { id: 2, name: '游戏狂热者', posts: 189, icon: '⭐' },
+            { id: 3, name: '攻略专家', posts: 167, icon: '💎' },
+        ];
+
+        return (
+            <Card 
+                title={
+                    <Space>
+                        <CrownOutlined style={{ color: '#fbbf24' }} />
+                        <span style={{ color: '#f9fafb', fontSize: '16px', fontWeight: 600 }}>活跃用户</span>
+                    </Space>
+                }
+                style={{
+                    ...cardStyle,
+                    marginBottom: 20,
+                }}
+                bodyStyle={{ padding: '16px' }}
+            >
+                <List
+                    dataSource={activeUsers}
+                    renderItem={(user, index) => (
+                        <List.Item
+                            style={{
+                                border: 'none',
+                                padding: '12px',
+                                borderRadius: '8px',
+                                marginBottom: '8px',
+                                background: 'rgba(31, 41, 55, 0.5)',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'rgba(99, 102, 241, 0.15)';
+                                e.currentTarget.style.transform = 'translateX(4px)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'rgba(31, 41, 55, 0.5)';
+                                e.currentTarget.style.transform = 'translateX(0)';
+                            }}
+                        >
+                            <Space>
+                                <span style={{ fontSize: '24px' }}>{user.icon}</span>
+                                <div>
+                                    <div style={{ color: '#d1d5db', fontSize: '14px', fontWeight: 500 }}>
+                                        {user.name}
+                                    </div>
+                                    <div style={{ color: '#9ca3af', fontSize: '12px' }}>
+                                        发帖 {user.posts} 条
+                                    </div>
+                                </div>
+                            </Space>
+                        </List.Item>
+                    )}
+                />
+            </Card>
+        );
     };
 
     if (!mounted) {
-        return <div style={{ padding: '20px', textAlign: 'center' }}>加载中...</div>;
+        return (
+            <div style={{ 
+                minHeight: '100vh',
+                display: 'flex', 
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: `
+                    radial-gradient(ellipse at top left, rgba(99, 102, 241, 0.3) 0%, transparent 50%),
+                    radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.3) 0%, transparent 50%),
+                    linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)
+                `,
+            }}>
+                <Spin size="large" />
+            </div>
+        );
     }
 
     return (
-        <ConfigProvider theme={darkMode ? darkTheme : undefined}>
+        <ConfigProvider theme={darkTheme}>
             {/* 顶部导航栏 */}
             <Menubar currentPath={navigationRoutes.community} />
             
+            {/* 主内容区 */}
+            <div 
+                className="animate-fade-in-up"
+                style={{ 
+                    minHeight: '100vh',
+                    background: `
+                        radial-gradient(ellipse at top left, rgba(99, 102, 241, 0.3) 0%, transparent 50%),
+                        radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.3) 0%, transparent 50%),
+                        radial-gradient(ellipse at center, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
+                        linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)
+                    `,
+                    paddingTop: '88px',
+                    paddingBottom: '40px',
+                }}
+            >
             <div style={{ 
-                background: darkMode ? '#0a0a0a' : '#f0f2f5', 
-                minHeight: '100vh', 
-                padding: '96px 24px 24px 24px' // 顶部增加64px为Menubar留出空间
-            }}>
-                    {/* 论坛统计 */}
-                    <Row gutter={16} style={{ marginBottom: 24 }}>
-                        <Col xs={8} sm={8}>
-                            <Card>
-                                <Statistic
-                                    title="总帖子数"
-                                    value={forumStats.totalPosts}
-                                    prefix={<FileTextOutlined style={{ color: '#1890ff' }} />}
-                                    valueStyle={{ color: '#1890ff' }}
-                                />
-                            </Card>
+                    maxWidth: '1280px', 
+                    margin: '0 auto', 
+                    padding: '0 60px',
+                }}>
+                    <Row gutter={24}>
+                        {/* 左侧主内容区 */}
+                        <Col xs={24} lg={17}>
+                            {/* 热门游戏轮播 */}
+                            <div style={{ marginBottom: 24 }}>
+                                <Carousel 
+                                    autoplay 
+                                    autoplaySpeed={4000}
+                                    dotPosition="bottom"
+                                    effect="fade"
+                                    style={{
+                                        borderRadius: '24px',
+                                        overflow: 'hidden',
+                                    }}
+                                >
+                                    {hotGames.map((game) => (
+                                        <div key={game.id}>
+                                            <Card
+                                                hoverable
+                                                style={{
+                                                    height: '280px',
+                                                    background: game.gradient,
+                                                    border: 'none',
+                                                    borderRadius: '24px',
+                                                    position: 'relative',
+                                                    overflow: 'hidden',
+                                                }}
+                                                bodyStyle={{ 
+                                                    padding: '40px',
+                                                    height: '100%',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    justifyContent: 'space-between',
+                                                }}
+                                            >
+                                                {/* 装饰性背景 */}
+                                                <div
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: '-50px',
+                                                        right: '-50px',
+                                                        width: '300px',
+                                                        height: '300px',
+                                                        background: 'rgba(255, 255, 255, 0.1)',
+                                                        borderRadius: '50%',
+                                                        filter: 'blur(40px)',
+                                                    }}
+                                                />
+                                                <div
+                                                    style={{
+                                                        position: 'absolute',
+                                                        bottom: '-80px',
+                                                        left: '-80px',
+                                                        width: '250px',
+                                                        height: '250px',
+                                                        background: 'rgba(0, 0, 0, 0.1)',
+                                                        borderRadius: '50%',
+                                                        filter: 'blur(40px)',
+                                                    }}
+                                                />
+
+                                                {/* 游戏内容 */}
+                                                <div style={{ position: 'relative', zIndex: 1 }}>
+                                                    <div style={{ marginBottom: '16px' }}>
+                                                        <span style={{ fontSize: '64px' }}>{game.icon}</span>
+                                                    </div>
+                                                    <Title 
+                                                        level={2} 
+                                                        style={{ 
+                                                            margin: 0, 
+                                                            color: '#fff',
+                                                            fontSize: '36px',
+                                                            fontWeight: 700,
+                                                            textShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                                                        }}
+                                                    >
+                                                        {game.name}
+                                                    </Title>
+                                                    <Text 
+                                                        style={{ 
+                                                            fontSize: '16px',
+                                                            color: 'rgba(255, 255, 255, 0.9)',
+                                                            display: 'block',
+                                                            marginTop: '8px',
+                                                            fontWeight: 500,
+                                                        }}
+                                                    >
+                                                        {game.nameEn}
+                                                    </Text>
+                                                    <Text 
+                                                        style={{ 
+                                                            fontSize: '14px',
+                                                            color: 'rgba(255, 255, 255, 0.8)',
+                                                            display: 'block',
+                                                            marginTop: '12px',
+                                                        }}
+                                                    >
+                                                        {game.description}
+                                                    </Text>
+                                                </div>
+
+                                                {/* 游戏统计 */}
+                                                <div style={{ position: 'relative', zIndex: 1 }}>
+                                                    <Row gutter={24}>
+                                                        <Col span={12}>
+                                                            <div style={{
+                                                                background: 'rgba(255, 255, 255, 0.2)',
+                                                                backdropFilter: 'blur(10px)',
+                                                                padding: '16px',
+                                                                borderRadius: '16px',
+                                                                textAlign: 'center',
+                                                            }}>
+                                                                <UserOutlined style={{ fontSize: '24px', color: '#fff' }} />
+                                                                <div style={{
+                                                                    color: '#fff',
+                                                                    fontSize: '18px',
+                                                                    fontWeight: 'bold',
+                                                                    marginTop: '8px',
+                                                                }}>
+                                                                    {game.players}
+                                                                </div>
+                                                            </div>
                         </Col>
-                        <Col xs={8} sm={8}>
-                            <Card>
-                                <Statistic
-                                    title="今日发帖"
-                                    value={forumStats.todayPosts}
-                                    prefix={<MessageOutlined style={{ color: '#faad14' }} />}
-                                    valueStyle={{ color: '#faad14' }}
-                                />
-                            </Card>
-                        </Col>
-                        <Col xs={8} sm={8}>
-                            <Card>
-                                <Statistic
-                                    title="在线用户"
-                                    value={forumStats.onlineUsers}
-                                    prefix={<UserOutlined style={{ color: '#52c41a' }} />}
-                                    valueStyle={{ color: '#52c41a' }}
-                                />
-                            </Card>
+                                                        <Col span={12}>
+                                                            <div style={{
+                                                                background: 'rgba(255, 255, 255, 0.2)',
+                                                                backdropFilter: 'blur(10px)',
+                                                                padding: '16px',
+                                                                borderRadius: '16px',
+                                                                textAlign: 'center',
+                                                            }}>
+                                                                <CommentOutlined style={{ fontSize: '24px', color: '#fff' }} />
+                                                                <div style={{
+                                                                    color: '#fff',
+                                                                    fontSize: '18px',
+                                                                    fontWeight: 'bold',
+                                                                    marginTop: '8px',
+                                                                }}>
+                                                                    {game.posts}
+                                                                </div>
+                                                            </div>
                         </Col>
                     </Row>
+                                                </div>
+                                            </Card>
+                                        </div>
+                                    ))}
+                                </Carousel>
+                            </div>
 
                     {/* 发帖按钮 */}
                     {isLoggedIn && (
-                        <Card style={{ marginBottom: 24 }}>
                             <Button
                                 type="primary"
                                 size="large"
                                 block
                                 icon={<PlusOutlined />}
                                 style={{
-                                    height: 48,
-                                    fontSize: 16,
+                                        height: 56,
+                                        fontSize: 18,
+                                        fontWeight: 600,
+                                        marginBottom: 24,
+                                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%)',
+                                        border: 'none',
+                                        borderRadius: '16px',
+                                        boxShadow: '0 8px 32px rgba(99, 102, 241, 0.3)',
+                                        transition: 'all 0.3s ease',
                                 }}
                                 onClick={() => router.push(navigationRoutes.postCreate)}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.transform = 'translateY(-2px)';
+                                        e.currentTarget.style.boxShadow = '0 12px 40px rgba(99, 102, 241, 0.4)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                        e.currentTarget.style.boxShadow = '0 8px 32px rgba(99, 102, 241, 0.3)';
+                                    }}
                             >
                                 发布新帖
                             </Button>
-                        </Card>
-                    )}
+                            )}
+
+                            {/* 标签导航 */}
+                            <Card 
+                                style={{
+                                    ...cardStyle,
+                                    marginBottom: 24,
+                                }}
+                                bodyStyle={{ padding: '16px 24px' }}
+                            >
+                                <Space size="large">
+                                    <Button
+                                        type={activeTab === 'latest' ? 'primary' : 'text'}
+                                        icon={<ClockCircleOutlined />}
+                                        size="large"
+                                        onClick={() => setActiveTab('latest')}
+                                        style={{
+                                            background: activeTab === 'latest' 
+                                                ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' 
+                                                : 'transparent',
+                                            border: 'none',
+                                            color: activeTab === 'latest' ? '#fff' : '#9ca3af',
+                                            fontWeight: 600,
+                                            borderRadius: '12px',
+                                        }}
+                                    >
+                                        最新
+                                    </Button>
+                                    <Button
+                                        type={activeTab === 'hot' ? 'primary' : 'text'}
+                                        icon={<FireOutlined />}
+                                        size="large"
+                                        onClick={() => setActiveTab('hot')}
+                                        style={{
+                                            background: activeTab === 'hot' 
+                                                ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' 
+                                                : 'transparent',
+                                            border: 'none',
+                                            color: activeTab === 'hot' ? '#fff' : '#9ca3af',
+                                            fontWeight: 600,
+                                            borderRadius: '12px',
+                                        }}
+                                    >
+                                        热门
+                                    </Button>
+                                    {isLoggedIn && (
+                                        <Button
+                                            type={activeTab === 'following' ? 'primary' : 'text'}
+                                            icon={<HeartOutlined />}
+                                            size="large"
+                                            onClick={() => setActiveTab('following')}
+                                            style={{
+                                                background: activeTab === 'following' 
+                                                    ? 'linear-gradient(135deg, #ec4899 0%, #d946ef 100%)' 
+                                                    : 'transparent',
+                                                border: 'none',
+                                                color: activeTab === 'following' ? '#fff' : '#9ca3af',
+                                                fontWeight: 600,
+                                                borderRadius: '12px',
+                                            }}
+                                        >
+                                            关注
+                                        </Button>
+                                    )}
+                                </Space>
+                            </Card>
 
                     {/* 帖子列表 */}
-                    <Card>
-                        <Tabs
-                            activeKey={activeTab}
-                            onChange={setActiveTab}
-                            size="large"
-                            items={[
-                                {
-                                    key: 'latest',
-                                    label: '最新帖子',
-                                    children: (
                                         <div>
                                             {loading && posts.length === 0 ? (
-                                                <div style={{ textAlign: 'center', padding: '50px 0' }}>
+                                    <div style={{ textAlign: 'center', padding: '80px 0' }}>
                                                     <Spin size="large" />
+                                        <div style={{ marginTop: 16, color: '#9ca3af' }}>加载中...</div>
                                                 </div>
                                             ) : error ? (
-                                                <Empty description={error} />
+                                    <Card style={cardStyle}>
+                                        <Empty 
+                                            description={<span style={{ color: '#9ca3af' }}>{error}</span>} 
+                                        />
+                                    </Card>
                                             ) : posts.length === 0 ? (
-                                                <Empty description="暂无帖子" />
+                                    <Card style={cardStyle}>
+                                        <Empty 
+                                            description={<span style={{ color: '#9ca3af' }}>暂无帖子</span>} 
+                                        />
+                                    </Card>
                                             ) : (
                                                 <>
                                                     {posts.map(post => (
@@ -381,11 +724,21 @@ export default function ForumPage() {
                                                         </React.Fragment>
                                                     ))}
                                                     {posts.length > 0 && (
-                                                        <div style={{ textAlign: 'center', marginTop: 20 }}>
+                                            <div style={{ textAlign: 'center', marginTop: 24 }}>
                                                             <Button
-                                                                onClick={loadMore}
+                                                    size="large"
                                                                 loading={loading}
                                                                 disabled={!posts.length}
+                                                    onClick={loadMore}
+                                                    style={{
+                                                        height: 48,
+                                                        padding: '0 32px',
+                                                        borderRadius: '12px',
+                                                        background: 'rgba(31, 41, 55, 0.8)',
+                                                        border: '1px solid rgba(99, 102, 241, 0.3)',
+                                                        color: '#d1d5db',
+                                                        fontWeight: 600,
+                                                    }}
                                                             >
                                                                 加载更多
                                                             </Button>
@@ -394,20 +747,38 @@ export default function ForumPage() {
                                                 </>
                                             )}
                                         </div>
-                                    )
-                                },
-                                {
-                                    key: 'hot',
-                                    label: '热门帖子',
-                                    children: (
-                                        <div>
-                                            <Empty description="热门帖子功能开发中" />
-                                        </div>
-                                    )
+                        </Col>
+
+                        {/* 右侧边栏 */}
+                        <Col xs={0} lg={7}>
+                            {/* 热门话题 */}
+                            {renderHotTopics()}
+                            
+                            {/* 活跃用户 */}
+                            {renderActiveUsers()}
+
+                            {/* 论坛规则 */}
+                            <Card 
+                                title={
+                                    <Space>
+                                        <FileTextOutlined style={{ color: '#06b6d4' }} />
+                                        <span style={{ color: '#f9fafb', fontSize: '16px', fontWeight: 600 }}>论坛规则</span>
+                                    </Space>
                                 }
-                            ]}
-                        />
+                                style={cardStyle}
+                                bodyStyle={{ padding: '16px' }}
+                            >
+                                <div style={{ color: '#9ca3af', fontSize: '13px', lineHeight: 1.8 }}>
+                                    <p style={{ margin: '8px 0' }}>• 友善交流，尊重他人</p>
+                                    <p style={{ margin: '8px 0' }}>• 禁止发布违法违规内容</p>
+                                    <p style={{ margin: '8px 0' }}>• 禁止恶意刷屏灌水</p>
+                                    <p style={{ margin: '8px 0' }}>• 原创内容请注明出处</p>
+                                    <p style={{ margin: '8px 0' }}>• 共同维护良好环境</p>
+                                </div>
                     </Card>
+                        </Col>
+                    </Row>
+                </div>
             </div>
         </ConfigProvider>
     );

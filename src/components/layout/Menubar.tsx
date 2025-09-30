@@ -59,6 +59,18 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
     checkAuthStatus();
   }, []);
 
+  // 检查路径是否匹配（支持子路径匹配）
+  const isPathActive = (itemPath: string, currentPath: string) => {
+    // 如果是精确匹配
+    if (currentPath === itemPath) return true;
+    
+    // 如果是首页，只有精确匹配才算
+    if (itemPath === '/') return false;
+    
+    // 如果当前路径是该菜单项路径的子路径
+    return currentPath.startsWith(itemPath + '/');
+  };
+
   // 导航菜单项
   const navItems = [
     { key: 'home', label: '首页', path: navigationRoutes.home, icon: <HomeOutlined />, requireAuth: false },
@@ -235,30 +247,30 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
                       icon={item.icon}
                       onClick={() => handleNavClick(item)}
                       style={{
-                        color: currentPath === item.path ? '#6366f1' : '#d1d5db',
-                        fontWeight: currentPath === item.path ? 600 : 500,
+                        color: isPathActive(item.path, currentPath) ? '#6366f1' : '#d1d5db',
+                        fontWeight: isPathActive(item.path, currentPath) ? 600 : 500,
                         fontSize: '16px',
                         height: '40px',
                         padding: '0 16px',
                         borderRadius: '12px',
-                        background: currentPath === item.path 
+                        background: isPathActive(item.path, currentPath) 
                           ? 'rgba(99, 102, 241, 0.1)' 
                           : 'transparent',
-                        border: currentPath === item.path 
+                        border: isPathActive(item.path, currentPath) 
                           ? '1px solid rgba(99, 102, 241, 0.3)' 
                           : '1px solid transparent',
                         transition: 'all 0.3s ease',
                         opacity: item.requireAuth && !isLoggedIn ? 0.6 : 1,
                       }}
                       onMouseEnter={(e) => {
-                        if (currentPath !== item.path) {
+                        if (!isPathActive(item.path, currentPath)) {
                           e.currentTarget.style.background = 'rgba(99, 102, 241, 0.05)';
                           e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)';
                           e.currentTarget.style.color = '#e0e7ff';
                         }
                       }}
                       onMouseLeave={(e) => {
-                        if (currentPath !== item.path) {
+                        if (!isPathActive(item.path, currentPath)) {
                           e.currentTarget.style.background = 'transparent';
                           e.currentTarget.style.borderColor = 'transparent';
                           e.currentTarget.style.color = '#d1d5db';
@@ -279,30 +291,30 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
                   icon={item.icon}
                   onClick={() => handleNavClick(item)}
                   style={{
-                    color: currentPath === item.path ? '#6366f1' : '#d1d5db',
-                    fontWeight: currentPath === item.path ? 600 : 500,
+                    color: isPathActive(item.path, currentPath) ? '#6366f1' : '#d1d5db',
+                    fontWeight: isPathActive(item.path, currentPath) ? 600 : 500,
                     fontSize: '16px',
                     height: '40px',
                     padding: '0 16px',
                     borderRadius: '12px',
-                    background: currentPath === item.path 
+                    background: isPathActive(item.path, currentPath) 
                       ? 'rgba(99, 102, 241, 0.1)' 
                       : 'transparent',
-                    border: currentPath === item.path 
+                    border: isPathActive(item.path, currentPath) 
                       ? '1px solid rgba(99, 102, 241, 0.3)' 
                       : '1px solid transparent',
                     transition: 'all 0.3s ease',
                     opacity: item.requireAuth && !isLoggedIn ? 0.6 : 1,
                   }}
                   onMouseEnter={(e) => {
-                    if (currentPath !== item.path) {
+                    if (!isPathActive(item.path, currentPath)) {
                       e.currentTarget.style.background = 'rgba(99, 102, 241, 0.05)';
                       e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)';
                       e.currentTarget.style.color = '#e0e7ff';
                     }
                   }}
                   onMouseLeave={(e) => {
-                    if (currentPath !== item.path) {
+                    if (!isPathActive(item.path, currentPath)) {
                       e.currentTarget.style.background = 'transparent';
                       e.currentTarget.style.borderColor = 'transparent';
                       e.currentTarget.style.color = '#d1d5db';

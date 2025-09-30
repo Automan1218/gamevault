@@ -231,3 +231,38 @@
   margin: 8px 0 !important;
 }
 
+/* 轮播指示点样式 */
+.ant-carousel .slick-dots {
+  bottom: 20px !important;
+}
+
+.ant-carousel .slick-dots li {
+  width: 12px !important;
+  height: 12px !important;
+  margin: 0 6px !important;
+}
+
+.ant-carousel .slick-dots li button {
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-carousel .slick-dots li button:hover {
+  background: rgba(255, 255, 255, 0.5) !important;
+  transform: scale(1.2);
+}
+
+.ant-carousel .slick-dots li.slick-active {
+  width: 32px !important;
+}
+
+.ant-carousel .slick-dots li.slick-active button {
+  width: 32px !important;
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
