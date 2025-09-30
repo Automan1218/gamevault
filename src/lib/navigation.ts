@@ -47,7 +47,7 @@ export const navigationRoutes = {
 
     // 用户相关
     profile: (id: number) => `/profile/${id}`,
-    myPosts: '/my-posts',
+    myPosts: '/dashboard/forum/profile',
     favorites: '/favorites',
     settings: '/settings',
     notifications: '/notifications',

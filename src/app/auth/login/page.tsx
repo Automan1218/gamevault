@@ -1,4 +1,4 @@
-// src/app/login/post_page.tsx
+// src/app/login/page.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -54,15 +54,19 @@ export default function LoginPage() {
             setTimeout(() => {
                 router.push(navigationRoutes.forum);
             }, 500);
-        } catch (error: any) {
-            message.error(error.message || '登录失败，请检查用户名和密码');
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                message.error(error.message || '注册失败，请检查输入信息');
+            } else {
+                message.error('注册失败，请检查输入信息');
+            }
         } finally {
             setLoading(false);
         }
     };
 
     // 处理注册
-    const handleRegister = async (values: any) => {
+    const handleRegister = async (values: RegisterRequest) => {
         try {
             setLoading(true);
 
@@ -80,8 +84,12 @@ export default function LoginPage() {
             setTimeout(() => {
                 router.push('/');
             }, 1000);
-        } catch (error: any) {
-            message.error(error.message || '注册失败，请检查输入信息');
+        } catch (error) {
+            if (error instanceof Error) {
+                message.error(error.message || '注册失败，请检查输入信息');
+            } else {
+                message.error('注册失败，请检查输入信息');
+            }
         } finally {
             setLoading(false);
         }
