@@ -126,18 +126,8 @@ export default function MyPostsPage() {
         try {
             setLoading(true);
 
-            // 调用获取用户帖子的API
-            const response = await fetch(`${ENV.FORUM_API_URL}/posts/user/${userId}?page=${page - 1}&size=${pageSize}`, {
-                headers: {
-                    'Authorization': `Bearer ${AuthApi.getToken()}`,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('获取帖子失败');
-            }
-
-            const data = await response.json();
+            // 使用 PostsApi 调用获取用户帖子的API
+            const data = await PostsApi.getUserPosts(userId, page - 1, pageSize);
 
             setMyPosts(data.posts || []);
             setTotalPosts(data.totalCount || 0);
@@ -147,8 +137,8 @@ export default function MyPostsPage() {
         } catch (error) {
             console.error('获取我的帖子失败:', error);
             message.error('获取帖子列表失败');
-        }finally {
-            setLoading(false);  // 这行很重要！
+        } finally {
+            setLoading(false);
         }
     };
 
