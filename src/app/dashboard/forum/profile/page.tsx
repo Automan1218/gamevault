@@ -180,9 +180,22 @@ export default function MyPostsPage() {
         try {
             await PostsApi.deletePost(selectedPost.postId);
             message.success('删除成功');
+            setMyPosts(prevPosts =>
+                prevPosts.filter(post => post.postId !== selectedPost.postId)
+            );
+            setTotalPosts(prev => prev - 1);
+            const updatedPosts = myPosts.filter(post => post.postId !== selectedPost.postId);
+            calculateStats(updatedPosts);
             setDeleteModalVisible(false);
             setSelectedPost(null);
-            await fetchMyPosts(currentPage);
+            if (updatedPosts.length === 0 && currentPage > 1) {
+                const newPage = currentPage - 1;
+                setCurrentPage(newPage);
+                await fetchMyPosts(newPage);
+            }
+            if (userId) {
+                await fetchMyPosts(currentPage);
+            }
         } catch (error) {
             message.error('删除失败');
         }
