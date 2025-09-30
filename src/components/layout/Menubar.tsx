@@ -68,6 +68,12 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
 
   // 处理导航点击
   const handleNavClick = (item: any) => {
+    // 安全检查：确保 path 存在
+    if (!item.path) {
+      console.error('Navigation item missing path:', item);
+      return;
+    }
+    
     // 如果菜单项需要登录但用户未登录，跳转到登录页面
     if (item.requireAuth && !isLoggedIn) {
       router.push(navigationRoutes.login);

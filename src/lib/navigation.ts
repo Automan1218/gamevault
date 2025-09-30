@@ -14,7 +14,6 @@ export const navigationRoutes = {
 
     // Forum相关 - 更新为新的路由结构
     forum: '/dashboard/forum',
-    forumCreate: '/dashboard/forum/create',
     forumDetail: (id: number) => `/dashboard/forum/${id}`,
     forumEdit: (id: number) => `/dashboard/forum/${id}/edit`,
     forumCategory: (categoryId: string) => `/dashboard/forum/category/${categoryId}`,
@@ -42,23 +41,24 @@ export const navigationRoutes = {
     shoppingCart: '/dashboard/shopping/cart',
 
     // 帖子相关 - 保留旧版兼容
-    postCreate: '/post/create',
+    postCreate: '/dashboard/forum/create',
     postDetail: (id: number) => `/post/${id}`,
     postEdit: (id: number) => `/post/edit/${id}`,
 
     // 用户相关
     profile: (id: number) => `/profile/${id}`,
-    myPosts: '/my-posts',
+    myPosts: '/dashboard/forum/profile',
     favorites: '/favorites',
     settings: '/settings',
     notifications: '/notifications',
     library: '/library', // 游戏库路由
 
     // 板块相关 - 更新跳转目标
-    games: '/dashboard/forum/category/games',        // 游戏板块跳转到forum的游戏分类
-    community: '/dashboard/forum',                   // 社区按钮跳转到forum主页 ⭐
-    ranking: '/ranking',
-    news: '/news',
+    shop: '/dashboard/forum/category/games',        // 游戏板块跳转到forum的游戏分类
+    community: '/dashboard/forum',                   // 社区跳转到论坛
+
+
+
 
     // 搜索
     search: (keyword: string) => `/search?q=${encodeURIComponent(keyword)}`,
@@ -109,38 +109,6 @@ export const breadcrumbConfig = {
 };
 
 // 导航菜单配置 - 新增
-export const mainMenuItems = [
-    {
-        key: 'home',
-        label: '首页',
-        path: navigationRoutes.home,
-        icon: '🏠'
-    },
-    {
-        key: 'community',
-        label: '社区',
-        path: navigationRoutes.community, // 指向 /dashboard/forum
-        icon: '👥'
-    },
-    {
-        key: 'games',
-        label: '游戏',
-        path: navigationRoutes.games,
-        icon: '🎮'
-    },
-    {
-        key: 'ranking',
-        label: '排行榜',
-        path: navigationRoutes.ranking,
-        icon: '🏆'
-    },
-    {
-        key: 'news',
-        label: '资讯',
-        path: navigationRoutes.news,
-        icon: '📰'
-    }
-];
 
 // Dashboard子菜单配置
 export const dashboardMenuItems = [
@@ -163,7 +131,7 @@ export const dashboardMenuItems = [
             {
                 key: 'forum-create',
                 label: '发布新帖',
-                path: navigationRoutes.forumCreate
+                path: navigationRoutes.postCreate
             },
             {
                 key: 'forum-my-posts',

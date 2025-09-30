@@ -1,4 +1,4 @@
-// src/app/my-posts/post_page.tsx
+// src/app/my-posts/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -54,8 +54,6 @@ import { ENV } from '@/config/env';
 import {UsersApi} from "@/lib/api/users";
 
 const { Title, Text, Paragraph } = Typography;
-const { TabPane } = Tabs;
-
 interface PostItem {
     postId: number;
     title: string;
@@ -150,6 +148,8 @@ export default function MyPostsPage() {
         } catch (error) {
             console.error('获取我的帖子失败:', error);
             message.error('获取帖子列表失败');
+        }finally {
+            setLoading(false);  // 这行很重要！
         }
     };
 
@@ -324,9 +324,9 @@ export default function MyPostsPage() {
             header={{
             title: '我的发帖',
                 breadcrumb: {
-                routes: [
-                    { path: '/', breadcrumbName: '首页' },
-                    { path: '/my-posts', breadcrumbName: '我的发帖' },
+                items: [
+                    { title: '首页' },
+                    { title: '我的发帖' },
                 ],
             },
         }}
@@ -408,51 +408,61 @@ export default function MyPostsPage() {
 
         {/* 帖子列表 */}
         <Card>
-            <Tabs activeKey={activeTab} onChange={setActiveTab}>
-        <TabPane tab="已发布" key="published">
-        <Spin spinning={loading}>
-            {myPosts.length > 0 ? (
-                        <>
-                            <List
-                                dataSource={myPosts}
-                    renderItem={renderPostItem}
-        />
-        <div style={{ textAlign: 'center', marginTop: 24 }}>
-        <Pagination
-            current={currentPage}
-        total={totalPosts}
-        pageSize={pageSize}
-        onChange={(page) => {
-            setCurrentPage(page);
-            fetchMyPosts(page);
-        }}
-        />
-        </div>
-        </>
-    ) : (
-            <Empty
-                description="还没有发布过帖子"
-        style={{ padding: '40px 0' }}
-    >
-        <Button
-            type="primary"
-        onClick={() => router.push('/post/create')}
-    >
-        发布第一篇帖子
-        </Button>
-        </Empty>
-    )}
-        </Spin>
-        </TabPane>
-
-        <TabPane tab="草稿箱" key="drafts">
-        <Empty description="暂无草稿" />
-            </TabPane>
-
-            <TabPane tab="回收站" key="deleted">
-        <Empty description="回收站为空" />
-            </TabPane>
-            </Tabs>
+            <Tabs
+                activeKey={activeTab}
+                onChange={setActiveTab}
+                items={[
+                    {
+                        key: 'published',
+                        label: '已发布',
+                        children: (
+                            <Spin spinning={loading}>
+                                {myPosts.length > 0 ? (
+                                    <>
+                                        <List
+                                            dataSource={myPosts}
+                                            renderItem={renderPostItem}
+                                        />
+                                        <div style={{ textAlign: 'center', marginTop: 24 }}>
+                                            <Pagination
+                                                current={currentPage}
+                                                total={totalPosts}
+                                                pageSize={pageSize}
+                                                onChange={(page) => {
+                                                    setCurrentPage(page);
+                                                    fetchMyPosts(page);
+                                                }}
+                                            />
+                                        </div>
+                                    </>
+                                ) : (
+                                    <Empty
+                                        description="还没有发布过帖子"
+                                        style={{ padding: '40px 0' }}
+                                    >
+                                        <Button
+                                            type="primary"
+                                            onClick={() => router.push('/post/create')}
+                                        >
+                                            发布第一篇帖子
+                                        </Button>
+                                    </Empty>
+                                )}
+                            </Spin>
+                        )
+                    },
+                    {
+                        key: 'drafts',
+                        label: '草稿箱',
+                        children: <Empty description="暂无草稿" />
+                    },
+                    {
+                        key: 'deleted',
+                        label: '回收站',
+                        children: <Empty description="回收站为空" />
+                    }
+                ]}
+            />
             </Card>
 
         {/* 删除确认弹窗 */}
