@@ -85,12 +85,26 @@ export class ApiClient {
             }
 
             const contentType = response.headers.get('content-type');
+            let jsonData;
             if (contentType && contentType.includes('application/json')) {
-                return await response.json();
+                jsonData = await response.json();
             } else {
                 const text = await response.text();
-                return (text ? JSON.parse(text) : {}) as T;
+                jsonData = text ? JSON.parse(text) : {};
             }
+
+            // 处理后端 BaseResponse 包装格式
+            // 如果响应包含 code 和 data 字段，提取 data
+            if (jsonData && typeof jsonData === 'object' && 'code' in jsonData && 'data' in jsonData) {
+                if (jsonData.code === 0) {
+                    return jsonData.data as T;
+                } else {
+                    // 处理业务错误
+                    throw new Error(jsonData.message || '请求失败');
+                }
+            }
+
+            return jsonData as T;
         } catch (error) {
             clearTimeout(timeoutId);
 

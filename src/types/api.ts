@@ -24,29 +24,29 @@ export interface PaginatedResponse<T> {
     hasPrevious: boolean;
 }
 
-// Post related types
+// Post related types - 匹配后端响应格式
 export interface Post {
-    postId: number;
+    contentId: number;  // 匹配后端的contentId
     title: string;
     body: string;
-    bodyPlain: string;
+    bodyPlain?: string;
     authorId: number;
-    authorName: string;
-    authorNickname: string;
+    authorUsername?: string;  // 匹配后端的authorUsername
+    authorEmail?: string;     // 匹配后端的authorEmail
     viewCount: number;
     likeCount: number;
-    replyCount: number;
+    replyCount?: number;      // 可选，因为后端可能没有实现
     createdDate: string;
     updatedDate: string;
     status: 'active' | 'deleted' | 'hidden';
-    contentType: 'post' | 'reply';
+    contentType?: 'post' | 'reply';
     parentId?: number;
 }
 
 export interface CreatePostRequest {
     title: string;
     body: string;
-    authorId: number;
+    // authorId 不需要，因为从JWT token中获取
 }
 
 export interface UpdatePostRequest {
@@ -104,8 +104,10 @@ export interface LoginRequest {
 
 export interface LoginResponse {
     token: string;
-    user: User;
-    expiresIn: number;
+    username: string;
+    userId: number;
+    email: string;
+    message?: string;
 }
 
 export interface RegisterRequest {
@@ -132,22 +134,5 @@ export interface ApiError {
     timestamp: string;
 }
 
-// API 类型定义
-export interface LoginRequest {
-    username: string;
-    password: string;
-  }
-  
-  export interface RegisterRequest {
-    username: string;
-    email: string;
-    password: string;
-  }
-  
-  export interface AuthResponse {
-    token: string;
-    username: string;
-    userId: number;
-    email: string;
-  }
+// 这些类型已经在上面定义了，删除重复定义
   

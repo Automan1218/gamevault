@@ -1,8 +1,9 @@
-// src/app/post/create/page.tsx
+// src/app/dashboard/forum/create/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Menubar } from '@/components/layout';
 import {
     Button,
     Card,
@@ -29,7 +30,6 @@ import {
     UnorderedListOutlined,
     UploadOutlined,
 } from '@ant-design/icons';
-import { ProLayout } from '@ant-design/pro-components';
 import { PostsApi, CreatePostRequest } from '@/lib/api/posts';
 import { AuthApi } from '@/lib/api/auth';
 import Divider from 'antd/es/divider';
@@ -208,20 +208,14 @@ export default function CreatePostPage() {
 
     return (
         <ConfigProvider theme={darkMode ? darkTheme : undefined}>
-            <ProLayout
-                title="GameVault"
-                logo="🎮"
-                layout="top"
-                contentWidth="Fixed"
-                fixedHeader
-                navTheme={darkMode ? "realDark" : "light"}
-
-            >
-                <div style={{
-                    minHeight: '100vh',
-                    background: darkMode ? '#0d0d0d' : '#f0f2f5',
-                    padding: '24px',
-                }}>
+            {/* 顶部导航栏 */}
+            <Menubar currentPath="/dashboard/forum/create" />
+            
+            <div style={{
+                minHeight: '100vh',
+                background: darkMode ? '#0a0a0a' : '#f0f2f5',
+                padding: '96px 24px 24px 24px', // 顶部增加64px为Menubar留出空间
+            }}>
                     <div style={{ maxWidth: 1000, margin: '0 auto' }}>
                         {/* 页面标题 */}
                         <Card style={{ marginBottom: 24 }}>
@@ -455,8 +449,7 @@ export default function CreatePostPage() {
                             </Card>
                         )}
                     </div>
-                </div>
-            </ProLayout>
+            </div>
         </ConfigProvider>
     );
 }

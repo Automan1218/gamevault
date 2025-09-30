@@ -1,13 +1,10 @@
-// src/app/forum/page.tsx
+// src/app/dashboard/forum/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { navigationRoutes } from '@/lib/navigation';
 import { useRouter } from 'next/navigation';
-import {
-    ProLayout,
-    PageContainer,
-} from '@ant-design/pro-components';
+import { Menubar } from '@/components/layout';
 import {
     Avatar,
     Badge,
@@ -34,22 +31,17 @@ import {
     EyeOutlined,
     FileTextOutlined,
     HeartOutlined,
-    HomeOutlined,
     LikeOutlined,
-    LoginOutlined,
     MessageOutlined,
     PlusOutlined,
-    SearchOutlined,
     ShareAltOutlined,
-    UserAddOutlined,
     UserOutlined,
 } from '@ant-design/icons';
-import GlobalNavigation from '@/app/components/layout/GlobalNavigation';
 // Import API from your existing API files
-import { PostsApi, Post } from '@/lib/api/posts';
+import { PostsApi } from '@/lib/api/posts';
 import { AuthApi } from '@/lib/api/auth';
 import { useForum } from "@/app/features/forum/hooks/useForum";
-import AppHeader from "@/app/components/layout/AppHeader";
+import { ForumPost } from "@/app/features/forum/types/forumTypes";
 
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
@@ -156,16 +148,15 @@ export default function ForumPage() {
     // }, [fetchCurrentUser, mounted]);
 
     // 渲染帖子卡片
-    const renderPostCard = (post: Post) => (
+    const renderPostCard = (post: ForumPost) => (
         <Card
-            key={post.postId}
             hoverable
             style={{
                 marginBottom: 16,
                 background: darkMode ? '#1a1a1a' : '#fff',
                 borderColor: darkMode ? '#333' : '#f0f0f0',
             }}
-            onClick={() => router.push(navigationRoutes.postDetail(post.postId))}
+            onClick={() => router.push(navigationRoutes.postDetail(post.contentId))}
         >
             <Space direction="vertical" style={{ width: '100%' }}>
                 <div>
@@ -206,7 +197,7 @@ export default function ForumPage() {
                             style={{ backgroundColor: '#87d068' }}
                         />
                         <Text type="secondary">
-                            {post.authorNickname || post.authorName || `用户${post.authorId}`}
+                                    {post.authorNickname || post.authorUsername || post.authorName || `用户${post.authorId}`}
                         </Text>
                     </Space>
                 </Space>
@@ -228,15 +219,15 @@ export default function ForumPage() {
                     </Col>
                     <Col span={6}>
                         <Statistic
-                            value={post.likeCount + (likedPosts.has(post.postId) ? 1 : 0)}
+                            value={post.likeCount + (likedPosts.has(post.contentId) ? 1 : 0)}
                             prefix={
                                 <LikeOutlined
-                                    style={{ color: likedPosts.has(post.postId) ? '#ff4d4f' : undefined }}
+                                    style={{ color: likedPosts.has(post.contentId) ? '#ff4d4f' : undefined }}
                                 />
                             }
                             valueStyle={{
                                 fontSize: 14,
-                                color: likedPosts.has(post.postId) ? '#ff4d4f' : darkMode ? '#a0a0a0' : '#666'
+                                color: likedPosts.has(post.contentId) ? '#ff4d4f' : darkMode ? '#a0a0a0' : '#666'
                             }}
                         />
                     </Col>
@@ -271,7 +262,7 @@ export default function ForumPage() {
                                     size="small"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleDeletePost(post.postId);
+                                        handleDeletePost(post.contentId);
                                     }}
                                 >
                                     删除
@@ -301,48 +292,14 @@ export default function ForumPage() {
 
     return (
         <ConfigProvider theme={darkMode ? darkTheme : undefined}>
-            <ProLayout
-                title="GameVault 论坛"
-                logo="📝"
-                layout="top"
-                contentWidth="Fixed"
-                fixedHeader
-                navTheme={darkMode ? "realDark" : "light"}
-                headerContentRender={() => (
-                    <Row align="middle" style={{ width: '100%' }}>
-                        <Col flex="auto">
-                            <GlobalNavigation />
-                        </Col>
-                        <Col>
-                            <Space size="large">
-                                <Search
-                                    placeholder="搜索帖子"
-                                    style={{ width: 240 }}
-                                    loading={searchLoading}
-                                    onSearch={handleSearch}
-                                    enterButton
-                                />
-                                <AppHeader />
-                            </Space>
-                        </Col>
-                    </Row>
-                )}
-                rightContentRender={() => (
-                    <Button
-                        type="text"
-                        onClick={() => setDarkMode(!darkMode)}
-                        icon={darkMode ? '☀️' : '🌙'}
-                    />
-                )}
-                menuRender={false}
-            >
-                <PageContainer
-                    header={{ title: null, breadcrumb: {} }}
-                    style={{
-                        background: darkMode ? '#0d0d0d' : '#f0f2f5',
-                        minHeight: '100vh',
-                    }}
-                >
+            {/* 顶部导航栏 */}
+            <Menubar currentPath={navigationRoutes.community} />
+            
+            <div style={{ 
+                background: darkMode ? '#0a0a0a' : '#f0f2f5', 
+                minHeight: '100vh', 
+                padding: '96px 24px 24px 24px' // 顶部增加64px为Menubar留出空间
+            }}>
                     {/* 论坛统计 */}
                     <Row gutter={16} style={{ marginBottom: 24 }}>
                         <Col xs={8} sm={8}>
@@ -418,7 +375,11 @@ export default function ForumPage() {
                                                 <Empty description="暂无帖子" />
                                             ) : (
                                                 <>
-                                                    {posts.map(post => renderPostCard(post))}
+                                                    {posts.map(post => (
+                                                        <React.Fragment key={post.contentId}>
+                                                            {renderPostCard(post)}
+                                                        </React.Fragment>
+                                                    ))}
                                                     {posts.length > 0 && (
                                                         <div style={{ textAlign: 'center', marginTop: 20 }}>
                                                             <Button
@@ -447,8 +408,7 @@ export default function ForumPage() {
                             ]}
                         />
                     </Card>
-                </PageContainer>
-            </ProLayout>
+            </div>
         </ConfigProvider>
     );
 }

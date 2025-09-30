@@ -13,7 +13,9 @@ import {
   MenuOutlined,
   LoginOutlined,
   MessageOutlined,
-  CodeOutlined
+  CodeOutlined,
+  FileTextOutlined,
+  CommentOutlined
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { navigationRoutes } from '@/lib/navigation';
@@ -61,7 +63,30 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
   const navItems = [
     { key: 'home', label: '首页', path: navigationRoutes.home, icon: <HomeOutlined />, requireAuth: false },
     { key: 'store', label: '商城', path: '/store', icon: <ShoppingCartOutlined />, requireAuth: false },
-    { key: 'forum', label: '论坛', path: navigationRoutes.community, icon: <TeamOutlined />, requireAuth: false },
+    { 
+      key: 'forum', 
+      label: '论坛', 
+      path: navigationRoutes.community, 
+      icon: <TeamOutlined />, 
+      requireAuth: false,
+      hasDropdown: true,
+      dropdownItems: [
+        { 
+          key: 'forum-home', 
+          label: '论坛首页', 
+          path: navigationRoutes.community, 
+          icon: <CommentOutlined />,
+          requireAuth: false 
+        },
+        { 
+          key: 'my-posts', 
+          label: '我的发帖', 
+          path: navigationRoutes.myPosts, 
+          icon: <FileTextOutlined />,
+          requireAuth: true 
+        },
+      ]
+    },
     { key: 'chat', label: '聊天室', path: '/chat', icon: <MessageOutlined />, requireAuth: true },
     { key: 'developer', label: '开发者', path: '/developer', icon: <CodeOutlined />, requireAuth: true },
   ];
@@ -161,46 +186,133 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
 
           {/* 导航菜单 */}
           <Space size="large">
-            {navItems.map((item) => (
-              <Button
-                key={item.key}
-                type="text"
-                icon={item.icon}
-                onClick={() => handleNavClick(item)}
-                style={{
-                  color: currentPath === item.path ? '#6366f1' : '#d1d5db',
-                  fontWeight: currentPath === item.path ? 600 : 500,
-                  fontSize: '16px',
-                  height: '40px',
-                  padding: '0 16px',
-                  borderRadius: '12px',
-                  background: currentPath === item.path 
-                    ? 'rgba(99, 102, 241, 0.1)' 
-                    : 'transparent',
-                  border: currentPath === item.path 
-                    ? '1px solid rgba(99, 102, 241, 0.3)' 
-                    : '1px solid transparent',
-                  transition: 'all 0.3s ease',
-                  opacity: item.requireAuth && !isLoggedIn ? 0.6 : 1,
-                }}
-                onMouseEnter={(e) => {
-                  if (currentPath !== item.path) {
-                    e.currentTarget.style.background = 'rgba(99, 102, 241, 0.05)';
-                    e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)';
-                    e.currentTarget.style.color = '#e0e7ff';
+            {navItems.map((item) => {
+              // 如果有下拉菜单
+              if (item.hasDropdown && item.dropdownItems) {
+                const filteredItems = item.dropdownItems.filter(dropItem => !dropItem.requireAuth || isLoggedIn);
+                
+                const dropdownMenuItems = filteredItems.map((dropItem, index) => {
+                  const menuItem = {
+                    key: dropItem.key,
+                    label: (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {dropItem.icon}
+                        {dropItem.label}
+                      </span>
+                    ),
+                    onClick: () => router.push(dropItem.path),
+                  };
+                  
+                  // 如果有多个菜单项且这是第一项（论坛首页），添加分隔线
+                  if (filteredItems.length > 1 && index === 0 && isLoggedIn) {
+                    return [menuItem, { type: 'divider' as const, key: `divider-${index}` }];
                   }
-                }}
-                onMouseLeave={(e) => {
-                  if (currentPath !== item.path) {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.borderColor = 'transparent';
-                    e.currentTarget.style.color = '#d1d5db';
-                  }
-                }}
-              >
-                {item.label}
-              </Button>
-            ))}
+                  
+                  return menuItem;
+                }).flat();
+
+                return (
+                  <Dropdown
+                    key={item.key}
+                    menu={{ 
+                      items: dropdownMenuItems,
+                      style: {
+                        background: 'rgba(31, 41, 55, 0.95)',
+                        backdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(99, 102, 241, 0.2)',
+                        borderRadius: '12px',
+                        padding: '8px',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                        minWidth: '160px',
+                      }
+                    }}
+                    placement="bottom"
+                    trigger={['hover']}
+                    overlayClassName="forum-dropdown"
+                  >
+                    <Button
+                      type="text"
+                      icon={item.icon}
+                      onClick={() => handleNavClick(item)}
+                      style={{
+                        color: currentPath === item.path ? '#6366f1' : '#d1d5db',
+                        fontWeight: currentPath === item.path ? 600 : 500,
+                        fontSize: '16px',
+                        height: '40px',
+                        padding: '0 16px',
+                        borderRadius: '12px',
+                        background: currentPath === item.path 
+                          ? 'rgba(99, 102, 241, 0.1)' 
+                          : 'transparent',
+                        border: currentPath === item.path 
+                          ? '1px solid rgba(99, 102, 241, 0.3)' 
+                          : '1px solid transparent',
+                        transition: 'all 0.3s ease',
+                        opacity: item.requireAuth && !isLoggedIn ? 0.6 : 1,
+                      }}
+                      onMouseEnter={(e) => {
+                        if (currentPath !== item.path) {
+                          e.currentTarget.style.background = 'rgba(99, 102, 241, 0.05)';
+                          e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)';
+                          e.currentTarget.style.color = '#e0e7ff';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (currentPath !== item.path) {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.borderColor = 'transparent';
+                          e.currentTarget.style.color = '#d1d5db';
+                        }
+                      }}
+                    >
+                      {item.label}
+                    </Button>
+                  </Dropdown>
+                );
+              }
+
+              // 普通按钮
+              return (
+                <Button
+                  key={item.key}
+                  type="text"
+                  icon={item.icon}
+                  onClick={() => handleNavClick(item)}
+                  style={{
+                    color: currentPath === item.path ? '#6366f1' : '#d1d5db',
+                    fontWeight: currentPath === item.path ? 600 : 500,
+                    fontSize: '16px',
+                    height: '40px',
+                    padding: '0 16px',
+                    borderRadius: '12px',
+                    background: currentPath === item.path 
+                      ? 'rgba(99, 102, 241, 0.1)' 
+                      : 'transparent',
+                    border: currentPath === item.path 
+                      ? '1px solid rgba(99, 102, 241, 0.3)' 
+                      : '1px solid transparent',
+                    transition: 'all 0.3s ease',
+                    opacity: item.requireAuth && !isLoggedIn ? 0.6 : 1,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (currentPath !== item.path) {
+                      e.currentTarget.style.background = 'rgba(99, 102, 241, 0.05)';
+                      e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)';
+                      e.currentTarget.style.color = '#e0e7ff';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (currentPath !== item.path) {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.borderColor = 'transparent';
+                      e.currentTarget.style.color = '#d1d5db';
+                    }
+                  }}
+                >
+                  {item.label}
+                </Button>
+              );
+            })}
           </Space>
         </div>
 

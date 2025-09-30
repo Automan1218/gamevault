@@ -4,18 +4,19 @@ import {ENV} from '@/config/env';
 
 // 根据后端实际的响应结构定义类型
 export interface Post {
-    postId: number;
+    contentId: number;  // 匹配后端的contentId
     title: string;
     body: string;
     bodyPlain?: string;
     authorId: number;
-    authorName?: string;
-    authorNickname?: string;
+    authorUsername?: string;  // 匹配后端的authorUsername
+    authorEmail?: string;     // 匹配后端的authorEmail
     viewCount: number;
     likeCount: number;
-    replyCount: number;
+    replyCount?: number;      // 可选，因为后端可能没有实现
     createdDate: string;
     updatedDate: string;
+    status: string;           // 匹配后端的status字段
 }
 
 export interface PostListResponse {
@@ -32,13 +33,13 @@ export interface CreatePostRequest {
 }
 
 export class PostsApi {
-    // 获取帖子列表（分页）- 对应 GET /api/posts
+    // 获取帖子列表（分页）- 对应 GET /api/forum/posts
     static async getPosts(
         page: number = 0,
         size: number = ENV.DEFAULT_PAGE_SIZE
     ): Promise<PostListResponse> {
         try {
-            return await apiClient.get<PostListResponse>('/posts', {
+            return await apiClient.get<PostListResponse>('/forum/posts', {
                 page,
                 size: Math.min(size, ENV.MAX_PAGE_SIZE)
             });
@@ -48,10 +49,10 @@ export class PostsApi {
         }
     }
 
-    // 根据ID获取帖子详情 - 对应 GET /api/posts/{id}
+    // 根据ID获取帖子详情 - 对应 GET /api/forum/posts/{id}
     static async getPostById(id: number): Promise<Post> {
         try {
-            const response = await apiClient.get<{ post: Post }>(`/posts/${id}`);
+            const response = await apiClient.get<{ post: Post }>(`/forum/posts/${id}`);
             return response.post;
         } catch (error) {
             console.error(`Failed to fetch post ${id}:`, error);
@@ -59,10 +60,10 @@ export class PostsApi {
         }
     }
 
-    // 创建新帖子 - 对应 POST /api/posts
+    // 创建新帖子 - 对应 POST /api/forum/posts
     static async createPost(postData: CreatePostRequest): Promise<Post> {
         try {
-            const response = await apiClient.authenticatedRequest<{ post: Post }>('/posts', postData,
+            const response = await apiClient.authenticatedRequest<{ post: Post }>('/forum/posts', postData,
                 {
                     method: 'POST'
                 }
@@ -74,14 +75,14 @@ export class PostsApi {
         }
     }
 
-    // 搜索帖子 - 对应 GET /api/posts/search
+    // 搜索帖子 - 对应 GET /api/forum/posts/search
     static async searchPosts(
         keyword: string,
         page: number = 0,
         size: number = ENV.DEFAULT_PAGE_SIZE
     ): Promise<PostListResponse> {
         try {
-            return await apiClient.get<PostListResponse>('/posts/search', {
+            return await apiClient.get<PostListResponse>('/forum/posts/search', {
                 keyword,
                 page,
                 size: Math.min(size, ENV.MAX_PAGE_SIZE)
@@ -92,10 +93,10 @@ export class PostsApi {
         }
     }
 
-    // 删除帖子 - 对应 DELETE /api/posts/{id}
+    // 删除帖子 - 对应 DELETE /api/forum/posts/{id}
     static async deletePost(id: number): Promise<void> {
         try {
-            await apiClient.delete(`/posts/${id}`);
+            await apiClient.delete(`/forum/posts/${id}`);
         } catch (error) {
             console.error(`Failed to delete post ${id}:`, error);
             throw new Error('删除帖子失败');
@@ -108,11 +109,10 @@ export class PostsApi {
     static async updatePost(id: number, postData: Partial<CreatePostRequest>): Promise<Post> {
         try {
             const response = await apiClient.authenticatedRequest<{ post: Post }>(
-                `/posts/${id}`,
+                `/forum/posts/${id}`,
+                postData,
                 {
-                    method: 'PUT',
-                    body: JSON.stringify(postData),
-
+                    method: 'PUT'
                 }
             );
             return response.post;
@@ -129,8 +129,12 @@ export class PostsApi {
         size: number = ENV.DEFAULT_PAGE_SIZE
     ): Promise<PostListResponse> {
         try {
-            const response = await apiClient.authenticatedRequest<PostListResponse>(
-                `/posts/user/${userId}?page=${page}&size=${size}`
+            const response = await apiClient.get<PostListResponse>(
+                `/forum/posts/user/${userId}`,
+                {
+                    page,
+                    size: Math.min(size, ENV.MAX_PAGE_SIZE)
+                }
             );
             return response;
         } catch (error) {
@@ -139,10 +143,10 @@ export class PostsApi {
         }
     }
 
-// 点赞帖子
+// 点赞帖子 (暂时注释，等后端实现)
     static async likePost(id: number): Promise<void> {
         try {
-            await apiClient.authenticatedRequest(`/posts/${id}/like`, {
+            await apiClient.authenticatedRequest(`/forum/posts/${id}/like`, undefined, {
                 method: 'POST',
             });
         } catch (error) {
@@ -151,10 +155,10 @@ export class PostsApi {
         }
     }
 
-// 取消点赞
+// 取消点赞 (暂时注释，等后端实现)
     static async unlikePost(id: number): Promise<void> {
         try {
-            await apiClient.authenticatedRequest(`/posts/${id}/like`, {
+            await apiClient.authenticatedRequest(`/forum/posts/${id}/like`, undefined, {
                 method: 'DELETE',
             });
         } catch (error) {

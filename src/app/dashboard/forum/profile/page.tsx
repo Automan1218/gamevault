@@ -1,11 +1,10 @@
-// src/app/my-posts/page.tsx
+// src/app/dashboard/forum/profile/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Menubar } from '@/components/layout';
 import {
-    ProLayout,
-    PageContainer,
     ProCard,
     StatisticCard,
 } from '@ant-design/pro-components';
@@ -292,49 +291,14 @@ export default function MyPostsPage() {
 
         return (
             <ConfigProvider theme={darkMode ? darkTheme : undefined}>
-            <ProLayout
-                title="GameVault"
-        logo="🎮"
-        layout="top"
-        contentWidth="Fixed"
-        fixedHeader
-        navTheme={darkMode ? "realDark" : "light"}
-        route={{
-            path: '/',
-                routes: [
-                { path: '/', name: '首页' },
-                { path: '/my-posts', name: '我的发帖' },
-                { path: '/profile', name: '个人中心' },
-            ],
-        }}
-        rightContentRender={() => (
-            <Space>
-                <Avatar icon={<UserOutlined />}>
-        {username?.charAt(0).toUpperCase()}
-        </Avatar>
-        <Button
-        type="text"
-        onClick={() => setDarkMode(!darkMode)}
-        icon={darkMode ? '☀️' : '🌙'}
-        />
-        </Space>
-    )}
-    >
-        <PageContainer
-            header={{
-            title: '我的发帖',
-                breadcrumb: {
-                items: [
-                    { title: '首页' },
-                    { title: '我的发帖' },
-                ],
-            },
-        }}
-        style={{
-            background: darkMode ? '#0d0d0d' : '#f0f2f5',
-                minHeight: '100vh',
-        }}
-    >
+                {/* 顶部导航栏 */}
+                <Menubar currentPath="/dashboard/forum/profile" />
+                
+                <div style={{ 
+                    background: darkMode ? '#0a0a0a' : '#f0f2f5', 
+                    minHeight: '100vh', 
+                    padding: '96px 24px 24px 24px' // 顶部增加64px为Menubar留出空间
+                }}>
         {/* 用户信息卡片 */}
         <ProCard style={{ marginBottom: 24 }}>
         <Row gutter={24} align="middle">
@@ -481,8 +445,7 @@ export default function MyPostsPage() {
         <p>确定要删除帖子《{selectedPost?.title}》吗？</p>
         <p>删除后将无法恢复。</p>
         </Modal>
-        </PageContainer>
-        </ProLayout>
+                </div>
         </ConfigProvider>
     );
     }
