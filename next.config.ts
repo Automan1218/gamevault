@@ -10,9 +10,7 @@ const nextConfig: NextConfig = {
         ]
     },
     experimental: {
-
-        // turbopack: false
-        esmExternals: 'loose'
+        // esmExternals: 'loose'
     },
     transpilePackages: [
         'antd',

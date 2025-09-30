@@ -62,7 +62,11 @@ export class PostsApi {
     // 创建新帖子 - 对应 POST /api/posts
     static async createPost(postData: CreatePostRequest): Promise<Post> {
         try {
-            const response = await apiClient.authenticatedRequest<{ post: Post }>('/posts', postData);
+            const response = await apiClient.authenticatedRequest<{ post: Post }>('/posts', postData,
+                {
+                    method: 'POST'
+                }
+            );
             return response.post;
         } catch (error) {
             console.error('Failed to create post:', error);
@@ -108,6 +112,7 @@ export class PostsApi {
                 {
                     method: 'PUT',
                     body: JSON.stringify(postData),
+
                 }
             );
             return response.post;

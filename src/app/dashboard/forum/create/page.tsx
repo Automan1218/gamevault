@@ -1,4 +1,4 @@
-// src/app/post/create/post_page.tsx
+// src/app/post/create/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -33,10 +33,17 @@ import { ProLayout } from '@ant-design/pro-components';
 import { PostsApi, CreatePostRequest } from '@/lib/api/posts';
 import { AuthApi } from '@/lib/api/auth';
 import Divider from 'antd/es/divider';
+import {navigationRoutes} from "@/lib/navigation";
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
+
+interface CreatePostPageProps {
+    title: string;
+    body: string;
+    content: string;
+}
 
 export default function CreatePostPage() {
     const router = useRouter();
@@ -75,7 +82,7 @@ export default function CreatePostPage() {
     ];
 
     // 提交帖子
-    const handleSubmit = async (values: any) => {
+    const handleSubmit = async (values: CreatePostPageProps) => {
         try {
             setLoading(true);
 
@@ -90,10 +97,15 @@ export default function CreatePostPage() {
 
             // 跳转到帖子详情页
             setTimeout(() => {
-                router.push(`/post/${newPost.postId}`);
+                // router.push(`/post/${newPost.postId}`);
+                router.push(navigationRoutes.forum);
             }, 500);
-        } catch (error: any) {
-            message.error(error.message || '发布失败，请稍后重试');
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                message.error(error.message || '注册失败，请检查输入信息');
+            } else {
+                message.error('注册失败，请检查输入信息');
+            }
         } finally {
             setLoading(false);
         }
