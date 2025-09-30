@@ -1,49 +1,42 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ProTable } from "@ant-design/pro-components";
-import { App, Tabs, Badge, Button, Card, Pagination, List } from "antd";
-import { PlaySquareOutlined, ShoppingCartOutlined, EyeOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { App, Tabs, Badge, Button, Card } from "antd";
+import { PlaySquareOutlined, ShoppingCartOutlined, EyeOutlined } from "@ant-design/icons";
 import type { ProColumns } from "@ant-design/pro-components";
 import { PageContainer, GameCard, EmptyState, Menubar } from '@/components/layout';
 import { SearchForm } from '@/components/forms';
 import { ActivationCodesModal, OrderDetailModal } from '@/components/modals';
-import { navigationRoutes } from '@/lib/navigation';
-import { useRouter } from 'next/navigation';
-import { LibraryApi, OrdersApi, OwnedGame } from '@/lib/api';
+import { useLibrary } from '@/app/features/library/hooks/useLibrary';
+import { useOrders } from '@/app/features/orders/hooks/useOrders';
+import { OwnedGame } from '@/lib/api';
 import '@/components/common/animations.css';
-
-// 使用统一的类型定义，移除重复定义
 
 export default function LibraryPage() {
   const { message } = App.useApp();
-  const router = useRouter();
-  const [games, setGames] = useState<OwnedGame[]>([]);
-  const [q, setQ] = useState("");
   const [tab, setTab] = useState<string>("library");
-  const [orderDetail, setOrderDetail] = useState<any | null>(null);
-  const [orderOpen, setOrderOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  
+  // 使用 Library Hook
+  const { 
+    filteredGames, 
+    loading: libraryLoading, 
+    searchQuery, 
+    setSearchQuery 
+  } = useLibrary();
+  
+  // 使用 Orders Hook
+  const { 
+    selectedOrder, 
+    fetchOrders,
+    fetchOrderDetail, 
+    setSelectedOrder 
+  } = useOrders();
   
   // 激活码模态框状态
   const [selectedGame, setSelectedGame] = useState<OwnedGame | null>(null);
   const [codesModalOpen, setCodesModalOpen] = useState(false);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        const games = await LibraryApi.getLibrary();
-        setGames(games);
-      } catch (e: any) {
-        message.error(e?.message || "加载失败");
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [message]);
-
-  const filtered = games.filter(g => (g.title || "").toLowerCase().includes(q.toLowerCase()));
+  const [orderOpen, setOrderOpen] = useState(false);
 
   const orderColumns: ProColumns<any>[] = [
     { title: "订单ID", dataIndex: "orderId" },
@@ -62,8 +55,7 @@ export default function LibraryPage() {
         }}
         onClick={async () => {
           try {
-            const order = await OrdersApi.getOrderById(r.orderId);
-            setOrderDetail(order);
+            await fetchOrderDetail(r.orderId);
             setOrderOpen(true);
           } catch (error: any) {
             message.error(error?.message || '获取详情失败');
@@ -104,11 +96,11 @@ export default function LibraryPage() {
           <>
             <SearchForm
               placeholder="搜索游戏"
-              onSearch={setQ}
-              onChange={setQ}
-              value={q}
+              onSearch={setSearchQuery}
+              onChange={setSearchQuery}
+              value={searchQuery}
             />
-            {loading ? (
+            {libraryLoading ? (
               <div style={{ 
                 display: "grid", 
                 gridTemplateColumns: "repeat(auto-fill, minmax(320px,1fr))", 
@@ -126,7 +118,7 @@ export default function LibraryPage() {
                   />
                 ))}
               </div>
-            ) : filtered.length === 0 ? (
+            ) : filteredGames.length === 0 ? (
               <EmptyState
                 title="暂无游戏"
                 description="开始您的游戏之旅，探索精彩世界"
@@ -139,7 +131,7 @@ export default function LibraryPage() {
                 gap: 28,
                 padding: '8px 0'
               }}>
-                {filtered.map((g, index) => (
+                {filteredGames.map((g, index) => (
                   <GameCard
                     key={g.gameId}
                     gameId={g.gameId}
@@ -177,7 +169,7 @@ export default function LibraryPage() {
               try {
                 const currentPage = params.current ? params.current - 1 : 0;
                 const pageSize = params.pageSize || 10;
-                const response = await OrdersApi.getOrders(currentPage, pageSize);
+                const response = await fetchOrders(currentPage, pageSize);
                 return { 
                   success: true, 
                   data: response.items, 
@@ -206,8 +198,11 @@ export default function LibraryPage() {
       {/* 订单详情模态框 */}
       <OrderDetailModal
         open={orderOpen}
-        onClose={() => setOrderOpen(false)}
-        orderDetail={orderDetail}
+        onClose={() => {
+          setOrderOpen(false);
+          setSelectedOrder(null);
+        }}
+        orderDetail={selectedOrder}
       />
       </PageContainer>
     </>

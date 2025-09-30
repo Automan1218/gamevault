@@ -3,22 +3,21 @@
 
 import React, { useState, useEffect } from 'react';
 import { App, Button, Alert } from 'antd';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { AuthApi } from '@/lib/api/auth';
+import { useSearchParams } from 'next/navigation';
+import { useAuth } from '@/app/features/auth/hooks/useAuth';
 import { LoginRequest, RegisterRequest } from '@/types/api';
 import { LoginForm } from '@/components/forms';
-import { CustomTitle, CustomButton } from '@/components/ui';
+import { CustomTitle } from '@/components/ui';
 import { cardStyle } from '@/components/common/theme';
 import '@/components/common/animations.css';
 
 export default function LoginPage() {
     const { message } = App.useApp();
-    const router = useRouter();
     const searchParams = useSearchParams();
     const redirect = searchParams.get('redirect') || '/dashboard/library';
     const messageParam = searchParams.get('message');
     
-    const [loading, setLoading] = useState(false);
+    const { login, register, checkEmailExists, checkUsernameExists, loading } = useAuth();
     const [showMessage, setShowMessage] = useState<string | null>(null);
 
     // 检查URL参数并显示相应消息
@@ -32,41 +31,21 @@ export default function LoginPage() {
 
     // 处理登录
     const handleLogin = async (values: LoginRequest) => {
-        try {
-            setLoading(true);
-            const response = await AuthApi.login(values);
-            if (response.token) {
-                // 统一使用 auth_token 作为存储键名
-                localStorage.setItem('auth_token', response.token);
-                message.success('登录成功！');
-                router.push(redirect);
-            } else {
-                message.error('登录失败，请检查用户名和密码');
-            }
-        } catch (error: any) {
-            message.error(error.message || '登录失败');
-        } finally {
-            setLoading(false);
+        const result = await login(values, redirect);
+        if (result.success) {
+            message.success(result.message);
+        } else {
+            message.error(result.message);
         }
     };
 
     // 处理注册
     const handleRegister = async (values: RegisterRequest) => {
-        try {
-            setLoading(true);
-            const response = await AuthApi.register(values);
-            if (response.token) {
-                // 注册成功后自动登录
-                localStorage.setItem('auth_token', response.token);
-                message.success('注册成功！');
-                router.push(redirect);
-            } else {
-                message.success('注册成功！请登录');
-            }
-        } catch (error: any) {
-            message.error(error.message || '注册失败');
-        } finally {
-            setLoading(false);
+        const result = await register(values, redirect);
+        if (result.success) {
+            message.success(result.message);
+        } else {
+            message.error(result.message);
         }
     };
 
@@ -80,8 +59,8 @@ export default function LoginPage() {
         if (!value) return Promise.resolve();
         
         try {
-            const result = await AuthApi.checkEmail(value);
-            if (result.exists) {
+            const exists = await checkEmailExists(value);
+            if (exists) {
                 return Promise.reject(new Error('该邮箱已被注册'));
             }
             return Promise.resolve();
@@ -96,8 +75,8 @@ export default function LoginPage() {
         if (!value) return Promise.resolve();
         
         try {
-            const result = await AuthApi.checkUsername(value);
-            if (result.exists) {
+            const exists = await checkUsernameExists(value);
+            if (exists) {
                 return Promise.reject(new Error('该用户名已被使用'));
             }
             return Promise.resolve();
@@ -154,7 +133,7 @@ export default function LoginPage() {
             <div style={{ textAlign: 'center', marginTop: 24 }}>
                 <Button 
                     type="default" 
-                    onClick={() => router.push('/')}
+                    onClick={() => window.location.href = '/'}
                     style={{
                         color: '#6b7280',
                         fontSize: '0.9rem',
