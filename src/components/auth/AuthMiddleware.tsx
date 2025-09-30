@@ -11,11 +11,11 @@ interface AuthMiddlewareProps {
 
 // 需要认证的页面路径
 const PROTECTED_ROUTES = [
-  '/library',
-  '/orders',
-  '/settings',
-  '/chat',
-  '/developer',
+  '/dashboard/library',
+  '/dashboard/orders',
+  '/dashboard/settings',
+  '/dashboard/chat',
+  '/dashboard/developer',
 ];
 
 // 不需要认证的页面路径
@@ -56,7 +56,7 @@ export function AuthMiddleware({ children }: AuthMiddlewareProps) {
     if (isAuthenticated && pathname.startsWith('/auth/login')) {
       const urlParams = new URLSearchParams(window.location.search);
       const redirect = urlParams.get('redirect');
-      router.push(redirect || '/library');
+      router.push(redirect || '/dashboard/library');
       return;
     }
   }, [isAuthenticated, isLoading, pathname, router]);

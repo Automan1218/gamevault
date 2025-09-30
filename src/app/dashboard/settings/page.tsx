@@ -592,7 +592,7 @@ export default function SettingsPage() {
   return (
     <>
       {/* 顶部导航栏 */}
-      <Menubar currentPath="/settings" />
+      <Menubar currentPath="/dashboard/settings" />
 
       <PageContainer
         title="账户设置"

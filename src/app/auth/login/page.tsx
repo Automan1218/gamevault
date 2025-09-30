@@ -1,65 +1,50 @@
-// src/app/login/page.tsx
-'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import {
-    Button,
-    Card,
-    Checkbox,
-    Col,
-    ConfigProvider,
-    Divider,
-    Form,
-    Input,
-    message,
-    Row,
-    Space,
-    Tabs,
-    theme,
-    Typography,
-} from 'antd';
-import {
-    GithubOutlined,
-    GoogleOutlined,
-    LockOutlined,
-    MailOutlined,
-    QqOutlined,
-    UserOutlined,
-    WechatOutlined,
-} from '@ant-design/icons';
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import { App, Button, Alert } from 'antd';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthApi } from '@/lib/api/auth';
 import { LoginRequest, RegisterRequest } from '@/types/api';
-import {navigationRoutes} from "@/lib/navigation";
-
-const { Title, Text, Link } = Typography;
-const { TabPane } = Tabs;
+import { LoginForm } from '@/components/forms';
+import { CustomTitle, CustomButton } from '@/components/ui';
+import { cardStyle } from '@/components/common/theme';
+import '@/components/common/animations.css';
 
 export default function LoginPage() {
+    const { message } = App.useApp();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirect = searchParams.get('redirect') || '/dashboard/library';
+    const messageParam = searchParams.get('message');
+    
     const [loading, setLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState('login');
-    const [loginForm] = Form.useForm();
-    const [registerForm] = Form.useForm();
+    const [showMessage, setShowMessage] = useState<string | null>(null);
+
+    // 检查URL参数并显示相应消息
+    useEffect(() => {
+        if (messageParam === 'password_changed') {
+            setShowMessage('密码修改成功，请重新登录');
+        } else if (messageParam === 'email_changed') {
+            setShowMessage('邮箱修改成功，请重新登录');
+        }
+    }, [messageParam]);
 
     // 处理登录
     const handleLogin = async (values: LoginRequest) => {
         try {
             setLoading(true);
             const response = await AuthApi.login(values);
-
-            message.success('登录成功！');
-
-            // 跳转到首页或之前的页面
-            setTimeout(() => {
-                router.push(navigationRoutes.forum);
-            }, 500);
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                message.error(error.message || '注册失败，请检查输入信息');
+            if (response.token) {
+                // 统一使用 auth_token 作为存储键名
+                localStorage.setItem('auth_token', response.token);
+                message.success('登录成功！');
+                router.push(redirect);
             } else {
-                message.error('注册失败，请检查输入信息');
+                message.error('登录失败，请检查用户名和密码');
             }
+        } catch (error: any) {
+            message.error(error.message || '登录失败');
         } finally {
             setLoading(false);
         }
@@ -69,272 +54,128 @@ export default function LoginPage() {
     const handleRegister = async (values: RegisterRequest) => {
         try {
             setLoading(true);
-
-            const registerData: RegisterRequest = {
-                username: values.username,
-                password: values.password,
-                email: values.email,
-                nickname: values.nickname,
-            };
-
-            const response = await AuthApi.register(registerData);
-
-            message.success('注册成功！即将跳转到首页...');
-
-            setTimeout(() => {
-                router.push('/');
-            }, 1000);
-        } catch (error) {
-            if (error instanceof Error) {
-                message.error(error.message || '注册失败，请检查输入信息');
-            } else {
-                message.error('注册失败，请检查输入信息');
-            }
+            await AuthApi.register(values);
+            message.success('注册成功！请登录');
+        } catch (error: any) {
+            message.error(error.message || '注册失败');
         } finally {
             setLoading(false);
         }
     };
 
-    // 第三方登录（模拟）
+    // 忘记密码处理
+    const handleForgotPassword = () => {
+        message.info('忘记密码功能开发中...');
+    };
 
-
-    // 忘记密码
-    const handleForgotPassword = async () => {
-        const email = loginForm.getFieldValue('username');
-        if (!email) {
-            message.warning('请先输入邮箱地址');
-            return;
-        }
-
+    // 邮箱唯一性验证
+    const validateEmail = async (rule: any, value: string) => {
+        if (!value) return Promise.resolve();
+        
         try {
-            await AuthApi.requestPasswordReset(email);
-            message.success('密码重置邮件已发送，请查收');
+            const response = await fetch(`/api/auth/check-email?email=${encodeURIComponent(value)}`);
+            const data = await response.json();
+            
+            if (response.status === 200 && data.exists) {
+                return Promise.reject(new Error('该邮箱已被注册'));
+            }
+            return Promise.resolve();
         } catch (error) {
-            message.error('发送失败，请稍后重试');
+            console.error('邮箱验证失败:', error);
+            return Promise.resolve(); // 验证失败时不阻止提交
         }
     };
 
-    const darkTheme = {
-        algorithm: theme.darkAlgorithm,
-        token: {
-            colorPrimary: '#FF6B6B',
-            colorBgContainer: '#1a1a1a',
-            borderRadius: 8,
-        },
+    // 用户名唯一性验证
+    const validateUsername = async (rule: any, value: string) => {
+        if (!value) return Promise.resolve();
+        
+        try {
+            const response = await fetch(`/api/auth/check-username?username=${encodeURIComponent(value)}`);
+            const data = await response.json();
+            
+            if (response.status === 200 && data.exists) {
+                return Promise.reject(new Error('该用户名已被使用'));
+            }
+            return Promise.resolve();
+        } catch (error) {
+            console.error('用户名验证失败:', error);
+            return Promise.resolve(); // 验证失败时不阻止提交
+        }
     };
 
+
+    // 右侧卡片内容（布局已由 (auth)/layout.tsx 提供）
     return (
-        <ConfigProvider theme={darkTheme}>
-            <div style={{
-                minHeight: '100vh',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '20px',
-            }}>
-                <Card
+        <div
+            className="login-card"
+            style={{
+                width: '100%',
+                maxWidth: 500,
+                padding: '48px',
+                ...cardStyle,
+            }}
+        >
+            {/* 表单标题 */}
+            <div style={{ textAlign: 'center', marginBottom: 40 }}>
+                <CustomTitle level={2} style={{ fontSize: '2rem' }}>
+                    欢迎回来
+                </CustomTitle>
+            </div>
+
+            {/* 显示重定向消息 */}
+            {showMessage && (
+                <Alert
+                    message={showMessage}
+                    type="success"
+                    showIcon
                     style={{
-                        width: '100%',
-                        maxWidth: 480,
-                        borderRadius: 12,
-                        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.2)',
+                        marginBottom: 24,
+                        background: 'rgba(34, 197, 94, 0.1)',
+                        border: '1px solid rgba(34, 197, 94, 0.3)',
+                        borderRadius: 8,
+                    }}
+                />
+            )}
+
+            <LoginForm
+                onLogin={handleLogin}
+                onRegister={handleRegister}
+                loading={loading}
+                onForgotPassword={handleForgotPassword}
+                validateEmail={validateEmail}
+                validateUsername={validateUsername}
+            />
+
+            {/* 返回首页 */}
+            <div style={{ textAlign: 'center', marginTop: 24 }}>
+                <Button 
+                    type="default" 
+                    onClick={() => router.push('/')}
+                    style={{
+                        color: '#6b7280',
+                        fontSize: '0.9rem',
+                        border: '1px solid rgba(75, 85, 99, 0.3)',
+                        background: 'rgba(31, 41, 55, 0.5)',
+                        borderRadius: '8px',
+                        padding: '8px 16px',
+                        height: 'auto',
+                        transition: 'all 0.3s ease',
+                    }}
+                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                        e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+                        e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.4)';
+                        e.currentTarget.style.color = '#9ca3af';
+                    }}
+                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                        e.currentTarget.style.background = 'rgba(31, 41, 55, 0.5)';
+                        e.currentTarget.style.borderColor = 'rgba(75, 85, 99, 0.3)';
+                        e.currentTarget.style.color = '#6b7280';
                     }}
                 >
-                    <div style={{ textAlign: 'center', marginBottom: 32 }}>
-                        <div style={{ fontSize: 48, marginBottom: 16 }}>🎮</div>
-                        <Title level={2} style={{ margin: 0 }}>GameVault</Title>
-                        <Text type="secondary">游戏玩家的交流社区</Text>
-                    </div>
-
-                    <Tabs
-                        activeKey={activeTab}
-                        onChange={setActiveTab}
-                        centered
-                        size="large"
-                    >
-                        <TabPane tab="登录" key="login">
-                            <Form
-                                form={loginForm}
-                                name="login"
-                                onFinish={handleLogin}
-                                autoComplete="off"
-                                size="large"
-                            >
-                                <Form.Item
-                                    name="username"
-                                    rules={[{ required: true, message: '请输入用户名或邮箱' }]}
-                                >
-                                    <Input
-                                        prefix={<UserOutlined />}
-                                        placeholder="用户名或邮箱"
-                                    />
-                                </Form.Item>
-
-                                <Form.Item
-                                    name="password"
-                                    rules={[{ required: true, message: '请输入密码' }]}
-                                >
-                                    <Input.Password
-                                        prefix={<LockOutlined />}
-                                        placeholder="密码"
-                                    />
-                                </Form.Item>
-
-                                <Form.Item>
-                                    <Row justify="space-between">
-                                        <Col>
-                                            <Form.Item name="remember" valuePropName="checked" noStyle>
-                                                <Checkbox>记住我</Checkbox>
-                                            </Form.Item>
-                                        </Col>
-                                        <Col>
-                                            <Link onClick={handleForgotPassword}>忘记密码？</Link>
-                                        </Col>
-                                    </Row>
-                                </Form.Item>
-
-                                <Form.Item>
-                                    <Button
-                                        type="primary"
-                                        htmlType="submit"
-                                        block
-                                        loading={loading}
-                                        style={{
-                                            height: 48,
-                                            background: 'linear-gradient(90deg, #FF6B6B 0%, #4ECDC4 100%)',
-                                        }}
-                                    >
-                                        登录
-                                    </Button>
-                                </Form.Item>
-
-
-                            </Form>
-                        </TabPane>
-
-                        <TabPane tab="注册" key="register">
-                            <Form
-                                form={registerForm}
-                                name="register"
-                                onFinish={handleRegister}
-                                autoComplete="off"
-                                size="large"
-                            >
-                                <Form.Item
-                                    name="username"
-                                    rules={[
-                                        { required: true, message: '请输入用户名' },
-                                        { min: 3, message: '用户名至少3个字符' },
-                                        { max: 20, message: '用户名最多20个字符' },
-                                        { pattern: /^[a-zA-Z0-9_]+$/, message: '用户名只能包含字母、数字和下划线' },
-                                    ]}
-                                >
-                                    <Input
-                                        prefix={<UserOutlined />}
-                                        placeholder="用户名"
-                                    />
-                                </Form.Item>
-
-                                <Form.Item
-                                    name="email"
-                                    rules={[
-                                        { required: true, message: '请输入邮箱' },
-                                        { type: 'email', message: '请输入有效的邮箱地址' },
-                                    ]}
-                                >
-                                    <Input
-                                        prefix={<MailOutlined />}
-                                        placeholder="邮箱"
-                                    />
-                                </Form.Item>
-
-                                <Form.Item
-                                    name="nickname"
-                                    rules={[
-                                        { max: 30, message: '昵称最多30个字符' },
-                                    ]}
-                                >
-                                    <Input
-                                        prefix={<UserOutlined />}
-                                        placeholder="昵称（选填）"
-                                    />
-                                </Form.Item>
-
-                                <Form.Item
-                                    name="password"
-                                    rules={[
-                                        { required: true, message: '请输入密码' },
-                                        { min: 6, message: '密码至少6个字符' },
-                                    ]}
-                                >
-                                    <Input.Password
-                                        prefix={<LockOutlined />}
-                                        placeholder="密码"
-                                    />
-                                </Form.Item>
-
-                                <Form.Item
-                                    name="confirmPassword"
-                                    dependencies={['password']}
-                                    rules={[
-                                        { required: true, message: '请确认密码' },
-                                        ({ getFieldValue }) => ({
-                                            validator(_, value) {
-                                                if (!value || getFieldValue('password') === value) {
-                                                    return Promise.resolve();
-                                                }
-                                                return Promise.reject(new Error('两次输入的密码不一致'));
-                                            },
-                                        }),
-                                    ]}
-                                >
-                                    <Input.Password
-                                        prefix={<LockOutlined />}
-                                        placeholder="确认密码"
-                                    />
-                                </Form.Item>
-
-                                <Form.Item
-                                    name="agreement"
-                                    valuePropName="checked"
-                                    rules={[
-                                        {
-                                            validator: (_, value) =>
-                                                value ? Promise.resolve() : Promise.reject(new Error('请阅读并同意用户协议')),
-                                        },
-                                    ]}
-                                >
-                                    <Checkbox>
-                                        我已阅读并同意 <Link>用户协议</Link> 和 <Link>隐私政策</Link>
-                                    </Checkbox>
-                                </Form.Item>
-
-                                <Form.Item>
-                                    <Button
-                                        type="primary"
-                                        htmlType="submit"
-                                        block
-                                        loading={loading}
-                                        style={{
-                                            height: 48,
-                                            background: 'linear-gradient(90deg, #FF6B6B 0%, #4ECDC4 100%)',
-                                        }}
-                                    >
-                                        注册
-                                    </Button>
-                                </Form.Item>
-                            </Form>
-                        </TabPane>
-                    </Tabs>
-
-                    <div style={{ textAlign: 'center', marginTop: 24 }}>
-                        <Button type="link" onClick={() => router.push('/')}>
-                            返回首页
-                        </Button>
-                    </div>
-                </Card>
+                    ← 返回首页
+                </Button>
             </div>
-        </ConfigProvider>
+        </div>
     );
 }

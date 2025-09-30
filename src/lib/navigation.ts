@@ -49,11 +49,13 @@ export const navigationRoutes = {
     profile: (id: number) => `/profile/${id}`,
     myPosts: '/dashboard/forum/profile',
     favorites: '/favorites',
-    settings: '/settings',
+    settings: '/dashboard/settings',
     notifications: '/notifications',
-    library: '/library', // 游戏库路由
+    library: '/dashboard/library', // 游戏库路由
+    orders: '/dashboard/orders', // 订单路由
 
     // 板块相关 - 更新跳转目标
+    games: '/dashboard/forum/category/games',        // 游戏板块跳转到forum的游戏分类
     shop: '/dashboard/forum/category/games',        // 游戏板块跳转到forum的游戏分类
 
 
@@ -97,7 +99,9 @@ export const breadcrumbConfig = {
     '/my-posts': '我的发帖',
     '/post/create': '发布新帖',
     '/favorites': '我的收藏',
-    '/settings': '设置',
+    '/dashboard/settings': '设置',
+    '/dashboard/library': '游戏库',
+    '/dashboard/orders': '订单',
     '/notifications': '通知',
 
     // 板块相关

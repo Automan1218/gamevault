@@ -113,7 +113,7 @@ export default function LibraryPage() {
   return (
     <>
       {/* 顶部导航栏 */}
-      <Menubar currentPath="/library" />
+      <Menubar currentPath="/dashboard/library" />
 
       <PageContainer
         title="我的游戏库"

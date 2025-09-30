@@ -145,7 +145,7 @@ export default function ForumPage() {
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
             }}
-            bodyStyle={{ padding: '24px' }}
+            styles={{ body: { padding: '24px' } }}
             onClick={() => router.push(navigationRoutes.postDetail(post.contentId))}
         >
             <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -298,7 +298,7 @@ export default function ForumPage() {
                     ...cardStyle,
                     marginBottom: 20,
                 }}
-                bodyStyle={{ padding: '16px' }}
+                styles={{ body: { padding: '16px' } }}
             >
                 <List
                     dataSource={hotTopics}
@@ -365,7 +365,7 @@ export default function ForumPage() {
                     ...cardStyle,
                     marginBottom: 20,
                 }}
-                bodyStyle={{ padding: '16px' }}
+                styles={{ body: { padding: '16px' } }}
             >
                 <List
                     dataSource={activeUsers}
@@ -477,13 +477,13 @@ export default function ForumPage() {
                                                     position: 'relative',
                                                     overflow: 'hidden',
                                                 }}
-                                                bodyStyle={{ 
+                                                styles={{ body: { 
                                                     padding: '40px',
                                                     height: '100%',
                                                     display: 'flex',
                                                     flexDirection: 'column',
                                                     justifyContent: 'space-between',
-                                                }}
+                                                } }}
                                             >
                                                 {/* 装饰性背景 */}
                                                 <div
@@ -638,7 +638,7 @@ export default function ForumPage() {
                                     ...cardStyle,
                                     marginBottom: 24,
                                 }}
-                                bodyStyle={{ padding: '16px 24px' }}
+                                styles={{ body: { padding: '16px 24px' } }}
                             >
                                 <Space size="large">
                                     <Button
@@ -766,7 +766,7 @@ export default function ForumPage() {
                                     </Space>
                                 }
                                 style={cardStyle}
-                                bodyStyle={{ padding: '16px' }}
+                                styles={{ body: { padding: '16px' } }}
                             >
                                 <div style={{ color: '#9ca3af', fontSize: '13px', lineHeight: 1.8 }}>
                                     <p style={{ margin: '8px 0' }}>• 友善交流，尊重他人</p>

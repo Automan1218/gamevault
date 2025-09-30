@@ -35,7 +35,7 @@ export default function OrdersPage() {
   }, [message]);
 
   const columns: ProColumns<OrderItemRow>[] = [
-    { title: "订单项ID", dataIndex: "orderItemId", render: (_, r) => <Link href={`/orders/${r.orderItemId}`}>{r.orderItemId}</Link> },
+    { title: "订单项ID", dataIndex: "orderItemId", render: (_, r) => <Link href={`/src/app/dashboard/orders/${r.orderItemId}`}>{r.orderItemId}</Link> },
     { title: "订单ID", dataIndex: "orderId" },
     { title: "游戏ID", dataIndex: "gameId" },
     { title: "下单时间", dataIndex: "orderDate", valueType: "dateTime" },
@@ -47,7 +47,7 @@ export default function OrdersPage() {
   return (
     <>
       {/* 顶部导航栏 */}
-      <Menubar currentPath="/orders" />
+      <Menubar currentPath="/dashboard/orders" />
       
       <PageContainer
         title="购买记录"

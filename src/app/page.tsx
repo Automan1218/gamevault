@@ -1,9 +1,720 @@
+// // src/app/post_page.tsx
+// 'use client';
+//
+// import React, { useState, useEffect } from 'react';
+// import { useRouter } from 'next/navigation';
+// import {
+//     ProLayout,
+//     PageContainer,
+// } from '@ant-design/pro-components';
+// import {
+//     Avatar,
+//     Badge,
+//     Button,
+//     Card,
+//     Col,
+//     Divider,
+//     Empty,
+//     Input,
+//     message,
+//     Row,
+//     Space,
+//     Spin,
+//     Statistic,
+//     Tabs,
+//     Tag,
+//     Typography,
+//     ConfigProvider,
+//     theme,
+//     Carousel, List,
+// } from 'antd';
+// import {
+//     AppstoreOutlined,
+//     BarChartOutlined,
+//     BellOutlined,
+//     ClockCircleOutlined,
+//     CommentOutlined,
+//     EyeOutlined,
+//     FileTextOutlined,
+//     FireOutlined,
+//     GlobalOutlined,
+//     HeartOutlined,
+//     LikeOutlined,
+//     MessageOutlined,
+//     PlusOutlined,
+//     SearchOutlined,
+//     ShareAltOutlined,
+//     StarOutlined,
+//     TagsOutlined,
+//     TeamOutlined,
+//     UserOutlined,
+// } from '@ant-design/icons';
+//
+// // Import API from your existing API files
+// import { PostsApi, Post, PostListResponse } from '@/lib/api/posts';
+// import { UsersApi, User } from '@/lib/api/users';
+// import { AuthApi } from '@/lib/api/auth';
+//
+// const { Title, Text, Paragraph } = Typography;
+// const { Search } = Input;
+// const { TabPane } = Tabs;
+//
+// export default function ForumHome() {
+//     const router = useRouter();
+//     const [darkMode, setDarkMode] = useState(true);
+//     const [loading, setLoading] = useState(false);
+//     const [searchLoading, setSearchLoading] = useState(false);
+//
+//     // 帖子数据
+//     const [posts, setPosts] = useState<Post[]>([]);
+//     const [currentPage, setCurrentPage] = useState(0);
+//     const [totalPages, setTotalPages] = useState(0);
+//     const [totalPosts, setTotalPosts] = useState(0);
+//
+//     // 用户数据
+//     const [activeUsers, setActiveUsers] = useState<User[]>([]);
+//     const [currentUser, setCurrentUser] = useState<User | null>(null);
+//
+//     // UI状态
+//     const [activeTab, setActiveTab] = useState('latest');
+//     const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+//
+//     // 论坛统计（模拟数据，可以从后端获取）
+//     const [forumStats] = useState({
+//         todayPosts: 128,
+//         onlineUsers: 892,
+//         totalUsers: 12680,
+//     });
+//
+//     // 游戏板块（模拟数据）
+//     const gameBoards = [
+//         { name: '原神', icon: '🌟', posts: 15234, online: 892, color: '#FFD700' },
+//         { name: '王者荣耀', icon: '👑', posts: 12456, online: 765, color: '#FF6B6B' },
+//         { name: '永劫无间', icon: '⚔️', posts: 9876, online: 543, color: '#4ECDC4' },
+//         { name: 'CS2', icon: '🔫', posts: 8765, online: 432, color: '#95E1D3' },
+//         { name: '崩坏：星穹铁道', icon: '🚂', posts: 7654, online: 321, color: '#A8E6CF' },
+//         { name: 'APEX英雄', icon: '🎯', posts: 6543, online: 210, color: '#FFD3B6' },
+//     ];
+//
+//     // 获取帖子列表
+//     const fetchPosts = async (page: number = 0) => {
+//         try {
+//             setLoading(true);
+//             const response: PostListResponse = await PostsApi.getPosts(page, 20);
+//
+//             if (page === 0) {
+//                 setPosts(response.posts);
+//             } else {
+//                 setPosts(prev => [...prev, ...response.posts]);
+//             }
+//
+//             setCurrentPage(response.currentPage);
+//             setTotalPages(response.totalPages);
+//             setTotalPosts(response.totalCount);
+//         } catch (error) {
+//             console.error('获取帖子失败:', error);
+//             message.error('获取帖子列表失败，请稍后重试');
+//         } finally {
+//             setLoading(false);
+//         }
+//     };
+//
+//     // 搜索帖子
+//     const handleSearch = async (keyword: string) => {
+//         if (!keyword.trim()) {
+//             fetchPosts(0);
+//             return;
+//         }
+//
+//         try {
+//             setSearchLoading(true);
+//             const response = await PostsApi.searchPosts(keyword, 0, 20);
+//             setPosts(response.posts);
+//             setCurrentPage(response.currentPage);
+//             setTotalPages(response.totalPages);
+//             message.success(`找到 ${response.totalCount} 条相关内容`);
+//         } catch (error) {
+//             console.error('搜索失败:', error);
+//             message.error('搜索失败，请稍后重试');
+//         } finally {
+//             setSearchLoading(false);
+//         }
+//     };
+//
+//     // 获取活跃用户
+//     const fetchActiveUsers = async () => {
+//         try {
+//             const users = await UsersApi.getActiveUsers(0, 5);
+//             setActiveUsers(users);
+//         } catch (error) {
+//             console.error('获取活跃用户失败:', error);
+//         }
+//     };
+//
+//     // 获取当前用户信息
+//     const fetchCurrentUser = async () => {
+//         if (AuthApi.isAuthenticated()) {
+//             try {
+//                 const user = await AuthApi.getCurrentUser();
+//                 setCurrentUser(user);
+//             } catch (error) {
+//                 console.error('获取用户信息失败:', error);
+//             }
+//         }
+//     };
+//
+//     // 删除帖子
+//     const handleDeletePost = async (postId: number) => {
+//         try {
+//             await PostsApi.deletePost(postId);
+//             message.success('删除成功');
+//             fetchPosts(currentPage);
+//         } catch (error) {
+//             message.error('删除失败');
+//         }
+//     };
+//
+//     // 点赞帖子（前端模拟，实际需要后端支持）
+//     const handleLikePost = (postId: number) => {
+//         setLikedPosts(prev => {
+//             const newSet = new Set(prev);
+//             if (newSet.has(postId)) {
+//                 newSet.delete(postId);
+//                 message.success('取消点赞');
+//             } else {
+//                 newSet.add(postId);
+//                 message.success('点赞成功');
+//             }
+//             return newSet;
+//         });
+//     };
+//
+//     // 加载更多
+//     const loadMore = () => {
+//         if (currentPage < totalPages - 1 && !loading) {
+//             fetchPosts(currentPage + 1);
+//         }
+//     };
+//
+//     // 初始化数据
+//     useEffect(() => {
+//         fetchPosts(0);
+//         // fetchActiveUsers();
+//         fetchCurrentUser();
+//     }, []);
+//
+//     // 渲染帖子卡片
+//     const renderPostCard = (post: Post) => (
+//         <Card
+//             key={post.postId}
+//             hoverable
+//             style={{
+//                 marginBottom: 16,
+//                 background: darkMode ? '#1a1a1a' : '#fff',
+//                 borderColor: darkMode ? '#333' : '#f0f0f0',
+//             }}
+//             onClick={() => router.push(`/post/${post.postId}`)}
+//         >
+//             <Space direction="vertical" style={{ width: '100%' }}>
+//                 <div>
+//                     <Space size="small">
+//                         <Tag color="volcano">游戏</Tag>
+//                         <Text type="secondary" style={{ fontSize: 12 }}>
+//                             {new Date(post.createdDate).toLocaleDateString()}
+//                         </Text>
+//                     </Space>
+//                 </div>
+//
+//                 <Title level={4} style={{
+//                     margin: '8px 0',
+//                     color: darkMode ? '#fff' : '#000',
+//                     fontSize: '18px',
+//                     fontWeight: 600,
+//                 }}>
+//                     {post.title}
+//                 </Title>
+//
+//                 {post.bodyPlain && (
+//                     <Paragraph
+//                         ellipsis={{ rows: 2 }}
+//                         style={{
+//                             margin: '8px 0',
+//                             color: darkMode ? '#999' : '#666'
+//                         }}
+//                     >
+//                         {post.bodyPlain.substring(0, 150)}...
+//                     </Paragraph>
+//                 )}
+//
+//                 <Space split={<Divider type="vertical" />}>
+//                     <Space size={4}>
+//                         <Avatar
+//                             size="small"
+//                             icon={<UserOutlined />}
+//                             style={{ backgroundColor: '#87d068' }}
+//                         />
+//                         <Text type="secondary">
+//                             {post.authorNickname || post.authorName || `用户${post.authorId}`}
+//                         </Text>
+//                     </Space>
+//                 </Space>
+//
+//                 <Row gutter={24} style={{ marginTop: 12 }}>
+//                     <Col span={6}>
+//                         <Statistic
+//                             value={post.viewCount || 0}
+//                             prefix={<EyeOutlined />}
+//                             valueStyle={{ fontSize: 14, color: darkMode ? '#a0a0a0' : '#666' }}
+//                         />
+//                     </Col>
+//                     <Col span={6}>
+//                         <Statistic
+//                             value={post.replyCount || 0}
+//                             prefix={<MessageOutlined />}
+//                             valueStyle={{ fontSize: 14, color: darkMode ? '#a0a0a0' : '#666' }}
+//                         />
+//                     </Col>
+//                     <Col span={6}>
+//                         <Statistic
+//                             value={post.likeCount + (likedPosts.has(post.postId) ? 1 : 0)}
+//                             prefix={
+//                                 <LikeOutlined
+//                                     style={{ color: likedPosts.has(post.postId) ? '#ff4d4f' : undefined }}
+//                                 />
+//                             }
+//                             valueStyle={{
+//                                 fontSize: 14,
+//                                 color: likedPosts.has(post.postId) ? '#ff4d4f' : darkMode ? '#a0a0a0' : '#666'
+//                             }}
+//                         />
+//                     </Col>
+//                     <Col span={6}>
+//                         <Space>
+//                             <Button
+//                                 type="text"
+//                                 icon={<HeartOutlined />}
+//                                 size="small"
+//                                 onClick={(e) => {
+//                                     e.stopPropagation();
+//                                     message.info('收藏功能开发中');
+//                                 }}
+//                             >
+//                                 收藏
+//                             </Button>
+//                             <Button
+//                                 type="text"
+//                                 icon={<ShareAltOutlined />}
+//                                 size="small"
+//                                 onClick={(e) => {
+//                                     e.stopPropagation();
+//                                     message.info('分享功能开发中');
+//                                 }}
+//                             >
+//                                 分享
+//                             </Button>
+//                             {currentUser && currentUser.userId === post.authorId && (
+//                                 <Button
+//                                     type="text"
+//                                     danger
+//                                     size="small"
+//                                     onClick={(e) => {
+//                                         e.stopPropagation();
+//                                         handleDeletePost(post.postId);
+//                                     }}
+//                                 >
+//                                     删除
+//                                 </Button>
+//                             )}
+//                         </Space>
+//                     </Col>
+//                 </Row>
+//             </Space>
+//         </Card>
+//     );
+//
+//     // 渲染游戏板块
+//     const renderGameBoard = (board: any) => (
+//         <Card
+//             hoverable
+//             style={{
+//                 background: `linear-gradient(135deg, ${board.color}20 0%, ${board.color}10 100%)`,
+//                 borderColor: board.color,
+//                 borderWidth: 2,
+//                 marginBottom: 16,
+//                 cursor: 'pointer',
+//             }}
+//         >
+//             <Space direction="vertical" align="center" style={{ width: '100%' }}>
+//                 <div style={{ fontSize: 48 }}>{board.icon}</div>
+//                 <Title level={5} style={{ margin: 0 }}>{board.name}</Title>
+//                 <Space>
+//                     <Text type="secondary" style={{ fontSize: 12 }}>
+//                         帖子 {board.posts}
+//                     </Text>
+//                     <Divider type="vertical" />
+//                     <Text type="success" style={{ fontSize: 12 }}>
+//                         <Badge status="processing" />
+//                         在线 {board.online}
+//                     </Text>
+//                 </Space>
+//             </Space>
+//         </Card>
+//     );
+//
+//     // 主题配置
+//     const darkTheme = {
+//         algorithm: theme.darkAlgorithm,
+//         token: {
+//             colorPrimary: '#FF6B6B',
+//             colorBgContainer: '#1a1a1a',
+//             colorBgElevated: '#262626',
+//             colorBgLayout: '#0d0d0d',
+//         },
+//     };
+//
+//     return (
+//         <ConfigProvider theme={darkMode ? darkTheme : undefined}>
+//             <ProLayout
+//                 title="GameVault"
+//                 logo="🎮"
+//                 layout="top"
+//                 contentWidth="Fixed"
+//                 fixedHeader
+//                 navTheme={darkMode ? "realDark" : "light"}
+//
+//                 route={{
+//                     path: '/',
+//                     routes: [
+//                         { path: '/home', name: '首页', icon: <AppstoreOutlined /> },
+//                         { path: '/games', name: '游戏板块', icon: <AppstoreOutlined /> },
+//                         { path: '/community', name: '社区', icon: <TeamOutlined /> },
+//                         { path: '/ranking', name: '排行榜', icon: <BarChartOutlined /> },
+//                         { path: '/news', name: '资讯', icon: <GlobalOutlined /> },
+//                     ],
+//                 }}
+//                 rightContentRender={() => (
+//                     <Space size="large">
+//                         <Search
+//                             placeholder="搜索帖子"
+//                             style={{ width: 240 }}
+//                             loading={searchLoading}
+//                             onSearch={handleSearch}
+//                             enterButton
+//                         />
+//                         <Badge count={5} dot>
+//                             <BellOutlined style={{ fontSize: 20, cursor: 'pointer' }} />
+//                         </Badge>
+//                         {currentUser ? (
+//                             <Avatar
+//                                 src={currentUser.avatarUrl}
+//                                 icon={!currentUser.avatarUrl && <UserOutlined />}
+//                                 onClick={() => router.push(`/profile/${currentUser.userId}`)}
+//                                 style={{ cursor: 'pointer' }}
+//                             />
+//                         ) : (
+//                             <Button
+//                                 type="primary"
+//                                 onClick={() => router.push('/login')}
+//                             >
+//                                 登录
+//                             </Button>
+//                         )}
+//                         <Button
+//                             type="text"
+//                             onClick={() => setDarkMode(!darkMode)}
+//                             icon={darkMode ? '☀️' : '🌙'}
+//                         />
+//                     </Space>
+//                 )}
+//             >
+//                 <PageContainer
+//                     header={{ title: null, breadcrumb: {} }}
+//                     style={{
+//                         background: darkMode ? '#0d0d0d' : '#f0f2f5',
+//                         minHeight: '100vh',
+//                     }}
+//                 >
+//                     {/* 轮播Banner */}
+//                     <Card style={{ marginBottom: 24, padding: 0 }}>
+//                         <Carousel autoplay>
+//                             <div>
+//                                 <div style={{
+//                                     height: 300,
+//                                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+//                                     display: 'flex',
+//                                     alignItems: 'center',
+//                                     justifyContent: 'center',
+//                                     color: '#fff',
+//                                 }}>
+//                                     <Space direction="vertical" align="center">
+//                                         <Title level={1} style={{ color: '#fff', margin: 0 }}>
+//                                             欢迎来到 GameVault
+//                                         </Title>
+//                                         <Text style={{ color: '#fff', fontSize: 18 }}>
+//                                             游戏玩家的交流社区
+//                                         </Text>
+//                                         {AuthApi.isAuthenticated() ? (
+//                                             <Button
+//                                                 type="primary"
+//                                                 size="large"
+//                                                 style={{ marginTop: 16 }}
+//                                                 onClick={() => router.push('/post/create')}
+//                                             >
+//                                                 发布新帖
+//                                             </Button>
+//                                         ) : (
+//                                             <Button
+//                                                 type="primary"
+//                                                 size="large"
+//                                                 style={{ marginTop: 16 }}
+//                                                 onClick={() => router.push('/login')}
+//                                             >
+//                                                 立即加入
+//                                             </Button>
+//                                         )}
+//                                     </Space>
+//                                 </div>
+//                             </div>
+//                         </Carousel>
+//                     </Card>
+//
+//                     {/* 统计数据 */}
+//                     <Row gutter={16} style={{ marginBottom: 24 }}>
+//                         <Col xs={12} sm={6}>
+//                             <Card>
+//                                 <Statistic
+//                                     title="今日发帖"
+//                                     value={forumStats.todayPosts}
+//                                     prefix={<MessageOutlined style={{ color: '#1890ff' }} />}
+//                                     valueStyle={{ color: '#1890ff' }}
+//                                 />
+//                             </Card>
+//                         </Col>
+//                         <Col xs={12} sm={6}>
+//                             <Card>
+//                                 <Statistic
+//                                     title="在线用户"
+//                                     value={forumStats.onlineUsers}
+//                                     prefix={<TeamOutlined style={{ color: '#52c41a' }} />}
+//                                     valueStyle={{ color: '#52c41a' }}
+//                                 />
+//                             </Card>
+//                         </Col>
+//                         <Col xs={12} sm={6}>
+//                             <Card>
+//                                 <Statistic
+//                                     title="总帖子数"
+//                                     value={totalPosts}
+//                                     prefix={<FileTextOutlined style={{ color: '#faad14' }} />}
+//                                     valueStyle={{ color: '#faad14' }}
+//                                 />
+//                             </Card>
+//                         </Col>
+//                         <Col xs={12} sm={6}>
+//                             <Card>
+//                                 <Statistic
+//                                     title="注册用户"
+//                                     value={forumStats.totalUsers}
+//                                     prefix={<UserOutlined style={{ color: '#722ed1' }} />}
+//                                     valueStyle={{ color: '#722ed1' }}
+//                                 />
+//                             </Card>
+//                         </Col>
+//                     </Row>
+//
+//                     <Row gutter={24}>
+//                         {/* 左侧内容区 */}
+//                         <Col xs={24} lg={16}>
+//                             <Card style={{ marginBottom: 24 }}>
+//                                 <Tabs
+//                                     activeKey={activeTab}
+//                                     onChange={setActiveTab}
+//                                     size="large"
+//                                 >
+//                                     <TabPane
+//                                         tab={
+//                                             <span>
+//                         <ClockCircleOutlined style={{ color: '#52c41a' }} />
+//                         最新发布
+//                       </span>
+//                                         }
+//                                         key="latest"
+//                                     >
+//                                         <Spin spinning={loading}>
+//                                             {posts.length > 0 ? (
+//                                                 <>
+//                                                     {posts.map(post => renderPostCard(post))}
+//                                                     {currentPage < totalPages - 1 && (
+//                                                         <div style={{ textAlign: 'center', marginTop: 24 }}>
+//                                                             <Button
+//                                                                 type="primary"
+//                                                                 size="large"
+//                                                                 onClick={loadMore}
+//                                                                 loading={loading}
+//                                                             >
+//                                                                 加载更多
+//                                                             </Button>
+//                                                         </div>
+//                                                     )}
+//                                                 </>
+//                                             ) : (
+//                                                 <Empty description="暂无帖子" />
+//                                             )}
+//                                         </Spin>
+//                                     </TabPane>
+//
+//                                     <TabPane
+//                                         tab={
+//                                             <span>
+//                         <FireOutlined style={{ color: '#ff4d4f' }} />
+//                         热门讨论
+//                       </span>
+//                                         }
+//                                         key="hot"
+//                                     >
+//                                         <Empty description="热门功能开发中" />
+//                                     </TabPane>
+//
+//                                     <TabPane
+//                                         tab={
+//                                             <span>
+//                         <StarOutlined style={{ color: '#faad14' }} />
+//                         精华帖
+//                       </span>
+//                                         }
+//                                         key="essence"
+//                                     >
+//                                         <Empty description="精华功能开发中" />
+//                                     </TabPane>
+//                                 </Tabs>
+//                             </Card>
+//                         </Col>
+//
+//                         {/* 右侧边栏 */}
+//                         <Col xs={24} lg={8}>
+//                             {/* 发帖按钮 */}
+//                             {AuthApi.isAuthenticated() && (
+//                                 <Card style={{ marginBottom: 16 }}>
+//                                     <Button
+//                                         type="primary"
+//                                         size="large"
+//                                         block
+//                                         icon={<PlusOutlined />}
+//                                         style={{
+//                                             height: 48,
+//                                             fontSize: 16,
+//                                             background: 'linear-gradient(90deg, #FF6B6B 0%, #4ECDC4 100%)',
+//                                         }}
+//                                         onClick={() => router.push('/post/create')}
+//                                     >
+//                                         发布新帖
+//                                     </Button>
+//                                 </Card>
+//                             )}
+//
+//                             {/* 游戏板块 */}
+//                             <Card
+//                                 title={
+//                                     <Space>
+//                                         <AppstoreOutlined />
+//                                         <span>热门游戏板块</span>
+//                                     </Space>
+//                                 }
+//                                 extra={<a>查看全部</a>}
+//                                 style={{ marginBottom: 16 }}
+//                             >
+//                                 <Row gutter={[8, 8]}>
+//                                     {gameBoards.slice(0, 6).map((board, index) => (
+//                                         <Col span={12} key={index}>
+//                                             {renderGameBoard(board)}
+//                                         </Col>
+//                                     ))}
+//                                 </Row>
+//                             </Card>
+//
+//                             {/* 活跃用户榜 */}
+//                             <Card
+//                                 title={
+//                                     <Space>
+//                                         <TeamOutlined />
+//                                         <span>活跃用户</span>
+//                                     </Space>
+//                                 }
+//                                 style={{ marginBottom: 16 }}
+//                             >
+//                                 <List
+//                                     dataSource={activeUsers}
+//                                     renderItem={(user, index) => (
+//                                         <List.Item>
+//                                             <List.Item.Meta
+//                                                 avatar={
+//                                                     <Badge
+//                                                         count={index + 1}
+//                                                         style={{
+//                                                             backgroundColor:
+//                                                                 index === 0 ? '#FFD700' :
+//                                                                     index === 1 ? '#C0C0C0' :
+//                                                                         index === 2 ? '#CD7F32' : '#52c41a'
+//                                                         }}
+//                                                     >
+//                                                         <Avatar
+//                                                             src={user.avatarUrl}
+//                                                             icon={!user.avatarUrl && <UserOutlined />}
+//                                                         />
+//                                                     </Badge>
+//                                                 }
+//                                                 title={
+//                                                     <a onClick={() => router.push(`/profile/${user.userId}`)}>
+//                                                         {user.nickname || user.username}
+//                                                     </a>
+//                                                 }
+//                                                 description={user.bio || '这个人很懒，什么都没有留下'}
+//                                             />
+//                                         </List.Item>
+//                                     )}
+//                                 />
+//                             </Card>
+//
+//                             {/* 热门标签 */}
+//                             <Card
+//                                 title={
+//                                     <Space>
+//                                         <TagsOutlined />
+//                                         <span>热门标签</span>
+//                                     </Space>
+//                                 }
+//                             >
+//                                 <Space wrap>
+//                                     <Tag color="magenta">3A大作</Tag>
+//                                     <Tag color="red">独立游戏</Tag>
+//                                     <Tag color="volcano">开放世界</Tag>
+//                                     <Tag color="orange">RPG</Tag>
+//                                     <Tag color="gold">FPS</Tag>
+//                                     <Tag color="lime">MOBA</Tag>
+//                                     <Tag color="green">生存</Tag>
+//                                     <Tag color="cyan">恐怖</Tag>
+//                                     <Tag color="blue">策略</Tag>
+//                                     <Tag color="geekblue">卡牌</Tag>
+//                                     <Tag color="purple">二次元</Tag>
+//                                 </Space>
+//                             </Card>
+//                         </Col>
+//                     </Row>
+//                 </PageContainer>
+//             </ProLayout>
+//         </ConfigProvider>
+//     );
+// }
+//
+//
+//
 'use client';
 import { useRouter } from 'next/navigation';
 import { navigationRoutes } from '@/lib/navigation';
+import { Menubar } from '@/components/layout';
 
 import type { MenuProps } from 'antd';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     ProLayout,
     ProCard,
@@ -56,8 +767,10 @@ import {
     TeamOutlined,
     TrophyOutlined,
     RocketOutlined,
+    LogoutOutlined,
+    LoginOutlined,
 } from '@ant-design/icons';
-import GlobalNavigation from '@/app/components/layout/GlobalNavigation';
+
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
 const { darkAlgorithm } = theme;
@@ -68,11 +781,11 @@ const HomePage = () => {
     const router = useRouter();
 
     const handleCommunityClick = () => {
-        router.push(navigationRoutes.forum); // 跳转到 /dashboard/forum
+        router.push(navigationRoutes.community); // 跳转到 /dashboard/forum
     };
 
     const handleGamesClick = () => {
-        router.push(navigationRoutes.shop); // 跳转到 /dashboard/forum/category/games
+        router.push(navigationRoutes.games); // 跳转到 /dashboard/forum/category/games
     };
 
     return (
@@ -245,15 +958,16 @@ const communityPosts = [
 
 const GameVaultHomepage = () => {
     const [mounted, setMounted] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const router = useRouter();
 
     const handleCommunityClick = () => {
-        router.push(navigationRoutes.forum);
+        router.push(navigationRoutes.community);
     };
 
     const handleGamesClick = () => {
-        router.push(navigationRoutes.shop);
+        router.push(navigationRoutes.games);
     };
     const [likedGames, setLikedGames] = useState(new Set());
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -262,6 +976,17 @@ const GameVaultHomepage = () => {
     React.useEffect(() => {
         setMounted(true);
     }, []);
+
+    // 检查登录状态
+    useEffect(() => {
+        if (mounted) {
+            const checkLoginStatus = () => {
+                const token = localStorage.getItem('auth_token');
+                setIsLoggedIn(!!token);
+            };
+            checkLoginStatus();
+        }
+    }, [mounted]);
 
     const toggleLike = (gameId: string | number) => {
         setLikedGames(prev => {
@@ -275,13 +1000,27 @@ const GameVaultHomepage = () => {
         });
     };
 
+    // 处理登录
+    const handleLogin = () => {
+        router.push(navigationRoutes.login);
+    };
+
+    // 处理登出
+    const handleLogout = () => {
+        localStorage.removeItem('auth_token');
+        setIsLoggedIn(false);
+        router.push('/');
+    };
+
     const userMenuItems: MenuProps['items'] = [
         { key: 'profile', icon: <UserOutlined />, label: '个人资料' },
-        { key: 'library', icon: <AppstoreOutlined />, label: '游戏库' },
+        { key: 'library', icon: <AppstoreOutlined />, label: '游戏库', onClick: () => router.push(navigationRoutes.library) },
         { key: 'wishlist', icon: <HeartOutlined />, label: '愿望单' },
         { key: 'friends', icon: <TeamOutlined />, label: '好友' },
         { type: 'divider' },
         { key: 'settings', icon: <SettingOutlined />, label: '设置' },
+        { type: 'divider' },
+        { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', onClick: handleLogout },
     ];
     // 避免SSR hydration问题
     if (!mounted) {
@@ -290,45 +1029,14 @@ const GameVaultHomepage = () => {
 
     return (
         <ConfigProvider theme={{ algorithm: darkAlgorithm }}>
-            <ProLayout
-                title="GameVault"
-                logo="https://via.placeholder.com/40x40/6366f1/ffffff?text=GV"
-                layout="top"
-                fixedHeader
-                navTheme="realDark"
-                contentWidth="Fixed"
-                breakpoint={false}
-                headerContentRender={() => (
-                    <Row align="middle" style={{ width: '100%' }}>
-                        <Col flex="auto">
-                            <GlobalNavigation />
-                        </Col>
-                        <Col>
-                            <Space size="middle">
-                                <Search
-                                    placeholder="搜索游戏"
-                                    style={{ width: 300 }}
-                                    prefix={<SearchOutlined />}
-                                />
-                                <Badge count={3} size="small">
-                                    <Button type="text" icon={<BellOutlined />} style={{ color: '#fff' }} />
-                                </Badge>
-                                <Badge count={2} size="small">
-                                    <Button type="text" icon={<ShoppingCartOutlined />} style={{ color: '#fff' }} />
-                                </Badge>
-                                <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-                                    <Avatar
-                                        size="small"
-                                        icon={<UserOutlined />}
-                                        style={{ cursor: 'pointer' }}
-                                    />
-                                </Dropdown>
-                            </Space>
-                        </Col>
-                    </Row>
-                )}
-            >
-                <div style={{ background: '#0a0a0a', minHeight: '100vh', padding: '20px 0' }}>
+            {/* 顶部导航栏 */}
+            <Menubar currentPath="/" />
+            
+            <div style={{ 
+                background: '#0a0a0a', 
+                minHeight: '100vh', 
+                padding: '96px 0 20px 0' // 顶部增加64px为Menubar留出空间
+            }}>
                     {/* 轮播大图 */}
                     <Carousel autoplay style={{ marginBottom: 24 }}>
                         {featuredGames.map(game => (
@@ -754,7 +1462,6 @@ const GameVaultHomepage = () => {
                         </Col>
                     </Row>
                 </div>
-            </ProLayout>
         </ConfigProvider>
     );
 };
