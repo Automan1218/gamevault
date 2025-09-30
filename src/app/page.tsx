@@ -1012,7 +1012,7 @@ const GameVaultHomepage = () => {
                     <Row align="middle" style={{ width: '100%' }}>
                         <Col flex="auto">
                             <Space size="large">
-                                <Button type="text" style={{ color: '#fff' }}>商店</Button>
+                                <Button type="text" style={{ color: '#fff' }} onClick={() => router.push('/dashboard/shopping')}>商店</Button>
                                 <Button type="text" style={{ color: '#fff' }} onClick={handleCommunityClick}>Forum</Button>
                                 <Button type="text" style={{ color: '#fff' }}>游戏库</Button>
                                 <Button type="text" style={{ color: '#fff' }}>市场</Button>

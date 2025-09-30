@@ -39,7 +39,9 @@ export const navigationRoutes = {
     // Shopping相关 - 新增（未来扩展）
     shopping: '/dashboard/shopping',
     shoppingProduct: (productId: string) => `/dashboard/shopping/${productId}`,
-    shoppingCart: '/dashboard/shopping/cart',
+    cart: '/dashboard/cart',
+    order:'/dashboard/orders',
+    orderProduct:(orderId:string) => `/dashboard/orders/${orderId}`,
 
     // 帖子相关 - 保留旧版兼容
     postCreate: '/post/create',
