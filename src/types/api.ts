@@ -117,6 +117,16 @@ export interface RegisterRequest {
     nickname?: string;
 }
 
+export interface ChangePasswordRequest {
+    oldPassword: string;
+    newPassword: string;
+}
+
+export interface ChangeEmailRequest {
+    password: string;
+    newEmail: string;
+}
+
 // Statistics types
 export interface ForumStats {
     totalPosts: number;

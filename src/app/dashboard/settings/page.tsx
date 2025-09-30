@@ -1,83 +1,41 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { App, Card, Tabs, Form, Button, Avatar, Upload, Alert, Row, Col, Divider, Typography, Space, Badge, Tooltip } from "antd";
 import { UserOutlined, LockOutlined, MailOutlined, CameraOutlined, ArrowLeftOutlined, ExclamationCircleOutlined, SafetyOutlined, SecurityScanOutlined, KeyOutlined, EditOutlined, CheckCircleOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { PageContainer, Menubar } from '@/components/layout';
 import { CustomButton, CustomInput, CustomPasswordInput } from '@/components/ui';
-import { AuthApi } from '@/lib/api/auth';
+import { useSettings } from '@/app/features/settings/hooks/useSettings';
 import { navigationRoutes } from '@/lib/navigation';
-import { useRouter } from 'next/navigation';
 import '@/components/common/animations.css';
 
 const { Title, Text, Paragraph } = Typography;
 
-interface UserInfo {
-  username: string;
-  email: string;
-  uid: number;
-}
-
 export default function SettingsPage() {
   const { message: messageApi } = App.useApp();
-  const router = useRouter();
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-  const [loading, setLoading] = useState(false);
+  const { userInfo, loading, changePassword, changeEmail } = useSettings();
   const [changePasswordForm] = Form.useForm();
   const [changeEmailForm] = Form.useForm();
 
-  // 获取用户信息
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const user = await AuthApi.getCurrentUser();
-        setUserInfo({
-          username: user.username,
-          email: user.email || '',
-          uid: user.userId
-        });
-      } catch (error) {
-        messageApi.error('获取用户信息失败');
-        router.push('/auth/login');
-      }
-    };
-
-    fetchUserInfo();
-  }, [messageApi, router]);
-
   // 修改密码
   const handleChangePassword = async (values: { oldPassword: string; newPassword: string; confirmPassword: string }) => {
-    try {
-      setLoading(true);
-      await AuthApi.changePassword(values.oldPassword, values.newPassword);
-      messageApi.success('密码修改成功，请重新登录');
+    const result = await changePassword(values.oldPassword, values.newPassword);
+    if (result.success) {
+      messageApi.success(result.message);
       changePasswordForm.resetFields();
-      
-      // 自动登出并跳转到登录页
-      await AuthApi.logout();
-      router.push('/auth/login?message=password_changed');
-      } catch (error: unknown) {
-        messageApi.error(error instanceof Error ? error.message : '密码修改失败');
-    } finally {
-      setLoading(false);
+    } else {
+      messageApi.error(result.message);
     }
   };
 
   // 更改邮箱
   const handleChangeEmail = async (values: { password: string; newEmail: string }) => {
-    try {
-      setLoading(true);
-      await AuthApi.changeEmail(values.password, values.newEmail);
-      messageApi.success('邮箱修改成功，请重新登录');
+    const result = await changeEmail(values.password, values.newEmail);
+    if (result.success) {
+      messageApi.success(result.message);
       changeEmailForm.resetFields();
-      
-      // 自动登出并跳转到登录页
-      await AuthApi.logout();
-      router.push('/auth/login?message=email_changed');
-      } catch (error: unknown) {
-        messageApi.error(error instanceof Error ? error.message : '邮箱修改失败');
-    } finally {
-      setLoading(false);
+    } else {
+      messageApi.error(result.message);
     }
   };
 

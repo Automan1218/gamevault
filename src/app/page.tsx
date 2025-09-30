@@ -958,8 +958,6 @@ const communityPosts = [
 
 const GameVaultHomepage = () => {
     const [mounted, setMounted] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
     const router = useRouter();
 
     const handleCommunityClick = () => {
@@ -977,16 +975,8 @@ const GameVaultHomepage = () => {
         setMounted(true);
     }, []);
 
-    // 检查登录状态
-    useEffect(() => {
-        if (mounted) {
-            const checkLoginStatus = () => {
-                const token = localStorage.getItem('auth_token');
-                setIsLoggedIn(!!token);
-            };
-            checkLoginStatus();
-        }
-    }, [mounted]);
+    // 动态检查登录状态（每次渲染都检查）
+    const isLoggedIn = mounted ? (typeof window !== 'undefined' && !!localStorage.getItem('auth_token')) : false;
 
     const toggleLike = (gameId: string | number) => {
         setLikedGames(prev => {
@@ -1008,7 +998,7 @@ const GameVaultHomepage = () => {
     // 处理登出
     const handleLogout = () => {
         localStorage.removeItem('auth_token');
-        setIsLoggedIn(false);
+        // 不需要 setIsLoggedIn，因为 isLoggedIn 会自动重新计算
         router.push('/');
     };
 
