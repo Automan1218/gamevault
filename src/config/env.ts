@@ -5,6 +5,8 @@ export const ENV = {
     // 论坛服务用你自己的
     FORUM_API_URL: 'http://localhost:8080/api',
 
+    DEVGAMES_API_URL: 'http://localhost:8080/api/developer/devgame',
+
     // Application Configuration
     APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'GameVault',
     APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',

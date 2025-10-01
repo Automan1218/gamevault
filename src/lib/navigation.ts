@@ -31,10 +31,15 @@ export const navigationRoutes = {
     chatCreate: '/dashboard/chat/create',
 
     // Developer相关 - 新增
-    developer: '/dashboard/developer',
-    developerProfile: (userId: string) => `/dashboard/developer/${userId}`,
-    developerProjects: '/dashboard/developer/projects',
-    developerEditor: '/dashboard/developer/editor',
+    developer: "/dashboard/developer",
+    devgames: "/dashboard/developer/devgames",
+    devcommunity: "/dashboard/developer/devcommunity",
+    devcenter: "/dashboard/developer/devcenter",
+
+    devcenterDashboard: "/dashboard/developer/devcenter/dashboard",
+    devcenterUpload: "/dashboard/developer/devcenter/upload",
+    devcenterUploadForm: '/dashboard/developer/devcenter/upload/form',
+    devcenterManage: "/dashboard/developer/devcenter/manage",
 
     // Shopping相关 - 新增（未来扩展）
     shopping: '/dashboard/shopping',
@@ -84,10 +89,15 @@ export const breadcrumbConfig = {
     '/dashboard/chat': '聊天',
     '/dashboard/chat/create': '创建聊天室',
 
-    // Developer相关
-    '/dashboard/developer': '开发者',
-    '/dashboard/developer/projects': '项目管理',
-    '/dashboard/developer/editor': '代码编辑器',
+    // Developer
+    "/dashboard/developer": "developer platform",
+    "/dashboard/developer/devgames": "developer games",
+    "/dashboard/developer/devcommunity": "developer community",
+    "/dashboard/developer/devcenter": "developer center",
+    "/dashboard/developer/devcenter/upload": "upload game",
+    "/dashboard/developer/devcenter/upload/form": "upload form",
+    "/dashboard/developer/devcenter/manage": "mange game",
+    "/dashboard/developer/devcenter/dashboard": "data show",
 
     // Shopping相关
     '/dashboard/shopping': '商城',

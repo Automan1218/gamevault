@@ -1016,6 +1016,14 @@ const GameVaultHomepage = () => {
                                 <Button type="text" style={{ color: '#fff' }} onClick={handleCommunityClick}>Forum</Button>
                                 <Button type="text" style={{ color: '#fff' }}>游戏库</Button>
                                 <Button type="text" style={{ color: '#fff' }}>市场</Button>
+                                <Button
+                                    type="text"
+                                    style={{ color: '#fff' }}
+                                    onClick={() => router.push(navigationRoutes.developer)}
+                                >
+                                    developer community
+                                </Button>
+
                             </Space>
                         </Col>
                         <Col>
