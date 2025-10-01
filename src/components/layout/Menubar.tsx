@@ -78,7 +78,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
     { 
       key: 'forum', 
       label: '论坛', 
-      path: navigationRoutes.community, 
+      path: navigationRoutes.forum, 
       icon: <TeamOutlined />, 
       requireAuth: false,
       hasDropdown: true,
@@ -86,7 +86,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
         { 
           key: 'forum-home', 
           label: '论坛首页', 
-          path: navigationRoutes.community, 
+          path: navigationRoutes.forum, 
           icon: <CommentOutlined />,
           requireAuth: false 
         },

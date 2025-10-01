@@ -428,7 +428,7 @@ export default function ForumPage() {
     return (
         <ConfigProvider theme={darkTheme}>
             {/* 顶部导航栏 */}
-            <Menubar currentPath={navigationRoutes.community} />
+            <Menubar currentPath={navigationRoutes.forum} />
             
             {/* 主内容区 */}
             <div 

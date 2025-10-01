@@ -781,7 +781,7 @@ const HomePage = () => {
     const router = useRouter();
 
     const handleCommunityClick = () => {
-        router.push(navigationRoutes.community); // 跳转到 /dashboard/forum
+        router.push(navigationRoutes.forum); // 跳转到 /dashboard/forum
     };
 
     const handleGamesClick = () => {
@@ -961,7 +961,7 @@ const GameVaultHomepage = () => {
     const router = useRouter();
 
     const handleCommunityClick = () => {
-        router.push(navigationRoutes.community);
+        router.push(navigationRoutes.forum);
     };
 
     const handleGamesClick = () => {
