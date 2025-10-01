@@ -16,77 +16,55 @@ export interface User {
 }
 
 export class UsersApi {
-    // 根据ID获取用户
-    static async getUserById(id: number): Promise<User> {
-        try {
-            return await apiClient.get<User>(`/users/${id}`);
-        } catch (error) {
-            console.error(`Failed to fetch user ${id}:`, error);
-            throw new Error('获取用户信息失败');
-        }
-    }
+    private static currentUserCache: any = null;
+    private static cacheTimestamp: number = 0;
+    private static readonly CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
 
-    // 根据用户名获取用户
-    static async getUserByUsername(username: string): Promise<User> {
-        try {
-            return await apiClient.get<User>(`/users/username/${username}`);
-        } catch (error) {
-            console.error(`Failed to fetch user ${username}:`, error);
-            throw new Error('获取用户信息失败');
-        }
-    }
-
-    // 获取活跃用户列表
-    static async getActiveUsers(page: number = 0, size: number = ENV.DEFAULT_PAGE_SIZE): Promise<User[]> {
-        try {
-            return await apiClient.get<User[]>('/users/active', {
-                page,
-                size: Math.min(size, ENV.MAX_PAGE_SIZE)
-            });
-        } catch (error) {
-            console.error('Failed to fetch active users:', error);
-            throw new Error('获取活跃用户失败');
-        }
-    }
-
-    // 检查用户名是否存在
-    static async checkUsernameExists(username: string): Promise<boolean> {
-        try {
-            const response = await apiClient.get<{ exists: boolean }>(`/users/check/${username}`);
-            return response.exists;
-        } catch (error) {
-            console.error(`Failed to check username ${username}:`, error);
-            throw new Error('检查用户名失败');
-        }
-    }
-
-    // 批量获取用户信息
-    static async getUsersByIds(userIds: number[]): Promise<User[]> {
-        try {
-            return await apiClient.post<User[]>('/users/batch', {userIds});
-        } catch (error) {
-            console.error('Failed to fetch users by IDs:', error);
-            throw new Error('批量获取用户信息失败');
-        }
-    }
+    // 带缓存的获取当前用户信息
     static async getCurrentUser() {
-        const response = await fetch(`${ENV.FORUM_API_URL}/users/me`, {
-            headers: {
-                'Authorization': `Bearer ${AuthApi.getToken()}`,
-            },
-        });
+        const now = Date.now();
 
-        if (!response.ok) {
-            throw new Error('获取用户信息失败');
+        // 如果缓存存在且未过期，直接返回缓存
+        if (this.currentUserCache && (now - this.cacheTimestamp) < this.CACHE_DURATION) {
+            return this.currentUserCache;
         }
 
-        return response.json();
+        try {
+            const response = await fetch(`${ENV.FORUM_API_URL}/auth/me`, {
+                headers: {
+                    'Authorization': `Bearer ${AuthApi.getToken()}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('获取用户信息失败');
+            }
+
+            const data = await response.json();
+
+            // 更新缓存
+            this.currentUserCache = data;
+            this.cacheTimestamp = now;
+
+            return data;
+        } catch (error) {
+            // 清除缓存
+            this.currentUserCache = null;
+            this.cacheTimestamp = 0;
+            throw error;
+        }
     }
 
-    // 单独获取 userId
+    // 清除缓存的方法
+    static clearUserCache() {
+        this.currentUserCache = null;
+        this.cacheTimestamp = 0;
+    }
+
+    // 优化后的 getUserId - 避免重复请求
     static async getUserId(): Promise<number | null> {
         try {
-            const data = await UsersApi.getCurrentUser();
+            const data = await this.getCurrentUser();
             return data.userId;
         } catch (error) {
             console.error('获取 userId 失败:', error);
@@ -94,13 +72,23 @@ export class UsersApi {
         }
     }
 
+    // 优化后的 getUsername - 避免重复请求
     static async getUsername(): Promise<string | null> {
         try {
-            const data = await UsersApi.getCurrentUser();
+            const data = await this.getCurrentUser();
             return data.username;
         } catch (error) {
             console.error('获取 username 失败:', error);
             return null;
+        }
+    }
+
+    static async getUserById(userId: number): Promise<User> {
+        try {
+            return await apiClient.get<User>(`/users/${userId}`);
+        } catch (error) {
+            console.error(`获取用户 ${userId} 失败:`, error);
+            throw new Error('获取用户信息失败');
         }
     }
 }

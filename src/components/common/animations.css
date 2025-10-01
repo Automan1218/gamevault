@@ -1,0 +1,268 @@
+/* 通用动画样式 */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes glow {
+  0% {
+    filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.3));
+  }
+  100% {
+    filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.6));
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes cardHover {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+  100% {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* 通用动画类 */
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 3s ease-in-out infinite alternate;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.4s ease-out both;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-bounce {
+  animation: bounce 1s ease-in-out;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.4), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-card-hover {
+  transition: all 0.3s ease;
+}
+
+.animate-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+}
+
+.avatar-container {
+  transition: all 0.3s ease;
+}
+
+.avatar-container:hover {
+  transform: scale(1.05);
+}
+
+.avatar-container:hover .ant-avatar {
+  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.5);
+}
+
+/* UserMenu 悬停效果 */
+.user-menu-item {
+  transition: all 0.2s ease;
+}
+
+.user-menu-item:hover {
+  background: rgba(99, 102, 241, 0.2) !important;
+  border-left: 3px solid #6366f1 !important;
+}
+
+.user-menu-item:hover .anticon {
+  color: #8b5cf6 !important;
+}
+
+.user-menu-item:hover span {
+  color: #e0e7ff !important;
+}
+
+/* 退出登录特殊样式 */
+.logout-item:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-left: 3px solid #ef4444 !important;
+}
+
+.logout-item:hover .anticon {
+  color: #fca5a5 !important;
+}
+
+.logout-item:hover span {
+  color: #fecaca !important;
+}
+
+/* 自定义分页样式 */
+.custom-pagination .ant-pagination-item {
+  background: rgba(31, 41, 55, 0.8);
+  border: 1px solid rgba(75, 85, 99, 0.3);
+  color: #d1d5db;
+}
+
+.custom-pagination .ant-pagination-item:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+.custom-pagination .ant-pagination-item-active {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-color: #6366f1;
+  color: #fff;
+}
+
+.custom-pagination .ant-pagination-prev,
+.custom-pagination .ant-pagination-next {
+  background: rgba(31, 41, 55, 0.8);
+  border: 1px solid rgba(75, 85, 99, 0.3);
+  color: #d1d5db;
+}
+
+.custom-pagination .ant-pagination-prev:hover,
+.custom-pagination .ant-pagination-next:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.5);
+  color: #6366f1;
+}
+
+/* 论坛下拉菜单样式 */
+.forum-dropdown .ant-dropdown-menu {
+  background: rgba(31, 41, 55, 0.95) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(99, 102, 241, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 8px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+.forum-dropdown .ant-dropdown-menu-item {
+  color: #d1d5db !important;
+  border-radius: 8px !important;
+  padding: 10px 16px !important;
+  margin: 4px 0 !important;
+  transition: all 0.3s ease !important;
+}
+
+.forum-dropdown .ant-dropdown-menu-item:hover {
+  background: rgba(99, 102, 241, 0.15) !important;
+  color: #e0e7ff !important;
+  transform: translateX(4px);
+}
+
+.forum-dropdown .ant-dropdown-menu-item-active {
+  background: rgba(99, 102, 241, 0.1) !important;
+}
+
+.forum-dropdown .ant-dropdown-menu-item-divider {
+  background: rgba(99, 102, 241, 0.2) !important;
+  margin: 8px 0 !important;
+}
+
+/* 轮播指示点样式 */
+.ant-carousel .slick-dots {
+  bottom: 20px !important;
+}
+
+.ant-carousel .slick-dots li {
+  width: 12px !important;
+  height: 12px !important;
+  margin: 0 6px !important;
+}
+
+.ant-carousel .slick-dots li button {
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-carousel .slick-dots li button:hover {
+  background: rgba(255, 255, 255, 0.5) !important;
+  transform: scale(1.2);
+}
+
+.ant-carousel .slick-dots li.slick-active {
+  width: 32px !important;
+}
+
+.ant-carousel .slick-dots li.slick-active button {
+  width: 32px !important;
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+

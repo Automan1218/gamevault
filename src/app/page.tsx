@@ -711,9 +711,10 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { navigationRoutes } from '@/lib/navigation';
+import { Menubar } from '@/components/layout';
 
 import type { MenuProps } from 'antd';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     ProLayout,
     ProCard,
@@ -766,6 +767,8 @@ import {
     TeamOutlined,
     TrophyOutlined,
     RocketOutlined,
+    LogoutOutlined,
+    LoginOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
@@ -955,7 +958,6 @@ const communityPosts = [
 
 const GameVaultHomepage = () => {
     const [mounted, setMounted] = useState(false);
-
     const router = useRouter();
 
     const handleCommunityClick = () => {
@@ -973,6 +975,9 @@ const GameVaultHomepage = () => {
         setMounted(true);
     }, []);
 
+    // 动态检查登录状态（每次渲染都检查）
+    const isLoggedIn = mounted ? (typeof window !== 'undefined' && !!localStorage.getItem('auth_token')) : false;
+
     const toggleLike = (gameId: string | number) => {
         setLikedGames(prev => {
             const newSet = new Set(prev);
@@ -985,13 +990,27 @@ const GameVaultHomepage = () => {
         });
     };
 
+    // 处理登录
+    const handleLogin = () => {
+        router.push(navigationRoutes.login);
+    };
+
+    // 处理登出
+    const handleLogout = () => {
+        localStorage.removeItem('auth_token');
+        // 不需要 setIsLoggedIn，因为 isLoggedIn 会自动重新计算
+        router.push('/');
+    };
+
     const userMenuItems: MenuProps['items'] = [
         { key: 'profile', icon: <UserOutlined />, label: '个人资料' },
-        { key: 'library', icon: <AppstoreOutlined />, label: '游戏库' },
+        { key: 'library', icon: <AppstoreOutlined />, label: '游戏库', onClick: () => router.push(navigationRoutes.library) },
         { key: 'wishlist', icon: <HeartOutlined />, label: '愿望单' },
         { key: 'friends', icon: <TeamOutlined />, label: '好友' },
         { type: 'divider' },
         { key: 'settings', icon: <SettingOutlined />, label: '设置' },
+        { type: 'divider' },
+        { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', onClick: handleLogout },
     ];
     // 避免SSR hydration问题
     if (!mounted) {
@@ -1000,50 +1019,14 @@ const GameVaultHomepage = () => {
 
     return (
         <ConfigProvider theme={{ algorithm: darkAlgorithm }}>
-            <ProLayout
-                title="GameVault"
-                logo="https://via.placeholder.com/40x40/6366f1/ffffff?text=GV"
-                layout="top"
-                fixedHeader
-                navTheme="realDark"
-                contentWidth="Fixed"
-                breakpoint={false}
-                headerContentRender={() => (
-                    <Row align="middle" style={{ width: '100%' }}>
-                        <Col flex="auto">
-                            <Space size="large">
-                                <Button type="text" style={{ color: '#fff' }}>商店</Button>
-                                <Button type="text" style={{ color: '#fff' }} onClick={handleCommunityClick}>Forum</Button>
-                                <Button type="text" style={{ color: '#fff' }}>游戏库</Button>
-                                <Button type="text" style={{ color: '#fff' }}>市场</Button>
-                            </Space>
-                        </Col>
-                        <Col>
-                            <Space size="middle">
-                                <Search
-                                    placeholder="搜索游戏"
-                                    style={{ width: 300 }}
-                                    prefix={<SearchOutlined />}
-                                />
-                                <Badge count={3} size="small">
-                                    <Button type="text" icon={<BellOutlined />} style={{ color: '#fff' }} />
-                                </Badge>
-                                <Badge count={2} size="small">
-                                    <Button type="text" icon={<ShoppingCartOutlined />} style={{ color: '#fff' }} />
-                                </Badge>
-                                <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-                                    <Avatar
-                                        size="small"
-                                        icon={<UserOutlined />}
-                                        style={{ cursor: 'pointer' }}
-                                    />
-                                </Dropdown>
-                            </Space>
-                        </Col>
-                    </Row>
-                )}
-            >
-                <div style={{ background: '#0a0a0a', minHeight: '100vh', padding: '20px 0' }}>
+            {/* 顶部导航栏 */}
+            <Menubar currentPath="/" />
+            
+            <div style={{ 
+                background: '#0a0a0a', 
+                minHeight: '100vh', 
+                padding: '96px 0 20px 0' // 顶部增加64px为Menubar留出空间
+            }}>
                     {/* 轮播大图 */}
                     <Carousel autoplay style={{ marginBottom: 24 }}>
                         {featuredGames.map(game => (
@@ -1469,7 +1452,6 @@ const GameVaultHomepage = () => {
                         </Col>
                     </Row>
                 </div>
-            </ProLayout>
         </ConfigProvider>
     );
 };

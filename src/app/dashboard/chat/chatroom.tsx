@@ -1,4 +1,4 @@
-// src/app/chat/post_page.tsx
+// src/app/chat/page.tsx
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
