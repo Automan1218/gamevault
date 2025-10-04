@@ -2,19 +2,22 @@
 
 // 基础帖子类型（基于你现有的Post接口扩展）
 export interface ForumPost {
-    postId: number;
+    contentId: number;  // 匹配后端的contentId
     title: string;
     body: string;
     bodyPlain?: string;
     authorId: number;
+    authorUsername?: string;  // 匹配后端的authorUsername
+    authorEmail?: string;     // 匹配后端的authorEmail
     authorName?: string;
     authorNickname?: string;
     authorAvatar?: string;
     viewCount: number;
     likeCount: number;
-    replyCount: number;
+    replyCount?: number;      // 可选，因为后端可能没有实现
     createdDate: string;
     updatedDate: string;
+    status: string;           // 匹配后端的status字段
 
     // Forum特有字段
     category?: string;

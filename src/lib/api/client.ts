@@ -1,170 +1,212 @@
 // src/lib/api/client.ts
 import { ENV } from '@/config/env';
-
-interface RequestConfig extends RequestInit {
-    timeout?: number;
-}
-
 export class ApiClient {
     private baseURL: string;
-    private defaultTimeout: number;
+    private authToken: string | null = null;
 
-    constructor() {
-        // 使用你自己的 Spring Boot API (端口 8081)
-        this.baseURL = ENV.FORUM_API_URL;
-        this.defaultTimeout = ENV.API_TIMEOUT;
+    constructor(baseURL: string) {
+        this.baseURL = baseURL.replace(/\/$/, '');
+    }
 
-        // 调试日志
-        console.log('[API Client] Initialized with:', {
-            baseURL: this.baseURL,
-            timeout: this.defaultTimeout
-        });
+    setAuthToken(token: string): void {
+        this.authToken = token;
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('auth_token', token);
+        }
+    }
+
+    getAuthToken(): string | null {
+        if (this.authToken) return this.authToken;
+
+        if (typeof window !== 'undefined') {
+            this.authToken = localStorage.getItem('auth_token');
+        }
+        return this.authToken;
+    }
+
+    clearAuthToken(): void {
+        this.authToken = null;
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('auth_token');
+        }
     }
 
     private async request<T>(
         endpoint: string,
-        config: RequestConfig = {}
+        options: RequestInit & {
+            params?: Record<string, unknown>;
+        } = {}
     ): Promise<T> {
-        const { timeout = this.defaultTimeout, ...requestConfig } = config;
-
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-        const url = `${this.baseURL}${endpoint}`;
-        console.log('[API Request]', requestConfig.method || 'GET', url); // 调试日志
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
 
         try {
+            const { params, ...requestConfig } = options;
+            let url = `${this.baseURL}${endpoint}`;
+
+            // Handle query parameters for GET requests
+            if (params && Object.keys(params).length > 0) {
+                const searchParams = new URLSearchParams();
+                Object.entries(params).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null) {
+                        searchParams.append(key, String(value));
+                    }
+                });
+                if (searchParams.toString()) {
+                    url += `?${searchParams.toString()}`;
+                }
+            }
+
             const token = this.getAuthToken();
+
+            // Fix: Don't send body with GET/HEAD requests
+            const method = requestConfig.method?.toUpperCase() || 'GET';
+            const shouldHaveBody = !['GET', 'HEAD'].includes(method);
 
             const response = await fetch(url, {
                 ...requestConfig,
                 signal: controller.signal,
                 mode: 'cors',
+                credentials: 'omit',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+                    ...(token && { 'Authorization': `Bearer ${token}` }),
                     ...requestConfig.headers,
                 },
+                // Only include body for non-GET/HEAD requests
+                body: shouldHaveBody ? requestConfig.body : undefined,
             });
 
             clearTimeout(timeoutId);
 
             if (!response.ok) {
-                let errorMessage = `HTTP error! status: ${response.status}`;
-                try {
-                    const errorData = await response.json();
-                    errorMessage = errorData.message || errorMessage;
-                } catch {
-                    // 无法解析错误响应
+                await this.handleErrorResponse(response);
+            }
+
+            const contentType = response.headers.get('content-type');
+            let jsonData;
+            if (contentType && contentType.includes('application/json')) {
+                jsonData = await response.json();
+            } else {
+                const text = await response.text();
+                jsonData = text ? JSON.parse(text) : {};
+            }
+
+            // 处理后端 BaseResponse 包装格式
+            // 如果响应包含 code 和 data 字段，提取 data
+            if (jsonData && typeof jsonData === 'object' && 'code' in jsonData && 'data' in jsonData) {
+                if (jsonData.code === 0) {
+                    return jsonData.data as T;
+                } else {
+                    // 处理业务错误
+                    throw new Error(jsonData.message || '请求失败');
                 }
-                console.error('[API Error]', url, errorMessage);
-                throw new Error(errorMessage);
             }
 
-            const text = await response.text();
-            if (!text) {
-                return {} as T;
-            }
-
-            try {
-                return JSON.parse(text);
-            } catch {
-                console.warn('[API Warning] Response is not JSON:', text);
-                return text as unknown as T;
-            }
+            return jsonData as T;
         } catch (error) {
             clearTimeout(timeoutId);
 
             if (error instanceof Error) {
                 if (error.name === 'AbortError') {
-                    throw new Error('请求超时');
-                }
-                if (error.message.includes('Failed to fetch')) {
-                    console.error('[API Error] CORS/Network error:', error);
-                    throw new Error('无法连接到服务器，请检查网络或联系管理员');
+                    throw new Error('请求超时，请稍后重试');
                 }
                 throw error;
             }
-
-            throw new Error('发生未知错误');
+            throw new Error('请求失败');
         }
     }
 
-    async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
-        const url = params ? `${endpoint}?${new URLSearchParams(params)}` : endpoint;
-        return this.request<T>(url, { method: 'GET' });
+    private async handleErrorResponse(response: Response): Promise<never> {
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+
+        try {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch {
+            // Response is not JSON
+        }
+
+        if (response.status === 401) {
+            this.clearAuthToken();
+            throw new Error('登录已过期，请重新登录');
+        } else if (response.status === 403) {
+            throw new Error('没有权限执行此操作');
+        } else if (response.status === 404) {
+            throw new Error('请求的资源不存在');
+        } else if (response.status >= 500) {
+            throw new Error('服务器错误，请稍后重试');
+        }
+
+        throw new Error(errorMessage);
     }
 
-    async post<T>(endpoint: string, data?: any): Promise<T> {
+    // GET request
+    async get<T>(endpoint: string, params?: Record<string, unknown>): Promise<T> {
+        return this.request<T>(endpoint, {
+            method: 'GET',
+            params,
+        });
+    }
+
+    // POST request
+    async post<T>(endpoint: string, data?: unknown): Promise<T> {
         return this.request<T>(endpoint, {
             method: 'POST',
             body: data ? JSON.stringify(data) : undefined,
         });
     }
 
-    async put<T>(endpoint: string, data?: any): Promise<T> {
+    // PUT request
+    async put<T>(endpoint: string, data?: unknown): Promise<T> {
         return this.request<T>(endpoint, {
             method: 'PUT',
             body: data ? JSON.stringify(data) : undefined,
         });
     }
 
-    async delete<T>(endpoint: string): Promise<T> {
-        return this.request<T>(endpoint, { method: 'DELETE' });
-    }
-
-    async patch<T>(endpoint: string, data?: any): Promise<T> {
+    // PATCH request
+    async patch<T>(endpoint: string, data?: unknown): Promise<T> {
         return this.request<T>(endpoint, {
             method: 'PATCH',
             body: data ? JSON.stringify(data) : undefined,
         });
     }
 
-    // Token 管理
-    setAuthToken(token: string) {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('auth_token', token);
-            console.log('[Auth] Token saved');
-        }
+    // DELETE request
+    async delete<T>(endpoint: string): Promise<T> {
+        return this.request<T>(endpoint, {
+            method: 'DELETE',
+        });
     }
 
-    getAuthToken(): string | null {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('auth_token');
-        }
-        return null;
-    }
-
-    clearAuthToken() {
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem('auth_token');
-            console.log('[Auth] Token cleared');
-        }
-    }
-
-    isAuthenticated(): boolean {
-        return !!this.getAuthToken();
-    }
-
-    // 需要认证的请求
+    // Fixed: authenticatedRequest with proper method specification
     async authenticatedRequest<T>(
         endpoint: string,
-        config: RequestConfig = {}
+        data?: unknown,
+        options: Omit<RequestInit, 'body'> & { params?: Record<string, unknown> } = {}
     ): Promise<T> {
         const token = this.getAuthToken();
         if (!token) {
-            throw new Error('未登录，请先登录');
+            throw new Error('需要登录才能执行此操作');
         }
 
+        // Default to POST if data is provided and no method specified
+        const method = options.method || (data ? 'POST' : 'GET');
+
         return this.request<T>(endpoint, {
-            ...config,
+            ...options,
+            method,
+            body: data && !['GET', 'HEAD'].includes(method.toUpperCase())
+                ? JSON.stringify(data)
+                : undefined,
             headers: {
                 'Authorization': `Bearer ${token}`,
-                ...config.headers,
+                ...options.headers,
             },
         });
     }
 }
 
-export const apiClient = new ApiClient();
+export const apiClient = new ApiClient(ENV.FORUM_API_URL);

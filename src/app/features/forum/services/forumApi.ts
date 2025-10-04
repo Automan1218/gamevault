@@ -1,6 +1,5 @@
 // features/forum/services/forumApi.ts
 import {Post, PostListResponse, PostsApi} from '@/lib/api/posts';
-import {UsersApi} from '@/lib/api/users';
 import {
     CreateForumPostRequest,
     CreateForumReplyRequest,
@@ -248,10 +247,10 @@ export class ForumApi {
     // 获取游戏板块
     static async getGameBoards(): Promise<GameBoard[]> {
         try {
-            const baseCategories = await this.getCategories();
+            // const baseCategories = await this.getCategories();
 
             // 模拟游戏板块数据
-            const gameBoards: GameBoard[] = [
+            return [
                 {
                     id: 'genshin',
                     name: '原神',
@@ -298,8 +297,6 @@ export class ForumApi {
                     }
                 }
             ];
-
-            return gameBoards;
         } catch (error) {
             console.error('Failed to fetch game boards:', error);
             return [];
@@ -381,14 +378,14 @@ export class ForumApi {
     }
 
     // 私有辅助方法
-    private static async getUserAvatar(userId: number): Promise<string | undefined> {
-        try {
-            const user = await UsersApi.getUserById(userId);
-            return user.avatarUrl;
-        } catch {
-            return undefined;
-        }
-    }
+    // private static async getUserAvatar(userId: number): Promise<string | undefined> {
+    //     try {
+    //         const user = await UsersApi.getUserById(userId);
+    //         return user.avatarUrl;
+    //     } catch {
+    //         return undefined;
+    //     }
+    // }
 
     private static extractTags(content: string): string[] {
         // 从帖子内容中提取标签的逻辑
@@ -436,11 +433,11 @@ export class ForumApi {
     }
 
     private static async convertToForumPost(post: Post): Promise<ForumPost> {
-        const authorAvatar = post.authorId ? await this.getUserAvatar(post.authorId) : undefined;
+        // const authorAvatar = post.authorId ? await this.getUserAvatar(post.authorId) : undefined;
 
         return {
             ...post,
-            authorAvatar,
+            //authorAvatar,
             tags: this.extractTags(post.body),
             category: this.extractCategory(post.body),
             isPinned: false,

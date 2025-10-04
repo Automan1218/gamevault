@@ -1,10 +1,10 @@
 // src/config/env.ts
 export const ENV = {
-    // API Configuration
-    FORUM_API_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8081/api',
+    // API Configuration - 统一使用你的后端8080端口
+    FORUM_API_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/api',
 
-    // 第三方认证 API (仅用于登录/注册)
-    AUTH_API_URL: process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://172.20.10.3:8080/api',
+    // 认证 API - 使用你的后端认证系统
+    AUTH_API_URL: process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:8080/api',
 
 
     // Application Configuration
