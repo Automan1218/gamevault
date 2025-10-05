@@ -6,6 +6,7 @@ export const ENV = {
     // 认证 API - 使用你的后端认证系统
     AUTH_API_URL: process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:8080/api',
 
+    DEVGAMES_API_URL: 'http://localhost:8081/api/developer/devgame',
 
     // Application Configuration
     APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'GameVault',

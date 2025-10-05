@@ -100,7 +100,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
       ]
     },
     { key: 'chat', label: '聊天室', path: '/chat', icon: <MessageOutlined />, requireAuth: true },
-    { key: 'developer', label: '开发者', path: '/developer', icon: <CodeOutlined />, requireAuth: true },
+    { key: 'developer', label: 'developer', path: '/dashboard/developer', icon: <CodeOutlined />, requireAuth: true },
   ];
 
   // 处理导航点击
