@@ -4,6 +4,7 @@
 import React, { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { getLoginRedirectUrl } from '@/lib/navigation';
 
 interface AuthMiddlewareProps {
   children: React.ReactNode;
@@ -47,8 +48,10 @@ export function AuthMiddleware({ children }: AuthMiddlewareProps) {
 
     // 如果是受保护的页面且用户未认证，重定向到登录页
     if (isProtectedRoute && !isAuthenticated) {
-      const redirectUrl = encodeURIComponent(pathname);
-      router.push(`/auth/login?redirect=${redirectUrl}`);
+      const redirectTarget = typeof window !== 'undefined'
+        ? window.location.pathname + window.location.search + window.location.hash
+        : pathname;
+      router.push(getLoginRedirectUrl(redirectTarget));
       return;
     }
 

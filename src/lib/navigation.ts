@@ -168,6 +168,18 @@ export const getPageTitle = (path: string): string => {
     return breadcrumbConfig[path as keyof typeof breadcrumbConfig] || 'GameVault';
 };
 
+export const getLoginRedirectUrl = (targetPath?: string): string => {
+    const fallback = navigationRoutes.home;
+    if (!targetPath || typeof targetPath !== 'string') {
+        return `${navigationRoutes.login}?redirect=${encodeURIComponent(fallback)}`;
+    }
+
+    const trimmed = targetPath.trim();
+    const withLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed.replace(/^\/+/, '')}`;
+
+    return `${navigationRoutes.login}?redirect=${encodeURIComponent(withLeadingSlash || fallback)}`;
+};
+
 export const isForumRoute = (path: string): boolean => {
     return path.startsWith('/dashboard/forum') || path.startsWith('/post/') || path === '/my-posts' || path === '/favorites';
 };

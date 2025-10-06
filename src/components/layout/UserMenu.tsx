@@ -7,7 +7,9 @@ import type { MenuProps } from 'antd';
 import { useRouter } from 'next/navigation';
 import { navigationRoutes } from '@/lib/navigation';
 import { AuthApi } from '@/lib/api/auth';
+import { ProfileApi } from '@/lib/api/profile';
 import { User } from '@/types/api';
+import { getAvatarUrl, handleAvatarError, getDefaultAvatarStyle, avatarEvents } from '@/lib/api/avatar';
 
 interface UserMenuProps {
   username?: string;
@@ -18,10 +20,11 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 获取当前用户信息
+  // 获取当前用户信息和头像
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -31,15 +34,27 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
         // 检查是否有token
         if (!AuthApi.isAuthenticated()) {
           setUser(null);
+          setAvatarUrl(undefined);
           return;
         }
 
+        // 获取基本用户信息
         const userData = await AuthApi.getCurrentUser();
         setUser(userData);
+
+        // 尝试获取完整的用户资料（包含头像）
+        try {
+          const profile = await ProfileApi.getProfile();
+          setAvatarUrl(profile.avatarUrl);
+        } catch (profileErr) {
+          console.warn('获取用户资料失败，使用默认头像:', profileErr);
+          setAvatarUrl(undefined);
+        }
       } catch (err) {
         console.error('获取用户信息失败:', err);
         setError(err instanceof Error ? err.message : '获取用户信息失败');
         setUser(null);
+        setAvatarUrl(undefined);
       } finally {
         setLoading(false);
       }
@@ -48,10 +63,28 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
     fetchCurrentUser();
   }, []);
 
+  // 监听头像更新事件
+  useEffect(() => {
+    const unsubscribe = avatarEvents.subscribe((newAvatarUrl) => {
+      console.log('UserMenu收到头像更新事件:', newAvatarUrl);
+      setAvatarUrl(newAvatarUrl || undefined);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   // 使用获取到的用户数据或props
   const displayUsername = user?.username || propUsername || "用户";
   const displayEmail = user?.email || "未设置邮箱";
-  const displayAvatar = user?.profile?.avatar || avatar;
+  const displayAvatar = avatarUrl || avatar;
+  
+  // 处理头像显示逻辑
+  const getAvatarSrc = () => {
+    if (!displayAvatar) return undefined;
+    return getAvatarUrl(displayAvatar);
+  };
 
   // 处理退出登录
   const handleLogout = async () => {
@@ -115,8 +148,12 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <Avatar 
               size={40} 
-              src={displayAvatar}
+              src={getAvatarSrc()}
               icon={<UserOutlined />}
+              onError={() => {
+                handleAvatarError(new Error('头像加载失败'), true);
+                return false;
+              }}
               style={{ 
                 background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
                 border: '2px solid rgba(255, 255, 255, 0.2)',
@@ -342,12 +379,13 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
       >
         <Avatar 
           size={32} 
-          src={displayAvatar}
+          src={getAvatarSrc()}
           icon={<UserOutlined />}
-          style={{ 
-            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-            border: '2px solid rgba(255, 255, 255, 0.2)',
+          onError={() => {
+            handleAvatarError(new Error('头像加载失败'), true);
+            return false;
           }}
+          style={getDefaultAvatarStyle(32)}
         />
         <span style={{ 
           color: '#ffffff', 

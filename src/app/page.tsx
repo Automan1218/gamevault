@@ -710,7 +710,7 @@
 //
 'use client';
 import { useRouter } from 'next/navigation';
-import { navigationRoutes } from '@/lib/navigation';
+import { getLoginRedirectUrl, navigationRoutes } from '@/lib/navigation';
 import { Menubar } from '@/components/layout';
 
 import type { MenuProps } from 'antd';
@@ -992,7 +992,10 @@ const GameVaultHomepage = () => {
 
     // 处理登录
     const handleLogin = () => {
-        router.push(navigationRoutes.login);
+        const target = typeof window !== 'undefined'
+            ? window.location.pathname + window.location.search
+            : navigationRoutes.home;
+        router.push(getLoginRedirectUrl(target));
     };
 
     // 处理登出

@@ -1,24 +1,21 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Button, Space, Avatar, Dropdown, Badge, Input, ConfigProvider, theme } from 'antd';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Button, Space, Dropdown, Badge, Input, ConfigProvider } from 'antd';
 import { 
   SearchOutlined, 
   BellOutlined, 
   ShoppingCartOutlined, 
   HomeOutlined,
-  AppstoreOutlined,
   TeamOutlined,
-  UserOutlined,
-  MenuOutlined,
   LoginOutlined,
   MessageOutlined,
   CodeOutlined,
   FileTextOutlined,
   CommentOutlined
 } from '@ant-design/icons';
-import { useRouter } from 'next/navigation';
-import { navigationRoutes } from '@/lib/navigation';
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
+import { getLoginRedirectUrl, navigationRoutes } from '@/lib/navigation';
 import { AuthApi } from '@/lib/api/auth';
 import { User } from '@/types/api';
 import UserMenu from './UserMenu';
@@ -29,11 +26,36 @@ interface MenubarProps {
   currentPath?: string;
 }
 
+type DropdownNavItem = {
+  key: string;
+  label: string;
+  path: string;
+  icon?: React.ReactNode;
+  requireAuth: boolean;
+};
+
+type NavItem = DropdownNavItem & {
+  hasDropdown?: boolean;
+  dropdownItems?: DropdownNavItem[];
+};
+
 function Menubar({ currentPath = '/' }: MenubarProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const resolvedCurrentPath = useMemo(() => {
+    const nextPath = pathname || currentPath;
+    if (!searchParams) {
+      return nextPath;
+    }
+
+    const queryString = searchParams.toString();
+    return queryString ? `${nextPath}?${queryString}` : nextPath;
+  }, [pathname, searchParams, currentPath]);
 
   // 检查登录状态
   useEffect(() => {
@@ -72,7 +94,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
   };
 
   // 导航菜单项
-  const navItems = [
+  const navItems: NavItem[] = [
     { key: 'home', label: '首页', path: navigationRoutes.home, icon: <HomeOutlined />, requireAuth: false },
     { key: 'store', label: '商城', path: '/store', icon: <ShoppingCartOutlined />, requireAuth: false },
     { 
@@ -104,10 +126,10 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
   ];
 
   // 处理导航点击
-  const handleNavClick = (item: any) => {
+  const handleNavClick = (item: NavItem) => {
     // 如果菜单项需要登录但用户未登录，跳转到登录页面
     if (item.requireAuth && !isLoggedIn) {
-      router.push(navigationRoutes.login);
+      router.push(getLoginRedirectUrl(item.path));
       return;
     }
     
@@ -123,7 +145,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
 
   // 处理登录
   const handleLogin = () => {
-    router.push(navigationRoutes.login);
+    router.push(getLoginRedirectUrl(resolvedCurrentPath));
   };
 
   return (

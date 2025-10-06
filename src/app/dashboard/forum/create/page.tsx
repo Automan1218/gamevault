@@ -40,7 +40,7 @@ import {
 import { PostsApi, CreatePostRequest } from '@/lib/api/posts';
 import { AuthApi } from '@/lib/api/auth';
 import Divider from 'antd/es/divider';
-import { navigationRoutes } from "@/lib/navigation";
+import { getLoginRedirectUrl, navigationRoutes } from "@/lib/navigation";
 import { darkTheme, cardStyle } from '@/components/common/theme';
 import '@/components/common/animations.css';
 
@@ -71,7 +71,7 @@ export default function CreatePostPage() {
     useEffect(() => {
         if (mounted && !AuthApi.isAuthenticated()) {
             message.warning('请先登录');
-            router.push('/auth/login');
+            router.push(getLoginRedirectUrl(navigationRoutes.postCreate));
         }
     }, [mounted, router]);
 

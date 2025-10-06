@@ -5,15 +5,17 @@ import { App, Card, Tabs, Form, Button, Avatar, Upload, Alert, Row, Col, Divider
 import { UserOutlined, LockOutlined, MailOutlined, CameraOutlined, ArrowLeftOutlined, ExclamationCircleOutlined, SafetyOutlined, SecurityScanOutlined, KeyOutlined, EditOutlined, CheckCircleOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { PageContainer, Menubar } from '@/components/layout';
 import { CustomButton, CustomInput, CustomPasswordInput } from '@/components/ui';
+import AvatarUpload from '@/components/forms/AvatarUpload';
 import { useSettings } from '@/app/features/settings/hooks/useSettings';
 import { navigationRoutes } from '@/lib/navigation';
+import { avatarEvents, getAvatarUrl } from '@/lib/api/avatar';
 import '@/components/common/animations.css';
 
 const { Title, Text, Paragraph } = Typography;
 
 export default function SettingsPage() {
   const { message: messageApi } = App.useApp();
-  const { userInfo, loading, changePassword, changeEmail } = useSettings();
+  const { userInfo, loading, changePassword, changeEmail, updateAvatar } = useSettings();
   const [changePasswordForm] = Form.useForm();
   const [changeEmailForm] = Form.useForm();
 
@@ -39,9 +41,11 @@ export default function SettingsPage() {
     }
   };
 
-  // 头像上传（暂不实现）
-  const handleAvatarUpload = () => {
-    messageApi.info('头像上传功能开发中...');
+  // 头像更新处理
+  const handleAvatarChange = (avatarUrl: string | null) => {
+    updateAvatar(avatarUrl);
+    // 发送头像更新事件，通知其他组件（如UserMenu）刷新
+    avatarEvents.emit(avatarUrl);
   };
 
   const tabItems = [
@@ -70,29 +74,15 @@ export default function SettingsPage() {
               }}
             >
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                <div 
-                  style={{ 
-                    position: 'relative', 
-                    display: 'inline-block',
-                    animation: 'pulse 2s infinite',
-                  }}
-                >
-                  <div className="avatar-container">
-                    <Avatar
-                      size={100}
-                      icon={<UserOutlined />}
-                      style={{
-                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                        border: '4px solid rgba(99, 102, 241, 0.3)',
-                        boxShadow: '0 8px 24px rgba(99, 102, 241, 0.3)',
-                        transition: 'all 0.3s ease',
-                        cursor: 'pointer',
-                      }}
-                    />
-                  </div>
-                </div>
+                {/* 头像显示和编辑 */}
+                <AvatarUpload
+                  currentAvatar={userInfo?.avatarUrl}
+                  onAvatarChange={handleAvatarChange}
+                  size={120}
+                  showEditButton={false}
+                />
                 
-                <div style={{ marginTop: 24 }}>
+                <div style={{ marginTop: 16 }}>
                   <Title level={3} style={{ color: '#f9fafb', margin: '0 0 8px 0', fontSize: '24px' }}>
                     {userInfo?.username || 'Unknown'}
                   </Title>
@@ -102,30 +92,14 @@ export default function SettingsPage() {
                 </div>
 
                 <Divider style={{ borderColor: 'rgba(99, 102, 241, 0.2)', margin: '24px 0' }} />
-
-                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                  <Tooltip title="点击更换头像">
-                    <Upload
-                      showUploadList={false}
-                      beforeUpload={() => false}
-                      onChange={handleAvatarUpload}
-                    >
-                      <CustomButton
-                        variant="ghost"
-                        size="large"
-                        icon={<CameraOutlined />}
-                        style={{ 
-                          width: '100%',
-                          height: 48,
-                          fontSize: '16px',
-                          fontWeight: 500,
-                        }}
-                      >
-                        更换头像
-                      </CustomButton>
-                    </Upload>
-                  </Tooltip>
-                </Space>
+                
+                {/* 编辑头像按钮 */}
+                <AvatarUpload
+                  currentAvatar={userInfo?.avatarUrl}
+                  onAvatarChange={handleAvatarChange}
+                  size={0}
+                  showEditButton={true}
+                />
               </div>
             </Card>
           </Col>
