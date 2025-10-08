@@ -1,129 +1,78 @@
-// src/types/chat.ts
+// types/chat.ts
 
 /**
- * 消息类型（匹配后端接口）
+ * 群聊类型
+ */
+export interface GroupChat {
+    id: number;
+    title: string;
+    ownerId: number;
+    unread: number;
+    lastMessage: string;
+    lastMessageTime?: string;
+    status?: string;
+    createdAt?: string;
+}
+
+/**
+ * 好友会话类型（用于聊天列表显示）
+ */
+export interface FriendConversation {
+    friendId: any;
+    uid: number;
+    username: string;
+    email: string;
+    remark?: string;
+    status: 'online' | 'offline' | 'busy' | 'away';
+    unread: number;
+    lastMessage?: string;
+    lastMessageTime?: string;
+}
+
+/**
+ * 统一会话类型
+ */
+export interface Conversation {
+    id: string;
+    type: 'group' | 'private';
+    name: string;
+    avatar?: string;
+    unread?: number;
+    lastMessage?: string;
+    lastMessageTime?: string;
+    data: GroupChat | FriendConversation;
+}
+
+/**
+ * 聊天消息类型
  */
 export interface ChatMessage {
     id: number;
     senderId: number;
-    receiverId?: number;        // 私聊消息才有
-    conversationId?: number;    // 群聊消息才有
+    receiverId?: number;
+    conversationId?: number;
+    senderUsername?: string;
+    senderEmail?: string;
     content: string;
-    createdAt: string;          // ISO 8601 格式
+    messageType?: string;
+    chatType?: 'group' | 'private';
+    createdAt: string;
+    timestamp?: string;
 }
 
 /**
- * 好友信息
- */
-export interface Friend {
-    userId: number;
-    username: string;
-    nickname?: string;
-    avatar?: string;
-    status?: 'online' | 'offline';  // 前端模拟
-    unread?: number;                // 前端统计
-    lastMessage?: string;           // 前端维护
-    lastMessageTime?: string;       // 前端维护
-}
-
-/**
- * 群聊信息
- */
-export interface GroupChat {
-    id: number;                 // conversationId
-    title: string;
-    ownerId: number;
-    createdAt?: string;
-    unread?: number;            // 前端统计
-    lastMessage?: string;       // 前端维护
-    lastMessageTime?: string;   // 前端维护
-}
-
-/**
- * 群成员信息
+ * 群聊成员类型
  */
 export interface GroupMember {
     userId: number;
     username: string;
-    nickname?: string;
-    avatar?: string;
+    email?: string;
     role: 'owner' | 'member';
+    nickname?: string;
     joinedAt?: string;
 }
 
 /**
- * 会话类型（统一私聊和群聊）
+ * WebSocket 状态
  */
-export interface Conversation {
-    id: string;                 // 格式：'private-{userId}' 或 'group-{conversationId}'
-    type: 'private' | 'group';
-    name: string;
-    avatar?: string;
-    unread: number;
-    lastMessage?: string;
-    lastMessageTime?: string;
-    data: Friend | GroupChat;   // 原始数据
-}
-
-/**
- * 创建群聊请求
- */
-export interface CreateGroupRequest {
-    title: string;
-    ownerId: number;
-}
-
-/**
- * 创建群聊响应
- */
-export interface CreateGroupResponse {
-    id: number;
-    title: string;
-    ownerId: number;
-    createdAt: string;
-}
-
-/**
- * 添加成员请求
- */
-export interface AddMemberRequest {
-    conversationId: number;
-    userId: number;
-}
-
-/**
- * 解散群聊请求
- */
-export interface DissolveGroupRequest {
-    conversationId: number;
-}
-
-/**
- * WebSocket 消息载荷（发送私聊消息）
- */
-export interface PrivateMessagePayload {
-    senderId: number;
-    receiverId: number;
-    content: string;
-}
-
-/**
- * WebSocket 消息载荷（发送群聊消息）
- */
-export interface GroupMessagePayload {
-    senderId: number;
-    conversationId: number;
-    content: string;
-}
-
-/**
- * 本地存储的群聊列表
- */
-export interface LocalGroupChats {
-    [userId: string]: GroupChat[];  // key: userId, value: 用户的群聊列表
-}
-
-/**
- * WebSocket 连接状态
- */
-export type WebSocketStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
+export type WebSocketStatus = 'connected' | 'disconnected' | 'connecting' | 'error';

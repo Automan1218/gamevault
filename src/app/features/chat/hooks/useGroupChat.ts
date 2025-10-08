@@ -1,8 +1,7 @@
 // src/app/features/chat/hooks/useGroupChat.ts
 import { useState, useEffect, useCallback } from 'react';
-import { ChatApi } from '@/lib/api/chat';
-import { chatWebSocket } from '@/lib/websocket/chatWebSocket';
-import { GroupChat, ChatMessage, GroupMember, CreateGroupRequest } from '@/types/chat';
+import { chatApi } from '@/lib/api/chat';
+import { GroupChat, ChatMessage, GroupMember } from '@/types/chat';
 import { useAuth } from '@/contexts/AuthContext';
 import { message } from 'antd';
 
@@ -18,50 +17,53 @@ export function useGroupChat() {
     const [loading, setLoading] = useState(false);
     const [sending, setSending] = useState(false);
 
-    // 加载用户的群聊列表（从本地存储）
-    const loadGroups = useCallback(() => {
-        if (!user) return;
+    const loadGroups = useCallback(async () => {
+        const token = localStorage.getItem('auth_token');
 
-        const localGroups = ChatApi.getLocalGroups(user.userId);
-        setGroups(localGroups);
+        if (!token) {
+            console.log('用户未登录（无 token），跳过加载群聊列表');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const groupList = await chatApi.getGroupList();
+            const activeGroups = groupList.filter(g => g.status !== 'dissolved');
+            setGroups(activeGroups);
+        } catch (error) {
+            console.error('加载群聊列表失败:', error);
+            message.error('加载群聊列表失败');
+            setGroups([]);
+        } finally {
+            setLoading(false);
+        }
     }, [user]);
 
     // 创建群聊
     const createGroup = useCallback(
         async (title: string): Promise<GroupChat | null> => {
-            if (!user) return null;
+            if (!user) {
+                message.error('用户未登录');
+                return null;
+            }
 
             setLoading(true);
 
             try {
-                const request: CreateGroupRequest = {
-                    title,
-                    ownerId: user.userId,
-                };
-
-                const response = await ChatApi.createGroup(request);
-
-                const newGroup: GroupChat = {
-                    id: response.id,
-                    title: response.title,
-                    ownerId: response.ownerId,
-                    createdAt: response.createdAt,
-                    unread: 0,
-                };
-
-                setGroups(prev => [...prev, newGroup]);
-                message.success('群聊创建成功');
-
+                const newGroup = await chatApi.createGroup({ name: title });
+                // 重新加载列表以获取最新数据
+                await loadGroups();
                 return newGroup;
             } catch (error) {
                 console.error('创建群聊失败:', error);
-                message.error('创建群聊失败');
+                message.error(error instanceof Error ? error.message : '创建群聊失败');
                 return null;
             } finally {
                 setLoading(false);
             }
         },
-        [user]
+        [user, loadGroups]
     );
 
     // 选择群聊
@@ -70,30 +72,16 @@ export function useGroupChat() {
             if (!user) return;
 
             setCurrentGroup(group);
+
             setLoading(true);
-
             try {
-                // 加载历史消息
-                const history = await ChatApi.getGroupMessages(group.id);
-                setMessages(history);
-
-                // 加载群成员
-                const groupMembers = await ChatApi.getGroupMembers(group.id);
+                const groupMembers = await chatApi.getGroupMembers(group.id);
                 setMembers(groupMembers);
-
-                // 订阅群聊消息
-                chatWebSocket.subscribeGroup(group.id, (newMessage: ChatMessage) => {
-                    setMessages(prev => [...prev, newMessage]);
-                });
-
-                // 清除未读数
-                ChatApi.clearLocalGroupUnread(user.userId, group.id);
-                setGroups(prev =>
-                    prev.map(g => (g.id === group.id ? { ...g, unread: 0 } : g))
-                );
+                console.log('群聊成员加载成功:', groupMembers);
             } catch (error) {
-                console.error('加载群聊失败:', error);
-                message.error('加载群聊失败');
+                console.error('加载群聊成员失败:', error);
+                message.error('加载群聊成员失败');
+                setMembers([]);
             } finally {
                 setLoading(false);
             }
@@ -101,115 +89,57 @@ export function useGroupChat() {
         [user]
     );
 
-    // 取消选择群聊
     const unselectGroup = useCallback(() => {
-        if (currentGroup) {
-            chatWebSocket.unsubscribeGroup(currentGroup.id);
-        }
+        console.log('取消选择群聊');
         setCurrentGroup(null);
         setMessages([]);
         setMembers([]);
-    }, [currentGroup]);
 
-    // 发送群聊消息
+
+    }, []);
+
     const sendMessage = useCallback(
         async (content: string) => {
-            if (!user || !currentGroup || !content.trim()) {
-                return;
-            }
-
-            setSending(true);
-
-            try {
-                chatWebSocket.sendGroupMessage(user.userId, currentGroup.id, content);
-
-                // 乐观更新：立即显示消息
-                const optimisticMessage: ChatMessage = {
-                    id: Date.now(), // 临时 ID
-                    senderId: user.userId,
-                    conversationId: currentGroup.id,
-                    content,
-                    createdAt: new Date().toISOString(),
-                };
-
-                setMessages(prev => [...prev, optimisticMessage]);
-
-                // 更新本地群聊的最后消息
-                ChatApi.updateLocalGroupMessage(
-                    user.userId,
-                    currentGroup.id,
-                    content,
-                    false // 自己发送的消息不增加未读数
-                );
-
-                setGroups(prev =>
-                    prev.map(g =>
-                        g.id === currentGroup.id
-                            ? {
-                                ...g,
-                                lastMessage: content,
-                                lastMessageTime: new Date().toISOString(),
-                            }
-                            : g
-                    )
-                );
-            } catch (error) {
-                console.error('发送群聊消息失败:', error);
-                message.error('发送失败，请检查网络连接');
-            } finally {
-                setSending(false);
-            }
+            console.log('发送群聊消息:', content);
+            message.info('发送消息功能开发中');
         },
-        [user, currentGroup]
+        []
     );
 
     // 添加群成员
     const addMember = useCallback(
         async (userId: number) => {
-            if (!currentGroup) return;
-
-            try {
-                await ChatApi.addGroupMember({
-                    conversationId: currentGroup.id,
-                    userId,
-                });
-
-                // 重新加载群成员
-                const groupMembers = await ChatApi.getGroupMembers(currentGroup.id);
-                setMembers(groupMembers);
-
-                message.success('成员添加成功');
-            } catch (error) {
-                console.error('添加群成员失败:', error);
-                message.error('添加成员失败');
-            }
+            console.log('添加群成员:', userId);
+            message.info('添加成员功能开发中');
         },
-        [currentGroup]
+        []
     );
 
     // 解散群聊
     const dissolveGroup = useCallback(
         async (conversationId: number) => {
-            if (!user) return;
+            if (!user) {
+                message.error('用户未登录');
+                return;
+            }
 
             try {
-                await ChatApi.dissolveGroup({ conversationId });
+                await chatApi.dissolveGroup(conversationId);
 
                 // 从列表中移除
                 setGroups(prev => prev.filter(g => g.id !== conversationId));
 
-                // 如果是当前群聊，取消选择
+                // 如果是当前选中的群聊，取消选择
                 if (currentGroup?.id === conversationId) {
                     unselectGroup();
                 }
 
-                message.success('群聊已解散');
             } catch (error) {
                 console.error('解散群聊失败:', error);
-                message.error('解散群聊失败');
+                throw error;
             }
         },
-        [user, currentGroup, unselectGroup]
+        [user, currentGroup]
     );
 
     // 搜索群聊
@@ -229,15 +159,6 @@ export function useGroupChat() {
     useEffect(() => {
         loadGroups();
     }, [loadGroups]);
-
-    // 组件卸载时取消订阅
-    useEffect(() => {
-        return () => {
-            if (currentGroup) {
-                chatWebSocket.unsubscribeGroup(currentGroup.id);
-            }
-        };
-    }, [currentGroup]);
 
     return {
         groups,

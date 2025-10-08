@@ -1,4 +1,3 @@
-// src/components/chat/CreateGroupModal.tsx
 import React from 'react';
 import { Modal, Form, Input, message } from 'antd';
 

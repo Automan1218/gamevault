@@ -34,7 +34,9 @@ export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
 
     if (!group) return null;
 
-    const isOwner = group.ownerId === currentUserId;
+    const isOwner = group.ownerId
+        ? Number(group.ownerId) === currentUserId
+        : false;
 
     // 解散群聊
     const handleDissolveGroup = async () => {

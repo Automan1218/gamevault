@@ -6,6 +6,7 @@ import { PlusOutlined } from '@ant-design/icons';
 interface ServerListProps {
     darkMode?: boolean;
     onCreateGroup?: () => void;
+    isWebSocketConnected?: boolean;
 }
 
 /**
@@ -15,6 +16,7 @@ interface ServerListProps {
 export const ServerList: React.FC<ServerListProps> = ({
                                                           darkMode = true,
                                                           onCreateGroup,
+                                                          isWebSocketConnected = false,
                                                       }) => {
     return (
         <div
@@ -56,6 +58,15 @@ export const ServerList: React.FC<ServerListProps> = ({
                     style={{ marginTop: 8 }}
                 />
             </Tooltip>
+            <div style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: isWebSocketConnected ? '#52c41a' : '#ff4d4f',
+                marginTop: 'auto',
+            }}
+                 title={isWebSocketConnected ? '🟢' : '🔴'}
+            />
         </div>
     );
 };

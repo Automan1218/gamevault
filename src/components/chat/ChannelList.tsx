@@ -1,18 +1,20 @@
-// src/components/chat/ChannelList.tsx
 import React, { useState } from 'react';
 import { Input, Badge, Avatar, Typography, Divider, Space, Button, Collapse } from 'antd';
-import { SearchOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
-import { Friend, GroupChat, Conversation } from '@/types/chat';
+import {BellOutlined, SearchOutlined, TeamOutlined, UserAddOutlined, UserOutlined} from '@ant-design/icons';
+import { GroupChat, Conversation, FriendConversation } from '@/types/chat';
 
 const { Text } = Typography;
 const { Panel } = Collapse;
 
 interface ChannelListProps {
-    friends: Friend[];
+    friends: FriendConversation[];
     groups: GroupChat[];
     selectedConversation: Conversation | null;
     onSelectConversation: (conversation: Conversation) => void;
     onCreateGroup?: () => void;
+    onAddFriend?: () => void;
+    onViewFriendRequests?: () => void;
+    friendRequestCount?: number;
     currentUserId: number;
     darkMode?: boolean;
 }
@@ -26,6 +28,9 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                                                             selectedConversation,
                                                             onSelectConversation,
                                                             onCreateGroup,
+                                                            onAddFriend,
+                                                            onViewFriendRequests,
+                                                            friendRequestCount = 0,
                                                             currentUserId,
                                                             darkMode = true,
                                                         }) => {
@@ -43,10 +48,9 @@ export const ChannelList: React.FC<ChannelListProps> = ({
     }));
 
     const friendConversations: Conversation[] = friends.map(friend => ({
-        id: `private-${friend.userId}`,
-        type: 'private',
-        name: friend.nickname || friend.username,
-        avatar: friend.avatar,
+        id: `private-${friend.uid}`,
+        type: 'private' as const,
+        name: friend.remark || friend.username,
         unread: friend.unread || 0,
         lastMessage: friend.lastMessage,
         lastMessageTime: friend.lastMessageTime,
@@ -102,7 +106,6 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                 }}
             >
                 <Space>
-                    {/* 头像 */}
                     {isGroup ? (
                         <Avatar size={40} style={{ background: '#1890ff' }}>
                             <TeamOutlined />
@@ -111,7 +114,7 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                         <Badge
                             dot
                             status={
-                                (conversation.data as Friend).status === 'online'
+                                (conversation.data as FriendConversation).status === 'online'
                                     ? 'success'
                                     : 'default'
                             }
@@ -130,7 +133,7 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                     <div style={{ maxWidth: 140 }}>
                         <div
                             style={{
-                                fontWeight: conversation.unread > 0 ? 600 : 400,
+                                fontWeight: (conversation.unread || 0) > 0 ? 600 : 400,
                                 marginBottom: 4,
                             }}
                         >
@@ -149,7 +152,7 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                 </Space>
 
                 {/* 未读数 */}
-                {conversation.unread > 0 && <Badge count={conversation.unread} />}
+                {(conversation.unread || 0) > 0 && <Badge count={conversation.unread} />}
             </div>
         );
     };
@@ -220,6 +223,26 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                             </Space>
                         }
                         key="friends"
+                        extra={
+                            <Space size="small" onClick={(e) => e.stopPropagation()}>
+                                <Badge count={friendRequestCount} offset={[-5, 5]}>
+                                    <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<BellOutlined />}
+                                        onClick={onViewFriendRequests}
+                                        title="好友请求"
+                                    />
+                                </Badge>
+                                <Button
+                                    type="text"
+                                    size="small"
+                                    icon={<UserAddOutlined />}
+                                    onClick={onAddFriend}
+                                    title="添加好友"
+                                />
+                            </Space>
+                        }
                     >
                         {filteredFriends.length > 0 ? (
                             filteredFriends.map(renderConversationItem)

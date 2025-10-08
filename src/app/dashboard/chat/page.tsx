@@ -1,13 +1,14 @@
 // src/app/dashboard/chat/page.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { ConfigProvider, theme, message as antMessage } from 'antd';
+import React, { useState } from 'react';
+import { ConfigProvider, theme, App, message as antMessage } from 'antd';
 import { useAuth } from '@/contexts/AuthContext';
-import { useWebSocket } from '@/app/features/chat/hooks/useWebSocket';
-import { useFriendList } from '@/app/features/chat/hooks/useFriendList';
-import { usePrivateChat } from '@/app/features/chat/hooks/usePrivateChat';
 import { useGroupChat } from '@/app/features/chat/hooks/useGroupChat';
+import { useFriend } from '@/app/features/friend/hooks/useFriend';
+import { useWebSocket } from '@/app/features/chat/hooks/useWebSocket';
+import { useGroupMessages } from '@/app/features/chat/hooks/useGroupMessages';
+import { usePrivateMessages } from '@/app/features/chat/hooks/usePrivateMessages';
 import {
     ServerList,
     ChannelList,
@@ -15,7 +16,13 @@ import {
     CreateGroupModal,
     GroupSettingsModal,
 } from '@/components/chat';
-import { Conversation, Friend, GroupChat } from '@/types/chat';
+
+import SearchUserModal from '@/components/friend/SearchUserModal';
+import FriendRequestsModal from '@/components/friend/FriendRequestsModal';
+import AddMembersModal from '@/components/friend/AddMembersModal';
+
+import { FriendConversation, Conversation, GroupChat } from '@/types/chat';
+import { chatApi } from "@/lib/api/chat";
 
 export default function ChatPage() {
     const { user } = useAuth();
@@ -24,106 +31,105 @@ export default function ChatPage() {
     const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
     const [showGroupSettingsModal, setShowGroupSettingsModal] = useState(false);
 
-    // WebSocket 连接
-    const { isConnected, status } = useWebSocket();
+    const [showSearchUserModal, setShowSearchUserModal] = useState(false);
+    const [showFriendRequestsModal, setShowFriendRequestsModal] = useState(false);
+    const [showAddMembersModal, setShowAddMembersModal] = useState(false);
 
-    // 好友列表
-    const {
-        friends,
-        loading: friendsLoading,
-        updateFriendMessage,
-        clearFriendUnread,
-        getFriend,
-    } = useFriendList();
+    // WebSocket 连接
+    const { isConnected } = useWebSocket();
 
     // 群聊管理
     const {
         groups,
-        currentGroup,
-        messages: groupMessages,
-        members: groupMembers,
         loading: groupLoading,
-        sending: groupSending,
+        members: groupMembers,
         createGroup,
+        dissolveGroup,
         selectGroup,
         unselectGroup,
-        sendMessage: sendGroupMessage,
-        dissolveGroup,
+        loadGroups,
     } = useGroupChat();
 
-    // 私聊管理
-    const [privateChatUserId, setPrivateChatUserId] = useState<number | null>(null);
+    // 好友管理 Hook
+    const {
+        friends: friendList,
+        receivedRequests,
+        sentRequests,
+        searchUsers,
+        sendFriendRequest,
+        handleFriendRequest,
+        loadSentRequests,
+    } = useFriend();
+
+    // 转换好友为会话格式
+    const friendConversations: FriendConversation[] = friendList.map(friend => ({
+        uid: friend.uid,
+        username: friend.username,
+        email: friend.email,
+        remark: friend.remark,
+        status: 'offline' as const,
+        unread: 0,
+        lastMessage: undefined,
+        lastMessageTime: undefined,
+    }));
+
+    // 添加消息管理
+    const {
+        messages: groupMessages,
+        loading: groupMessagesLoading,
+        sending: groupSending,
+        sendMessage: sendGroupMessage,
+    } = useGroupMessages(
+        selectedConversation?.type === 'group'
+            ? (selectedConversation.data as GroupChat).id
+            : null
+    );
+
+    // 私聊信息管理
     const {
         messages: privateMessages,
-        loading: privateLoading,
+        loading: privateMessagesLoading,
         sending: privateSending,
         sendMessage: sendPrivateMessage,
-    } = usePrivateChat(privateChatUserId);
+    } = usePrivateMessages(
+        selectedConversation?.type === 'private'
+            ? (selectedConversation.data as FriendConversation).uid
+            : null,
+        user?.uid || 0
+    );
 
-    // 连接状态提示
-    useEffect(() => {
-        if (status === 'connected') {
-            antMessage.success('聊天服务已连接');
-        } else if (status === 'disconnected') {
-            antMessage.warning('聊天服务已断开');
-        } else if (status === 'error') {
-            antMessage.error('聊天服务连接失败');
-        }
-    }, [status]);
-
-    // 选择会话
-    const handleSelectConversation = (conversation: Conversation) => {
-        // 如果选择的是当前会话，直接返回
-        if (selectedConversation?.id === conversation.id) return;
-
-        // 取消之前的订阅
-        if (selectedConversation) {
-            if (selectedConversation.type === 'group') {
-                unselectGroup();
-            }
-        }
-
-        setSelectedConversation(conversation);
-
-        if (conversation.type === 'private') {
-            // 私聊
-            const friend = conversation.data as Friend;
-            setPrivateChatUserId(friend.userId);
-            clearFriendUnread(friend.userId);
-        } else {
-            // 群聊
-            const group = conversation.data as GroupChat;
-            setPrivateChatUserId(null);
-            selectGroup(group);
-        }
-    };
-
-    // 发送消息
+    // 修改发送消息处理
     const handleSendMessage = async (content: string) => {
-        if (!selectedConversation || !user) return;
-
-        if (selectedConversation.type === 'private') {
-            const friend = selectedConversation.data as Friend;
-            await sendPrivateMessage(content);
-            updateFriendMessage(friend.userId, content, false);
-        } else {
+        if (selectedConversation?.type === 'group') {
             await sendGroupMessage(content);
+        } else if (selectedConversation?.type === 'private') {
+            await sendPrivateMessage(content);
         }
     };
 
     // 创建群聊
     const handleCreateGroup = async (title: string) => {
-        const newGroup = await createGroup(title);
-        if (newGroup) {
+        try {
+            await createGroup(title);
             setShowCreateGroupModal(false);
             antMessage.success(`群聊 "${title}" 创建成功`);
+        } catch (error) {
+            console.error('创建群聊失败:', error);
+            antMessage.error(error instanceof Error ? error.message : '创建群聊失败');
         }
     };
 
-    // 解散群聊
+     // 解散群聊
     const handleDissolveGroup = async (conversationId: number) => {
-        await dissolveGroup(conversationId);
-        setShowGroupSettingsModal(false);
+        try {
+            await dissolveGroup(conversationId);
+            antMessage.success('群聊已解散');
+            setShowGroupSettingsModal(false);
+            setSelectedConversation(null);
+        } catch (error) {
+            console.error('解散群聊失败:', error);
+            antMessage.error(error instanceof Error ? error.message : '解散群聊失败');
+        }
     };
 
     // 主题配置
@@ -137,20 +143,39 @@ export default function ChatPage() {
         },
     };
 
-    // 获取当前消息列表
+    // 选择会话
+    const handleSelectConversation = (conversation: Conversation) => {
+        setSelectedConversation(conversation);
+
+        if (conversation.type === 'group') {
+            const group = conversation.data as GroupChat;
+            selectGroup(group);
+        } else {
+            unselectGroup();
+        }
+    };
+
+    // 添加成员到群聊
+    const handleAddMembers = async (conversationId: string, userIds: number[]) => {
+        await chatApi.addMembersToGroup(conversationId, userIds);
+    };
+
+    // 添加成员成功后的回调
+    const handleAddMembersSuccess = async () => {
+        // 重新加载群成员
+        if (selectedConversation?.type === 'group') {
+            const group = selectedConversation.data as GroupChat;
+            await selectGroup(group);  // 重新加载成员列表
+        }
+    };
+
+
     const currentMessages = selectedConversation?.type === 'group'
         ? groupMessages
         : privateMessages;
 
-    // 获取加载状态
-    const isLoading = selectedConversation?.type === 'group'
-        ? groupLoading
-        : privateLoading;
-
-    // 获取发送状态
-    const isSending = selectedConversation?.type === 'group'
-        ? groupSending
-        : privateSending;
+    const isLoading = groupLoading || groupMessagesLoading || privateMessagesLoading;
+    const isSending = groupSending || privateSending;
 
     if (!user) {
         return (
@@ -167,60 +192,96 @@ export default function ChatPage() {
 
     return (
         <ConfigProvider theme={darkMode ? darkTheme : undefined}>
-            <div style={{
-                height: '100vh',
-                display: 'flex',
-                background: darkMode ? '#0d0d0d' : '#f5f5f5'
-            }}>
-                {/* 最左侧 - 服务器列表 */}
-                <ServerList
-                    darkMode={darkMode}
-                    onCreateGroup={() => setShowCreateGroupModal(true)}
-                />
+            <App>
+                <div style={{
+                    height: '100vh',
+                    display: 'flex',
+                    background: darkMode ? '#0d0d0d' : '#f5f5f5'
+                }}>
+                    {/* 最左侧 - 服务器列表 */}
+                    <ServerList
+                        darkMode={darkMode}
+                        onCreateGroup={() => setShowCreateGroupModal(true)}
+                        isWebSocketConnected={isConnected}
+                    />
 
-                {/* 中间 - 会话列表 */}
-                <ChannelList
-                    friends={friends}
-                    groups={groups}
-                    selectedConversation={selectedConversation}
-                    onSelectConversation={handleSelectConversation}
-                    onCreateGroup={() => setShowCreateGroupModal(true)}
-                    currentUserId={user.userId}
-                    darkMode={darkMode}
-                />
+                    {/* 中间 - 会话列表 */}
+                    <ChannelList
+                        friends={friendConversations}
+                        groups={groups}
+                        selectedConversation={selectedConversation}
+                        onSelectConversation={handleSelectConversation}
+                        onCreateGroup={() => setShowCreateGroupModal(true)}
+                        onAddFriend={() => setShowSearchUserModal(true)}
+                        onViewFriendRequests={() => setShowFriendRequestsModal(true)}
+                        friendRequestCount={receivedRequests.length}
+                        currentUserId={user.uid}
+                        darkMode={darkMode}
+                    />
 
-                {/* 右侧 - 聊天窗口 */}
-                <ChatWindow
-                    conversation={selectedConversation}
-                    messages={currentMessages}
-                    currentUserId={user.userId}
-                    loading={isLoading}
-                    sending={isSending}
-                    members={selectedConversation?.type === 'group' ? groupMembers : []}
-                    onSendMessage={handleSendMessage}
-                    onOpenSettings={() => setShowGroupSettingsModal(true)}
-                    onAddMember={() => antMessage.info('添加成员功能开发中')}
-                    darkMode={darkMode}
-                />
+                    {/* 右侧 - 聊天窗口 */}
+                    <ChatWindow
+                        conversation={selectedConversation}
+                        messages={currentMessages}
+                        currentUserId={user.uid}
+                        loading={isLoading}
+                        sending={isSending}
+                        members={selectedConversation?.type === 'group' ? groupMembers : []}
+                        onSendMessage={handleSendMessage}
+                        onOpenSettings={() => setShowGroupSettingsModal(true)}
+                        onAddMember={() => setShowAddMembersModal(true)}
+                        darkMode={darkMode}
+                    />
 
-                {/* 创建群聊弹窗 */}
-                <CreateGroupModal
-                    open={showCreateGroupModal}
-                    loading={groupLoading}
-                    onCancel={() => setShowCreateGroupModal(false)}
-                    onConfirm={handleCreateGroup}
-                />
+                    {/* 创建群聊弹窗 */}
+                    <CreateGroupModal
+                        open={showCreateGroupModal}
+                        loading={groupLoading}
+                        onCancel={() => setShowCreateGroupModal(false)}
+                        onConfirm={handleCreateGroup}
+                    />
 
-                {/* 群聊设置弹窗 */}
-                <GroupSettingsModal
-                    open={showGroupSettingsModal}
-                    group={currentGroup}
-                    members={groupMembers}
-                    currentUserId={user.userId}
-                    onClose={() => setShowGroupSettingsModal(false)}
-                    onDissolveGroup={handleDissolveGroup}
-                />
-            </div>
+                    {selectedConversation?.type === 'group' && (
+                        <>
+                            <GroupSettingsModal
+                                open={showGroupSettingsModal}
+                                group={selectedConversation.data as GroupChat}
+                                members={groupMembers}
+                                currentUserId={user.uid}
+                                onClose={() => setShowGroupSettingsModal(false)}
+                                onDissolveGroup={handleDissolveGroup}
+                            />
+
+                            <AddMembersModal
+                                open={showAddMembersModal}
+                                conversationId={(selectedConversation.data as GroupChat).id}
+                                friends={friendList}
+                                onClose={() => setShowAddMembersModal(false)}
+                                onSubmit={handleAddMembers}
+                                onSuccess={handleAddMembersSuccess}
+                            />
+                        </>
+                    )}
+
+                    {/* 搜索用户弹窗 */}
+                    <SearchUserModal
+                        open={showSearchUserModal}
+                        onClose={() => setShowSearchUserModal(false)}
+                        onSearch={searchUsers}
+                        onSendRequest={sendFriendRequest}
+                    />
+
+                    {/* 好友请求弹窗 */}
+                    <FriendRequestsModal
+                        open={showFriendRequestsModal}
+                        onClose={() => setShowFriendRequestsModal(false)}
+                        receivedRequests={receivedRequests}
+                        sentRequests={sentRequests}
+                        onHandle={handleFriendRequest}
+                        onLoadSentRequests={loadSentRequests}
+                    />
+                </div>
+            </App>
         </ConfigProvider>
     );
 }
