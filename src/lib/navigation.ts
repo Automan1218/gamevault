@@ -14,7 +14,7 @@ export const navigationRoutes = {
 
     // Forum相关 - 更新为新的路由结构
     forum: '/dashboard/forum',
-    forumDetail: (id: number) => `/dashboard/forum/${id}`,
+    forumDetail: `/dashboard/forum/detail`,
     forumEdit: (id: number) => `/dashboard/forum/${id}/edit`,
     forumCategory: (categoryId: string) => `/dashboard/forum/category/${categoryId}`,
     forumSearch: '/dashboard/forum/search',
@@ -179,6 +179,7 @@ export const getLoginRedirectUrl = (targetPath?: string): string => {
 
     return `${navigationRoutes.login}?redirect=${encodeURIComponent(withLeadingSlash || fallback)}`;
 };
+
 
 export const isForumRoute = (path: string): boolean => {
     return path.startsWith('/dashboard/forum') || path.startsWith('/post/') || path === '/my-posts' || path === '/favorites';

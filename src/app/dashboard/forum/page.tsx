@@ -12,7 +12,6 @@ import {
     Col,
     Divider,
     Empty,
-    message,
     Row,
     Space,
     Spin,
@@ -21,6 +20,7 @@ import {
     ConfigProvider,
     List,
     Carousel,
+    App,
 } from 'antd';
 import {
     CommentOutlined,
@@ -43,6 +43,8 @@ import { useForum } from "@/app/features/forum/hooks/useForum";
 import { ForumPost } from "@/app/features/forum/types/forumTypes";
 import { darkTheme, cardStyle } from '@/components/common/theme';
 import '@/components/common/animations.css';
+import { PostStateManager } from '@/lib/api/PostStateManager';
+import { getAvatarUrl, handleAvatarError, getDefaultAvatarStyle } from '@/lib/api/avatar';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -54,14 +56,13 @@ export default function ForumPage() {
         currentPage,
         refresh,
         loadMore,
-        likePost,
-        unlikePost
+        toggleLike
     } = useForum();
 
     const router = useRouter();
     const [activeTab, setActiveTab] = useState('latest');
-    const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
     const [mounted, setMounted] = useState(false);
+    const { message } = App.useApp();
 
     // 热门游戏数据
     const hotGames = [
@@ -113,22 +114,20 @@ export default function ForumPage() {
 
     const isLoggedIn = mounted ? AuthApi.isAuthenticated() : false;
 
+    // 点击帖子卡片时
+    const handlePostClick = (contentId: number) => {
+        // 1. 先使用 PostStateManager 设置当前要查看的帖子
+        PostStateManager.setCurrentPost(contentId);
+
+        // 2. 然后跳转到详情页（不带ID参数）
+        router.push(navigationRoutes.forumDetail);
+    }
+
     // 点赞帖子
     const handleLikePost = async (postId: number) => {
         try {
-            if (likedPosts.has(postId)) {
-                await unlikePost(postId);
-                setLikedPosts(prev => {
-                    const newSet = new Set(prev);
-                    newSet.delete(postId);
-                    return newSet;
-                });
-                message.success('取消点赞');
-            } else {
-                await likePost(postId);
-                setLikedPosts(prev => new Set(prev).add(postId));
-                message.success('点赞成功');
-            }
+            const liked = await toggleLike(postId);
+            message.success(liked ? '点赞成功' : '取消点赞');
         } catch (error) {
             message.error('操作失败');
         }
@@ -146,7 +145,7 @@ export default function ForumPage() {
                 transition: 'all 0.3s ease',
             }}
             styles={{ body: { padding: '24px' } }}
-            onClick={() => router.push(navigationRoutes.postDetail(post.contentId))}
+            onClick={() => handlePostClick(post.contentId)}
         >
             <Space direction="vertical" style={{ width: '100%' }} size="middle">
                 {/* 帖子头部：标签和时间 */}
@@ -234,11 +233,13 @@ export default function ForumPage() {
                     <Space size="small">
                         <Avatar
                             size={32}
+                            src={getAvatarUrl(post.authorAvatar)}
                             icon={<UserOutlined />}
-                            style={{ 
-                                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                                border: '2px solid rgba(99, 102, 241, 0.3)',
+                            onError={() => {
+                                handleAvatarError(new Error('头像加载失败'), true);
+                                return false;
                             }}
+                            style={getDefaultAvatarStyle(32)}
                         />
                         <Text style={{ color: '#d1d5db', fontSize: '14px', fontWeight: 500 }}>
                                     {post.authorNickname || post.authorUsername || post.authorName || `用户${post.authorId}`}
@@ -258,7 +259,7 @@ export default function ForumPage() {
                         <Space 
                             size={4} 
                             style={{ 
-                                color: likedPosts.has(post.contentId) ? '#ef4444' : '#9ca3af', 
+                                color: post.isLiked ? '#ef4444' : '#9ca3af',
                                 fontSize: '14px',
                                 cursor: 'pointer',
                             }}
@@ -268,7 +269,7 @@ export default function ForumPage() {
                             }}
                         >
                             <LikeOutlined />
-                            <span>{post.likeCount + (likedPosts.has(post.contentId) ? 1 : 0)}</span>
+                            <span>{post.likeCount}</span>
                         </Space>
                     </Space>
                 </div>

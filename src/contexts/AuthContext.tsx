@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { AuthApi } from '@/lib/api/auth';
+import { UsersApi } from '@/lib/api/users';
 import { User } from '@/types/api';
 
 interface AuthContextType {
@@ -63,6 +64,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // 登录
   const login = (token: string, userData: User) => {
+    // 清除旧用户的缓存
+    UsersApi.clearUserCache();
     localStorage.setItem('auth_token', token);
     setUser(userData);
     setIsAuthenticated(true);
@@ -75,6 +78,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      // 清除用户缓存
+      UsersApi.clearUserCache();
       localStorage.removeItem('auth_token');
       setUser(null);
       setIsAuthenticated(false);

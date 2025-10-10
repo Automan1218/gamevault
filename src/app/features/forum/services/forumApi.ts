@@ -12,6 +12,7 @@ import {
     GameBoard,
     UpdateForumPostRequest
 } from '../types/forumTypes';
+import {apiClient} from "@/lib/api";
 
 export class ForumApi {
     // 获取论坛帖子列表（包含Forum特定逻辑）
@@ -443,7 +444,7 @@ export class ForumApi {
             isPinned: false,
             isLocked: false,
             lastReplyAt: post.updatedDate,
-            lastReplyBy: post.authorName,
+            lastReplyBy: post.authorUsername,
             hotScore: this.calculateHotScore(post)
         };
     }
@@ -521,5 +522,13 @@ export class ForumApi {
     private static async getOnlineUsersCount(): Promise<number> {
         // 模拟获取在线用户数，实际应该调用专门的API
         return Math.floor(Math.random() * 1000) + 500; // 500-1500之间的随机数
+    }
+
+    // 在 ForumApi 类中添加
+    static async toggleLikeForumPost(postId: number): Promise<{
+        liked: boolean;
+        likeCount: number;
+    }> {
+        return PostsApi.toggleLike(postId);  // 直接复用
     }
 }

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthApi } from '@/lib/api/auth';
+import { UsersApi } from '@/lib/api/users';
 import { LoginRequest, RegisterRequest } from '@/types/api';
 
 export const useAuth = () => {
@@ -14,6 +15,10 @@ export const useAuth = () => {
         try {
             setLoading(true);
             setError(null);
+            
+            // 清除旧用户的缓存
+            UsersApi.clearUserCache();
+            
             const response = await AuthApi.login(credentials);
             if (response.token) {
                 localStorage.setItem('auth_token', response.token);
@@ -36,6 +41,10 @@ export const useAuth = () => {
         try {
             setLoading(true);
             setError(null);
+            
+            // 清除旧用户的缓存
+            UsersApi.clearUserCache();
+            
             const response = await AuthApi.register(userData);
             if (response.token) {
                 // 注册成功后自动登录
@@ -57,6 +66,8 @@ export const useAuth = () => {
     // 登出
     const logout = async () => {
         try {
+            // 清除用户缓存
+            UsersApi.clearUserCache();
             await AuthApi.logout();
             router.push('/auth/login');
         } catch (err) {

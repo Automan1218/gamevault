@@ -43,27 +43,20 @@ import {
     StarOutlined,
 } from '@ant-design/icons';
 
-import { PostsApi } from '@/lib/api/posts';
+import { PostsApi, Post } from '@/lib/api/posts';
 import { AuthApi } from '@/lib/api/auth';
 import { UsersApi } from "@/lib/api/users";
 import { navigationRoutes } from '@/lib/navigation';
 import { darkTheme, cardStyle } from '@/components/common/theme';
+import { PostStateManager } from '@/lib/api/PostStateManager';
 import '@/components/common/animations.css';
+import { getAvatarUrl, handleAvatarError, getDefaultAvatarStyle } from '@/lib/api/avatar';
+import { ProfileApi } from '@/lib/api/profile';
 
 const { Title, Text, Paragraph } = Typography;
 
-interface PostItem {
-    postId: number;
-    title: string;
-    body: string;
-    bodyPlain: string;
-    authorId: number;
-    authorName?: string;
-    viewCount: number;
-    likeCount: number;
-    replyCount: number;
-    createdDate: string;
-    updatedDate: string;
+// 直接使用Post类型，添加额外的可选字段
+interface PostItem extends Post {
     category?: string;
     tags?: string[];
     isPinned?: boolean;
@@ -98,16 +91,29 @@ export default function MyPostsPage() {
     // 用户信息
     const [userId, setUserId] = useState<number | null>(null);
     const [username, setUsername] = useState<string | null>(null);
+    const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         setMounted(true);
         (async () => {
+            // 清除缓存，确保获取最新的用户信息
+            UsersApi.clearUserCache();
+            
             const [id, name] = await Promise.all([
                 UsersApi.getUserId(),
                 UsersApi.getUsername(),
             ]);
             setUserId(id);
             setUsername(name);
+
+            // 获取用户头像
+            try {
+                const profile = await ProfileApi.getProfile();
+                setAvatarUrl(profile.avatarUrl);
+            } catch (error) {
+                console.warn('获取用户头像失败:', error);
+                setAvatarUrl(undefined);
+            }
         })();
     }, []);
 
@@ -129,11 +135,11 @@ export default function MyPostsPage() {
             // 使用 PostsApi 调用获取用户帖子的API
             const data = await PostsApi.getUserPosts(userId, page - 1, pageSize);
 
-            setMyPosts(data.posts || []);
+            setMyPosts(data.posts as PostItem[] || []);
             setTotalPosts(data.totalCount || 0);
 
             // 计算统计数据
-            calculateStats(data.posts || []);
+            calculateStats(data.posts as PostItem[] || []);
         } catch (error) {
             console.error('获取我的帖子失败:', error);
             message.error('获取帖子列表失败');
@@ -164,7 +170,7 @@ export default function MyPostsPage() {
         if (!selectedPost) return;
 
         try {
-            await PostsApi.deletePost(selectedPost.postId);
+            await PostsApi.deletePost(selectedPost.contentId);
             message.success('删除成功');
             setDeleteModalVisible(false);
             setSelectedPost(null);
@@ -193,7 +199,7 @@ export default function MyPostsPage() {
                 key: 'edit',
                 label: '编辑',
                 icon: <EditOutlined />,
-                onClick: () => handleEditPost(post.postId),
+                onClick: () => handleEditPost(post.contentId),
             },
             {
                 key: 'delete',
@@ -209,7 +215,7 @@ export default function MyPostsPage() {
 
         return (
             <Card
-                key={post.postId}
+                key={post.contentId}
                 hoverable
                 className="animate-card-hover"
                 style={{
@@ -297,7 +303,10 @@ export default function MyPostsPage() {
                     </div>
 
                     {/* 帖子标题 */}
-                    <div onClick={() => router.push(`/post/${post.postId}`)}>
+                    <div onClick={() => {
+                        PostStateManager.setCurrentPost(post.contentId);
+                        router.push(navigationRoutes.forumDetail);
+                    }}>
                         <Title
                             level={4}
                             style={{
@@ -322,7 +331,10 @@ export default function MyPostsPage() {
                                 fontSize: '14px',
                                 lineHeight: 1.6,
                             }}
-                            onClick={() => router.push(`/post/${post.postId}`)}
+                            onClick={() => {
+                                PostStateManager.setCurrentPost(post.contentId);
+                                router.push(navigationRoutes.forumDetail);
+                            }}
                         >
                             {post.bodyPlain.substring(0, 150)}
                         </Paragraph>
@@ -428,14 +440,18 @@ export default function MyPostsPage() {
                             <Col key="user-avatar" flex="none">
                                 <Avatar
                                     size={80}
+                                    src={getAvatarUrl(avatarUrl)}
                                     icon={<UserOutlined />}
+                                    onError={() => {
+                                        handleAvatarError(new Error('头像加载失败'), true);
+                                        return false;
+                                    }}
                                     style={{
-                                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                                        ...getDefaultAvatarStyle(80),
                                         border: '3px solid rgba(99, 102, 241, 0.3)',
-                                        fontSize: '36px',
                                     }}
                                 >
-                                    {username?.charAt(0).toUpperCase()}
+                                    {!avatarUrl && username?.charAt(0).toUpperCase()}
                                 </Avatar>
                             </Col>
                             <Col key="user-info" flex="auto">
