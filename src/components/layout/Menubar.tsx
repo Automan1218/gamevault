@@ -1,0 +1,494 @@
+"use client";
+
+import React, { useState, useEffect, useMemo } from 'react';
+import { Button, Space, Dropdown, Badge, Input, ConfigProvider } from 'antd';
+import { 
+  SearchOutlined, 
+  BellOutlined, 
+  ShoppingCartOutlined, 
+  HomeOutlined,
+  TeamOutlined,
+  LoginOutlined,
+  MessageOutlined,
+  CodeOutlined,
+  FileTextOutlined,
+  CommentOutlined
+} from '@ant-design/icons';
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
+import { getLoginRedirectUrl, navigationRoutes } from '@/lib/navigation';
+import { AuthApi } from '@/lib/api/auth';
+import { User } from '@/types/api';
+import UserMenu from './UserMenu';
+import { darkTheme } from '@/components/common/theme';
+import { useCart } from '@/app/features/cart/hooks/useCart';
+import '@/components/common/animations.css';
+
+interface MenubarProps {
+  currentPath?: string;
+}
+
+type DropdownNavItem = {
+  key: string;
+  label: string;
+  path: string;
+  icon?: React.ReactNode;
+  requireAuth: boolean;
+};
+
+type NavItem = DropdownNavItem & {
+  hasDropdown?: boolean;
+  dropdownItems?: DropdownNavItem[];
+};
+
+function Menubar({ currentPath = '/' }: MenubarProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  
+  // 获取购物车信息
+  const { cart } = useCart();
+  const cartItemCount = cart?.cartItems?.length || 0;
+
+  const resolvedCurrentPath = useMemo(() => {
+    const nextPath = pathname || currentPath;
+    if (!searchParams) {
+      return nextPath;
+    }
+
+    const queryString = searchParams.toString();
+    return queryString ? `${nextPath}?${queryString}` : nextPath;
+  }, [pathname, searchParams, currentPath]);
+
+  // 检查登录状态
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        setLoading(true);
+        const authenticated = AuthApi.isAuthenticated();
+        setIsLoggedIn(authenticated);
+        
+        if (authenticated) {
+          const userData = await AuthApi.getCurrentUser();
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error('检查认证状态失败:', error);
+        setIsLoggedIn(false);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
+
+  // 检查路径是否匹配（支持子路径匹配）
+  const isPathActive = (itemPath: string, currentPath: string) => {
+    // 如果是精确匹配
+    if (currentPath === itemPath) return true;
+    
+    // 如果是首页，只有精确匹配才算
+    if (itemPath === '/') return false;
+    
+    // 如果当前路径是该菜单项路径的子路径
+    return currentPath.startsWith(itemPath + '/');
+  };
+
+  // 导航菜单项
+  const navItems: NavItem[] = [
+    { key: 'home', label: '首页', path: navigationRoutes.home, icon: <HomeOutlined />, requireAuth: false },
+    { key: 'store', label: '商城', path: navigationRoutes.shopping, icon: <ShoppingCartOutlined />, requireAuth: false },
+    { 
+      key: 'forum', 
+      label: '论坛', 
+      path: navigationRoutes.forum, 
+      icon: <TeamOutlined />, 
+      requireAuth: false,
+      hasDropdown: true,
+      dropdownItems: [
+        { 
+          key: 'forum-home', 
+          label: '论坛首页', 
+          path: navigationRoutes.forum, 
+          icon: <CommentOutlined />,
+          requireAuth: false 
+        },
+        { 
+          key: 'my-posts', 
+          label: '我的发帖', 
+          path: navigationRoutes.myPosts, 
+          icon: <FileTextOutlined />,
+          requireAuth: true 
+        },
+      ]
+    },
+    { key: 'chat', label: '聊天室', path: '/chat', icon: <MessageOutlined />, requireAuth: true },
+    { key: 'developer', label: '开发者', path: '/developer', icon: <CodeOutlined />, requireAuth: true },
+  ];
+
+  // 处理导航点击
+  const handleNavClick = (item: NavItem) => {
+    // 如果菜单项需要登录但用户未登录，跳转到登录页面
+    if (item.requireAuth && !isLoggedIn) {
+      router.push(getLoginRedirectUrl(item.path));
+      return;
+    }
+    
+    router.push(item.path);
+  };
+
+  // 处理购物车点击
+  const handleCartClick = () => {
+    if (!isLoggedIn) {
+      router.push(getLoginRedirectUrl(navigationRoutes.cart));
+      return;
+    }
+    router.push(navigationRoutes.cart);
+  };
+
+  // 处理通知点击
+  const handleNotificationClick = () => {
+    router.push(navigationRoutes.notifications);
+  };
+
+  // 处理登录
+  const handleLogin = () => {
+    router.push(getLoginRedirectUrl(resolvedCurrentPath));
+  };
+
+  return (
+    <ConfigProvider theme={darkTheme}>
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          background: `
+            linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%)
+          `,
+          backdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(99, 102, 241, 0.2)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+          padding: '0 24px',
+          height: '64px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+        className="animate-slide-in"
+      >
+        {/* 左侧Logo和导航 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+          {/* Logo */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+            }}
+            onClick={() => router.push(navigationRoutes.home)}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            <div
+              style={{
+                fontSize: '32px',
+                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                filter: 'drop-shadow(0 4px 8px rgba(99, 102, 241, 0.3))',
+                animation: 'glow 3s ease-in-out infinite alternate',
+              }}
+            >
+              🎮
+            </div>
+            <span
+              style={{
+                fontSize: '24px',
+                fontWeight: 700,
+                background: 'linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                letterSpacing: '-0.02em',
+              }}
+            >
+              GameVault
+            </span>
+          </div>
+
+          {/* 导航菜单 */}
+          <Space size="large">
+            {navItems.map((item) => {
+              // 如果有下拉菜单
+              if (item.hasDropdown && item.dropdownItems) {
+                const filteredItems = item.dropdownItems.filter(dropItem => !dropItem.requireAuth || isLoggedIn);
+                
+                const dropdownMenuItems = filteredItems.map((dropItem, index) => {
+                  const menuItem = {
+                    key: dropItem.key,
+                    label: (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {dropItem.icon}
+                        {dropItem.label}
+                      </span>
+                    ),
+                    onClick: () => router.push(dropItem.path),
+                  };
+                  
+                  // 如果有多个菜单项且这是第一项（论坛首页），添加分隔线
+                  if (filteredItems.length > 1 && index === 0 && isLoggedIn) {
+                    return [menuItem, { type: 'divider' as const, key: `divider-${index}` }];
+                  }
+                  
+                  return menuItem;
+                }).flat();
+
+                return (
+                  <Dropdown
+                    key={item.key}
+                    menu={{ 
+                      items: dropdownMenuItems,
+                      style: {
+                        background: 'rgba(31, 41, 55, 0.95)',
+                        backdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(99, 102, 241, 0.2)',
+                        borderRadius: '12px',
+                        padding: '8px',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                        minWidth: '160px',
+                      }
+                    }}
+                    placement="bottom"
+                    trigger={['hover']}
+                    overlayClassName="forum-dropdown"
+                  >
+                    <Button
+                      type="text"
+                      icon={item.icon}
+                      onClick={() => handleNavClick(item)}
+                      style={{
+                        color: isPathActive(item.path, currentPath) ? '#6366f1' : '#d1d5db',
+                        fontWeight: isPathActive(item.path, currentPath) ? 600 : 500,
+                        fontSize: '16px',
+                        height: '40px',
+                        padding: '0 16px',
+                        borderRadius: '12px',
+                        background: isPathActive(item.path, currentPath) 
+                          ? 'rgba(99, 102, 241, 0.1)' 
+                          : 'transparent',
+                        border: isPathActive(item.path, currentPath) 
+                          ? '1px solid rgba(99, 102, 241, 0.3)' 
+                          : '1px solid transparent',
+                        transition: 'all 0.3s ease',
+                        opacity: item.requireAuth && !isLoggedIn ? 0.6 : 1,
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isPathActive(item.path, currentPath)) {
+                          e.currentTarget.style.background = 'rgba(99, 102, 241, 0.05)';
+                          e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)';
+                          e.currentTarget.style.color = '#e0e7ff';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isPathActive(item.path, currentPath)) {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.borderColor = 'transparent';
+                          e.currentTarget.style.color = '#d1d5db';
+                        }
+                      }}
+                    >
+                      {item.label}
+                    </Button>
+                  </Dropdown>
+                );
+              }
+
+              // 普通按钮
+              return (
+                <Button
+                  key={item.key}
+                  type="text"
+                  icon={item.icon}
+                  onClick={() => handleNavClick(item)}
+                  style={{
+                    color: isPathActive(item.path, currentPath) ? '#6366f1' : '#d1d5db',
+                    fontWeight: isPathActive(item.path, currentPath) ? 600 : 500,
+                    fontSize: '16px',
+                    height: '40px',
+                    padding: '0 16px',
+                    borderRadius: '12px',
+                    background: isPathActive(item.path, currentPath) 
+                      ? 'rgba(99, 102, 241, 0.1)' 
+                      : 'transparent',
+                    border: isPathActive(item.path, currentPath) 
+                      ? '1px solid rgba(99, 102, 241, 0.3)' 
+                      : '1px solid transparent',
+                    transition: 'all 0.3s ease',
+                    opacity: item.requireAuth && !isLoggedIn ? 0.6 : 1,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isPathActive(item.path, currentPath)) {
+                      e.currentTarget.style.background = 'rgba(99, 102, 241, 0.05)';
+                      e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)';
+                      e.currentTarget.style.color = '#e0e7ff';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isPathActive(item.path, currentPath)) {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.borderColor = 'transparent';
+                      e.currentTarget.style.color = '#d1d5db';
+                    }
+                  }}
+                >
+                  {item.label}
+                </Button>
+              );
+            })}
+          </Space>
+        </div>
+
+        {/* 右侧搜索和用户区域 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {/* 搜索框 */}
+          <Input
+            placeholder="搜索游戏..."
+            prefix={<SearchOutlined style={{ color: '#9ca3af' }} />}
+            style={{
+              width: '280px',
+              height: '40px',
+              borderRadius: '12px',
+              background: 'rgba(31, 41, 55, 0.8)',
+              border: '1px solid rgba(75, 85, 99, 0.4)',
+              fontSize: '14px',
+              transition: 'all 0.3s ease',
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'rgba(99, 102, 241, 0.5)';
+              e.target.style.boxShadow = '0 0 0 2px rgba(99, 102, 241, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'rgba(75, 85, 99, 0.4)';
+              e.target.style.boxShadow = 'none';
+            }}
+          />
+
+          {/* 通知和购物车图标 */}
+          {isLoggedIn && (
+            <Space size="middle">
+              <Badge count={3} size="small">
+                <Button
+                  type="text"
+                  icon={<BellOutlined />}
+                  onClick={handleNotificationClick}
+                  style={{
+                    color: '#d1d5db',
+                    fontSize: '18px',
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '12px',
+                    background: 'rgba(31, 41, 55, 0.5)',
+                    border: '1px solid rgba(75, 85, 99, 0.3)',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+                    e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)';
+                    e.currentTarget.style.color = '#6366f1';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(31, 41, 55, 0.5)';
+                    e.currentTarget.style.borderColor = 'rgba(75, 85, 99, 0.3)';
+                    e.currentTarget.style.color = '#d1d5db';
+                  }}
+                />
+              </Badge>
+              <Badge count={cartItemCount} size="small" showZero={false}>
+                <Button
+                  type="text"
+                  icon={<ShoppingCartOutlined />}
+                  onClick={handleCartClick}
+                  style={{
+                    color: '#d1d5db',
+                    fontSize: '18px',
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '12px',
+                    background: 'rgba(31, 41, 55, 0.5)',
+                    border: '1px solid rgba(75, 85, 99, 0.3)',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+                    e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)';
+                    e.currentTarget.style.color = '#6366f1';
+                    e.currentTarget.style.transform = 'scale(1.05)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(31, 41, 55, 0.5)';
+                    e.currentTarget.style.borderColor = 'rgba(75, 85, 99, 0.3)';
+                    e.currentTarget.style.color = '#d1d5db';
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                />
+              </Badge>
+            </Space>
+          )}
+
+          {/* 用户菜单或登录按钮 */}
+          {loading ? (
+            <div style={{ width: '40px', height: '40px' }} />
+          ) : isLoggedIn ? (
+            <UserMenu 
+              username={user?.username} 
+              avatar={user?.profile?.avatar}
+            />
+          ) : (
+            <Button
+              type="primary"
+              icon={<LoginOutlined />}
+              onClick={handleLogin}
+              style={{
+                height: '40px',
+                padding: '0 20px',
+                fontSize: '16px',
+                fontWeight: 600,
+                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%)',
+                border: 'none',
+                borderRadius: '12px',
+                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(99, 102, 241, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)';
+              }}
+            >
+              登录
+            </Button>
+          )}
+        </div>
+      </div>
+    </ConfigProvider>
+  );
+}
+
+export default Menubar;
