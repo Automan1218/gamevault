@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
+import { CartProvider } from '@/contexts/CartContext';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -31,7 +32,11 @@ export default function RootLayout({
                     },
                 }}
             >
-                <AntdApp>{children}</AntdApp>
+                <AntdApp>
+                    <CartProvider>
+                        {children}
+                    </CartProvider>
+                </AntdApp>
             </ConfigProvider>
         </AntdRegistry>
         </body>

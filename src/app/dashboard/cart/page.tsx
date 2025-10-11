@@ -25,7 +25,7 @@ import {
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import { Menubar } from "@/components/layout";
-import { useCart } from "@/app/features/cart/hooks/useCart";
+import { useCart } from "@/contexts/CartContext";
 import { useRouter } from "next/navigation";
 import { cardStyle, primaryButtonStyle } from "@/components/common/theme";
 import type { CartItemDTO } from "@/lib/api/StoreTypes";

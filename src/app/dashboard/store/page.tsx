@@ -4,20 +4,18 @@ import React, { useState } from "react";
 import { 
   App, 
   Card, 
-  InputNumber, 
-  Button, 
   Row, 
   Col, 
   Layout, 
   Empty,
-  Skeleton 
+  Skeleton,
+  Button,
+  Space,
+  Tag
 } from "antd";
-import { ShoppingCartOutlined } from "@ant-design/icons";
 import { Menubar } from "@/components/layout";
-import { SearchForm } from "@/components/forms";
 import { GameDetailModal } from "@/components/modals/GameDetailModal";
 import { useStore } from "@/app/features/store/hooks/useStore";
-import { useCart } from "@/app/features/cart/hooks/useCart";
 import type { GameDTO } from "@/lib/api/StoreTypes";
 import "@/components/common/animations.css";
 
@@ -25,31 +23,15 @@ const { Header, Content } = Layout;
 
 export default function ShoppingPage() {
   const { message } = App.useApp();
-  const { filteredGames, loading: storeLoading, searchQuery, setSearchQuery } = useStore();
-  const { addToCart } = useCart();
+  const { filteredGames, loading: storeLoading } = useStore();
 
-  const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [selectedGame, setSelectedGame] = useState<GameDTO | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const handleQuantityChange = (gameId: number, value: number | null) => {
-    setQuantities((prev) => ({ ...prev, [gameId]: value ?? 1 }));
-  };
-
-  const handleAddToCart = async (game: GameDTO, event?: React.MouseEvent) => {
-    // 阻止事件冒泡，防止触发卡片点击
-    if (event) {
-      event.stopPropagation();
-    }
-    
-    const quantity = quantities[game.gameId] || 1;
-    try {
-      await addToCart(game.gameId, quantity);
-      message.success(`已将 ${game.title} ×${quantity} 加入购物车`);
-    } catch {
-      message.error("加入购物车失败");
-    }
-  };
+  // 筛选器状态
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
+  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
 
   const handleCardClick = (game: GameDTO) => {
     setSelectedGame(game);
@@ -61,6 +43,56 @@ export default function ShoppingPage() {
     setTimeout(() => setSelectedGame(null), 300);
   };
 
+  // 获取筛选选项
+  const getFilterOptions = () => {
+    const years = new Set<string>();
+    const platforms = new Set<string>();
+    const genres = new Set<string>();
+
+    filteredGames.forEach(game => {
+      if (game.releaseDate) {
+        const year = new Date(game.releaseDate).getFullYear().toString();
+        years.add(year);
+      }
+      if (game.platform) {
+        platforms.add(game.platform);
+      }
+      if (game.genre) {
+        genres.add(game.genre);
+      }
+    });
+
+    return {
+      years: Array.from(years).sort((a, b) => b.localeCompare(a)), // 降序排列
+      platforms: Array.from(platforms).sort(),
+      genres: Array.from(genres).sort()
+    };
+  };
+
+  // 应用筛选
+  const applyFilters = (games: GameDTO[]) => {
+    return games.filter(game => {
+      const yearMatch = !selectedYear || (game.releaseDate && 
+        new Date(game.releaseDate).getFullYear().toString() === selectedYear);
+      const platformMatch = !selectedPlatform || game.platform === selectedPlatform;
+      const genreMatch = !selectedGenre || game.genre === selectedGenre;
+      
+      return yearMatch && platformMatch && genreMatch;
+    });
+  };
+
+  // 获取筛选后的游戏列表
+  const displayGames = applyFilters(filteredGames);
+
+  // 清除所有筛选
+  const clearAllFilters = () => {
+    setSelectedYear(null);
+    setSelectedPlatform(null);
+    setSelectedGenre(null);
+  };
+
+  const filterOptions = getFilterOptions();
+
   // 渲染游戏卡片
   const renderGameCard = (game: GameDTO, index: number) => (
     <Card
@@ -68,57 +100,107 @@ export default function ShoppingPage() {
       hoverable
       onClick={() => handleCardClick(game)}
       style={{
-        borderRadius: 16,
-        background: "linear-gradient(145deg, rgba(31, 41, 55, 0.9) 0%, rgba(31, 41, 55, 0.85) 100%)",
-        border: "1px solid rgba(99, 102, 241, 0.3)",
-        boxShadow: "0 10px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+        borderRadius: 20,
+        background: "rgba(255, 255, 255, 0.05)",
+        backdropFilter: "blur(20px)",
+        border: "1px solid rgba(255, 255, 255, 0.1)",
+        boxShadow: `
+          0 8px 32px rgba(0, 0, 0, 0.3),
+          0 0 0 1px rgba(255, 255, 255, 0.05),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1)
+        `,
         overflow: "hidden",
-        animationDelay: `${index * 0.05}s`,
+        animationDelay: `${index * 0.1}s`,
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+        transition: "all 0.5s cubic-bezier(0.23, 1, 0.32, 1)",
         cursor: "pointer",
+        position: "relative",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-8px)";
-        e.currentTarget.style.boxShadow = "0 20px 60px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.5)";
+        e.currentTarget.style.transform = "translateY(-12px) scale(1.02)";
+        e.currentTarget.style.boxShadow = `
+          0 20px 60px rgba(99, 102, 241, 0.3),
+          0 0 0 1px rgba(99, 102, 241, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2)
+        `;
+        e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "0 10px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)";
+        e.currentTarget.style.transform = "translateY(0) scale(1)";
+        e.currentTarget.style.boxShadow = `
+          0 8px 32px rgba(0, 0, 0, 0.3),
+          0 0 0 1px rgba(255, 255, 255, 0.05),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1)
+        `;
+        e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
       }}
       cover={
         <div
           style={{
-            height: 200,
+            height: 220,
             background: `url(${game.imageUrl || "/placeholder-game.jpg"}) center/cover no-repeat`,
             position: "relative",
             overflow: "hidden",
           }}
         >
+          {/* 渐变遮罩 */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "60%",
+              background: "linear-gradient(transparent, rgba(0, 0, 0, 0.7))",
+            }}
+          />
+          
+          {/* 折扣标签 */}
           {game.discountPrice && (
             <div
               style={{
                 position: "absolute",
-                top: 12,
-                right: 12,
-                background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+                top: 16,
+                right: 16,
+                background: "linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)",
                 color: "#fff",
-                padding: "6px 14px",
-                borderRadius: 8,
+                padding: "8px 16px",
+                borderRadius: 12,
                 fontWeight: 700,
-                fontSize: 13,
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.4)",
+                fontSize: 14,
+                boxShadow: "0 4px 16px rgba(255, 107, 107, 0.4)",
+                backdropFilter: "blur(10px)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
               }}
             >
               -{Math.round(((game.price - game.discountPrice) / game.price) * 100)}%
             </div>
           )}
+          
+          {/* 游戏类型标签 */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 16,
+              left: 16,
+              background: "rgba(0, 0, 0, 0.6)",
+              backdropFilter: "blur(10px)",
+              color: "#fff",
+              padding: "6px 12px",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 500,
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            {game.genre || "游戏"}
+          </div>
         </div>
       }
       bodyStyle={{ 
-        padding: 20, 
+        padding: 24, 
         flex: 1, 
         display: "flex", 
         flexDirection: "column",
@@ -129,77 +211,95 @@ export default function ShoppingPage() {
         {/* 游戏标题 */}
         <div
           style={{
-            fontWeight: 600,
-            fontSize: 17,
+            fontWeight: 700,
+            fontSize: 18,
             color: "#fff",
-            marginBottom: 8,
+            marginBottom: 12,
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
+            lineHeight: 1.3,
           }}
           title={game.title}
         >
           {game.title}
         </div>
 
-        {/* 价格 */}
-        <div style={{ marginBottom: 16, minHeight: 32 }}>
+        {/* 游戏描述 */}
+        <div
+          style={{
+            color: "rgba(255, 255, 255, 0.7)",
+            fontSize: 14,
+            lineHeight: 1.4,
+            marginBottom: 16,
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}
+        >
+          {game.description || "一款精彩的游戏，等待您的探索..."}
+        </div>
+
+        {/* 价格区域 */}
+        <div style={{ 
+          marginBottom: 16, 
+          minHeight: 40,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between"
+        }}>
+          <div>
           {game.discountPrice ? (
             <>
-              <div style={{ color: "#22c55e", fontWeight: 700, fontSize: 22 }}>
+                <div style={{ 
+                  color: "#4ade80", 
+                  fontWeight: 700, 
+                  fontSize: 24,
+                  lineHeight: 1
+                }}>
                 ￥{game.discountPrice.toFixed(2)}
               </div>
               <div
                 style={{
                   textDecoration: "line-through",
-                  color: "#6b7280",
+                    color: "rgba(255, 255, 255, 0.5)",
                   fontSize: 14,
-                  marginTop: 2,
+                    marginTop: 4,
                 }}
               >
                 ￥{game.price.toFixed(2)}
               </div>
             </>
           ) : (
-            <div style={{ color: "#fff", fontWeight: 700, fontSize: 22 }}>
+              <div style={{ 
+                color: "#fff", 
+                fontWeight: 700, 
+                fontSize: 24,
+                lineHeight: 1
+              }}>
               ￥{game.price.toFixed(2)}
             </div>
           )}
+      </div>
+
+          {/* 平台信息 */}
+          <div
+            style={{
+              background: "rgba(99, 102, 241, 0.2)",
+              color: "#a5b4fc",
+              padding: "6px 12px",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              border: "1px solid rgba(99, 102, 241, 0.3)",
+            }}
+          >
+            {game.platform || "PC"}
+          </div>
         </div>
       </div>
 
-      {/* 操作区域 */}
-      <div onClick={(e) => e.stopPropagation()}>
-        <Row gutter={10} align="middle">
-          <Col flex="90px">
-            <InputNumber
-              min={1}
-              max={10}
-              value={quantities[game.gameId] || 1}
-              onChange={(val) => handleQuantityChange(game.gameId, val)}
-              style={{ width: "100%" }}
-              size="large"
-            />
-          </Col>
-          <Col flex="auto">
-            <Button
-              type="primary"
-              icon={<ShoppingCartOutlined />}
-              onClick={(e) => handleAddToCart(game, e)}
-              size="large"
-              block
-              style={{
-                background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
-                border: "none",
-                fontWeight: 600,
-                height: 40,
-              }}
-            >
-              加入购物车
-            </Button>
-          </Col>
-        </Row>
-      </div>
     </Card>
   );
 
@@ -207,17 +307,26 @@ export default function ShoppingPage() {
   const renderSkeleton = () => (
     <Card
       style={{
-        borderRadius: 12,
-        background: "rgba(31, 41, 55, 0.8)",
-        border: "1px solid rgba(75, 85, 99, 0.3)",
+        borderRadius: 20,
+        background: "rgba(255, 255, 255, 0.03)",
+        backdropFilter: "blur(20px)",
+        border: "1px solid rgba(255, 255, 255, 0.08)",
         height: "100%",
+        overflow: "hidden",
       }}
     >
       <Skeleton.Image
         active
-        style={{ width: "100%", height: 200, marginBottom: 16 }}
+        style={{ 
+          width: "100%", 
+          height: 220, 
+          marginBottom: 0,
+          borderRadius: 0,
+        }}
       />
+      <div style={{ padding: 24 }}>
       <Skeleton active paragraph={{ rows: 3 }} />
+      </div>
     </Card>
   );
 
@@ -358,7 +467,7 @@ export default function ShoppingPage() {
           boxShadow: "0 4px 24px rgba(99, 102, 241, 0.15), 0 2px 8px rgba(0, 0, 0, 0.3)",
         }}
       >
-        <Menubar currentPath="/dashboard/shopping" />
+        <Menubar currentPath="/dashboard/store" />
       </Header>
 
       {/* 页面主体内容 */}
@@ -375,42 +484,217 @@ export default function ShoppingPage() {
             margin: "0 auto",
           }}
         >
-          {/* 搜索区域 */}
+          {/* 筛选器区域 */}
           <div 
-            style={{ 
+            style={{
               marginBottom: 32,
-              background: "linear-gradient(135deg, rgba(31, 41, 55, 0.6) 0%, rgba(31, 41, 55, 0.4) 100%)",
-              padding: "28px",
+              padding: "20px 24px",
+              background: "rgba(255, 255, 255, 0.05)",
+              backdropFilter: "blur(20px)",
               borderRadius: 16,
-              backdropFilter: "blur(16px)",
-              border: "1px solid rgba(99, 102, 241, 0.3)",
-              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
-              position: "relative",
-              overflow: "hidden",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
             }}
           >
-            {/* 搜索框装饰光效 */}
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 2,
-                background: "linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.6), transparent)",
-              }}
-            />
-            <SearchForm
-              placeholder="搜索游戏标题、类型或关键词"
-              onSearch={setSearchQuery}
-              onChange={setSearchQuery}
-              value={searchQuery}
-            />
+            {/* 时间筛选 */}
+            <div style={{ marginBottom: 16, display: "flex", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
+              <div
+                style={{
+                  color: "#fff",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  marginRight: 12,
+                  minWidth: 50,
+                  opacity: 0.9,
+                }}
+              >
+                时间
+              </div>
+              <Space wrap size={[6, 6]}>
+                <Button
+                  type={selectedYear === null ? "primary" : "default"}
+                  size="small"
+                  onClick={() => setSelectedYear(null)}
+                  style={{
+                    background: selectedYear === null 
+                      ? "rgba(99, 102, 241, 0.8)" 
+                      : "rgba(255, 255, 255, 0.08)",
+                    border: selectedYear === null 
+                      ? "1px solid rgba(99, 102, 241, 0.6)" 
+                      : "1px solid rgba(255, 255, 255, 0.15)",
+                    color: "#fff",
+                    fontWeight: 500,
+                    borderRadius: 8,
+                    height: 28,
+                    padding: "0 12px",
+                    fontSize: 12,
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  全部
+                </Button>
+                {filterOptions.years.map(year => (
+                  <Button
+                    key={year}
+                    type={selectedYear === year ? "primary" : "default"}
+                    size="small"
+                    onClick={() => setSelectedYear(year)}
+                    style={{
+                      background: selectedYear === year 
+                        ? "rgba(99, 102, 241, 0.8)" 
+                        : "rgba(255, 255, 255, 0.08)",
+                      border: selectedYear === year 
+                        ? "1px solid rgba(99, 102, 241, 0.6)" 
+                        : "1px solid rgba(255, 255, 255, 0.15)",
+                      color: "#fff",
+                      fontWeight: 500,
+                      borderRadius: 8,
+                      height: 28,
+                      padding: "0 12px",
+                      fontSize: 12,
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {year}
+                  </Button>
+                ))}
+              </Space>
+            </div>
+
+            {/* 平台筛选 */}
+            <div style={{ marginBottom: 16, display: "flex", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
+              <div
+                style={{
+                  color: "#fff",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  marginRight: 12,
+                  minWidth: 50,
+                  opacity: 0.9,
+                }}
+              >
+                平台
+              </div>
+              <Space wrap size={[6, 6]}>
+                <Button
+                  type={selectedPlatform === null ? "primary" : "default"}
+                  size="small"
+                  onClick={() => setSelectedPlatform(null)}
+                  style={{
+                    background: selectedPlatform === null 
+                      ? "rgba(99, 102, 241, 0.8)" 
+                      : "rgba(255, 255, 255, 0.08)",
+                    border: selectedPlatform === null 
+                      ? "1px solid rgba(99, 102, 241, 0.6)" 
+                      : "1px solid rgba(255, 255, 255, 0.15)",
+                    color: "#fff",
+                    fontWeight: 500,
+                    borderRadius: 8,
+                    height: 28,
+                    padding: "0 12px",
+                    fontSize: 12,
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  全部
+                </Button>
+                {filterOptions.platforms.map(platform => (
+                  <Button
+                    key={platform}
+                    type={selectedPlatform === platform ? "primary" : "default"}
+                    size="small"
+                    onClick={() => setSelectedPlatform(platform)}
+                    style={{
+                      background: selectedPlatform === platform 
+                        ? "rgba(99, 102, 241, 0.8)" 
+                        : "rgba(255, 255, 255, 0.08)",
+                      border: selectedPlatform === platform 
+                        ? "1px solid rgba(99, 102, 241, 0.6)" 
+                        : "1px solid rgba(255, 255, 255, 0.15)",
+                      color: "#fff",
+                      fontWeight: 500,
+                      borderRadius: 8,
+                      height: 28,
+                      padding: "0 12px",
+                      fontSize: 12,
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {platform}
+                  </Button>
+                ))}
+              </Space>
+            </div>
+
+            {/* 类型筛选 */}
+            <div style={{ marginBottom: 0, display: "flex", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
+              <div
+                style={{
+                  color: "#fff",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  marginRight: 12,
+                  minWidth: 50,
+                  opacity: 0.9,
+                }}
+              >
+                类型
+              </div>
+              <Space wrap size={[6, 6]}>
+                <Button
+                  type={selectedGenre === null ? "primary" : "default"}
+                  size="small"
+                  onClick={() => setSelectedGenre(null)}
+                  style={{
+                    background: selectedGenre === null 
+                      ? "rgba(99, 102, 241, 0.8)" 
+                      : "rgba(255, 255, 255, 0.08)",
+                    border: selectedGenre === null 
+                      ? "1px solid rgba(99, 102, 241, 0.6)" 
+                      : "1px solid rgba(255, 255, 255, 0.15)",
+                    color: "#fff",
+                    fontWeight: 500,
+                    borderRadius: 8,
+                    height: 28,
+                    padding: "0 12px",
+                    fontSize: 12,
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  全部
+                </Button>
+                {filterOptions.genres.map(genre => (
+                  <Button
+                    key={genre}
+                    type={selectedGenre === genre ? "primary" : "default"}
+                    size="small"
+                    onClick={() => setSelectedGenre(genre)}
+                    style={{
+                      background: selectedGenre === genre 
+                        ? "rgba(99, 102, 241, 0.8)" 
+                        : "rgba(255, 255, 255, 0.08)",
+                      border: selectedGenre === genre 
+                        ? "1px solid rgba(99, 102, 241, 0.6)" 
+                        : "1px solid rgba(255, 255, 255, 0.15)",
+                      color: "#fff",
+                      fontWeight: 500,
+                      borderRadius: 8,
+                      height: 28,
+                      padding: "0 12px",
+                      fontSize: 12,
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {genre}
+                  </Button>
+                ))}
+              </Space>
+            </div>
           </div>
 
           {/* 内容区域 - 响应式网格 */}
           {storeLoading ? (
-            <Row gutter={[24, 24]}>
+            <Row gutter={[32, 32]}>
               {[...Array(8)].map((_, i) => (
                 <Col
                   key={i}
@@ -425,7 +709,7 @@ export default function ShoppingPage() {
                 </Col>
               ))}
             </Row>
-          ) : filteredGames.length === 0 ? (
+          ) : displayGames.length === 0 ? (
             <div
               style={{
                 display: "flex",
@@ -441,7 +725,7 @@ export default function ShoppingPage() {
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
                 description={
                   <span style={{ color: "#9ca3af", fontSize: 16 }}>
-                    {searchQuery ? `未找到包含 "${searchQuery}" 的游戏` : "暂无可购买的游戏"}
+                    暂无可购买的游戏
                   </span>
                 }
               />
@@ -451,17 +735,24 @@ export default function ShoppingPage() {
               {/* 结果统计 */}
               <div
                 style={{
-                  marginBottom: 20,
-                  color: "#9ca3af",
-                  fontSize: 14,
+                  marginBottom: 32,
+                  color: "rgba(255, 255, 255, 0.6)",
+                  fontSize: 16,
+                  fontWeight: 500,
+                  textAlign: "center",
+                  padding: "16px 24px",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  backdropFilter: "blur(10px)",
+                  borderRadius: 12,
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
                 }}
               >
-                共找到 <span style={{ color: "#6366f1", fontWeight: 600 }}>{filteredGames.length}</span> 款游戏
+                共找到 <span style={{ color: "#4ade80", fontWeight: 700 }}>{displayGames.length}</span> 款精彩游戏
               </div>
 
               {/* 游戏卡片网格 */}
-              <Row gutter={[24, 24]}>
-                {filteredGames.map((game: GameDTO, index: number) => (
+              <Row gutter={[32, 32]}>
+                {displayGames.map((game: GameDTO, index: number) => (
                   <Col
                     key={game.gameId}
                     xs={24}  // 手机: 1列

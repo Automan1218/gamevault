@@ -20,7 +20,7 @@ import { AuthApi } from '@/lib/api/auth';
 import { User } from '@/types/api';
 import UserMenu from './UserMenu';
 import { darkTheme } from '@/components/common/theme';
-import { useCart } from '@/app/features/cart/hooks/useCart';
+import { useCart } from '@/contexts/CartContext';
 import '@/components/common/animations.css';
 
 interface MenubarProps {

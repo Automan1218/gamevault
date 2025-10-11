@@ -23,7 +23,7 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import type { GameDTO } from "@/lib/api/StoreTypes";
-import { useCart } from "@/app/features/cart/hooks/useCart";
+import { useCart } from "@/contexts/CartContext";
 
 const { Title, Text, Paragraph } = Typography;
 

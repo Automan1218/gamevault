@@ -24,21 +24,21 @@ export const navigationRoutes = {
     forumFavorites: '/dashboard/forum/favorites',
     forumUserPosts: (userId: number) => `/dashboard/forum/user/${userId}`,
 
-    // Chat相关 - 新增
+    // Chat相关
     chat: '/dashboard/chat',
     chatRoom: (roomId: string) => `/dashboard/chat/${roomId}`,
     chatCreate: '/dashboard/chat/create',
 
-    // Developer相关 - 新增
+    // Developer相关 
     developer: '/dashboard/developer',
     developerProfile: (userId: string) => `/dashboard/developer/${userId}`,
     developerProjects: '/dashboard/developer/projects',
     developerEditor: '/dashboard/developer/editor',
 
-    // Store & Shopping相关 - 完善
-    store: '/dashboard/shopping',  // 改为 shopping
-    shopping: '/dashboard/shopping',
-    storeProduct: (productId: string) => `/dashboard/shopping/${productId}`,
+    // Store & Shopping相关
+    store: '/dashboard/store',  
+    shopping: '/dashboard/store', 
+    storeProduct: (productId: string) => `/dashboard/store/${productId}`,
     cart: '/dashboard/cart',
     checkout: '/dashboard/checkout',
 
