@@ -20,6 +20,7 @@ import { AuthApi } from '@/lib/api/auth';
 import { User } from '@/types/api';
 import UserMenu from './UserMenu';
 import { darkTheme } from '@/components/common/theme';
+import { useCart } from '@/app/features/cart/hooks/useCart';
 import '@/components/common/animations.css';
 
 interface MenubarProps {
@@ -46,6 +47,10 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // 获取购物车信息
+  const { cart } = useCart();
+  const cartItemCount = cart?.cartItems?.length || 0;
 
   const resolvedCurrentPath = useMemo(() => {
     const nextPath = pathname || currentPath;
@@ -96,7 +101,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
   // 导航菜单项
   const navItems: NavItem[] = [
     { key: 'home', label: '首页', path: navigationRoutes.home, icon: <HomeOutlined />, requireAuth: false },
-    { key: 'store', label: '商城', path: '/store', icon: <ShoppingCartOutlined />, requireAuth: false },
+    { key: 'store', label: '商城', path: navigationRoutes.shopping, icon: <ShoppingCartOutlined />, requireAuth: false },
     { 
       key: 'forum', 
       label: '论坛', 
@@ -133,14 +138,21 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
       return;
     }
     
-    // 如果功能开发中，显示提示信息
-    if (item.key === 'store' || item.key === 'chat' || item.key === 'developer') {
-      // 这里可以添加开发中提示，暂时先跳转
-      router.push(item.path);
+    router.push(item.path);
+  };
+
+  // 处理购物车点击
+  const handleCartClick = () => {
+    if (!isLoggedIn) {
+      router.push(getLoginRedirectUrl(navigationRoutes.cart));
       return;
     }
-    
-    router.push(item.path);
+    router.push(navigationRoutes.cart);
+  };
+
+  // 处理通知点击
+  const handleNotificationClick = () => {
+    router.push(navigationRoutes.notifications);
   };
 
   // 处理登录
@@ -382,6 +394,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
                 <Button
                   type="text"
                   icon={<BellOutlined />}
+                  onClick={handleNotificationClick}
                   style={{
                     color: '#d1d5db',
                     fontSize: '18px',
@@ -404,10 +417,11 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
                   }}
                 />
               </Badge>
-              <Badge count={2} size="small">
+              <Badge count={cartItemCount} size="small" showZero={false}>
                 <Button
                   type="text"
                   icon={<ShoppingCartOutlined />}
+                  onClick={handleCartClick}
                   style={{
                     color: '#d1d5db',
                     fontSize: '18px',
@@ -422,11 +436,13 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
                     e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
                     e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)';
                     e.currentTarget.style.color = '#6366f1';
+                    e.currentTarget.style.transform = 'scale(1.05)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = 'rgba(31, 41, 55, 0.5)';
                     e.currentTarget.style.borderColor = 'rgba(75, 85, 99, 0.3)';
                     e.currentTarget.style.color = '#d1d5db';
+                    e.currentTarget.style.transform = 'scale(1)';
                   }}
                 />
               </Badge>

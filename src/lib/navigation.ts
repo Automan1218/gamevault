@@ -35,10 +35,12 @@ export const navigationRoutes = {
     developerProjects: '/dashboard/developer/projects',
     developerEditor: '/dashboard/developer/editor',
 
-    // Shopping相关 - 新增（未来扩展）
+    // Store & Shopping相关 - 完善
+    store: '/dashboard/shopping',  // 改为 shopping
     shopping: '/dashboard/shopping',
-    shoppingProduct: (productId: string) => `/dashboard/shopping/${productId}`,
-    shoppingCart: '/dashboard/shopping/cart',
+    storeProduct: (productId: string) => `/dashboard/shopping/${productId}`,
+    cart: '/dashboard/cart',
+    checkout: '/dashboard/checkout',
 
     // 帖子相关 - 保留旧版兼容
     postCreate: '/dashboard/forum/create',
@@ -57,9 +59,6 @@ export const navigationRoutes = {
     // 板块相关 - 更新跳转目标
     games: '/dashboard/forum/category/games',        // 游戏板块跳转到forum的游戏分类
     shop: '/dashboard/forum/category/games',        // 游戏板块跳转到forum的游戏分类
-
-
-
 
     // 搜索
     search: (keyword: string) => `/search?q=${encodeURIComponent(keyword)}`,
@@ -93,7 +92,8 @@ export const breadcrumbConfig = {
 
     // Shopping相关
     '/dashboard/shopping': '商城',
-    '/dashboard/shopping/cart': '购物车',
+    '/dashboard/cart': '购物车',
+    '/dashboard/checkout': '结算',
 
     // 旧版兼容
     '/my-posts': '我的发帖',
@@ -194,5 +194,5 @@ export const isDeveloperRoute = (path: string): boolean => {
 };
 
 export const isShoppingRoute = (path: string): boolean => {
-    return path.startsWith('/dashboard/shopping');
+    return path.startsWith('/dashboard/shopping') || path.startsWith('/dashboard/cart') || path.startsWith('/dashboard/checkout');
 };
