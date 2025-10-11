@@ -1,7 +1,7 @@
 // src/app/dashboard/chat/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, {useCallback, useState} from 'react';
 import { ConfigProvider, theme, App, message as antMessage } from 'antd';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGroupChat } from '@/app/features/chat/hooks/useGroupChat';
@@ -9,6 +9,8 @@ import { useFriend } from '@/app/features/friend/hooks/useFriend';
 import { useWebSocket } from '@/app/features/chat/hooks/useWebSocket';
 import { useGroupMessages } from '@/app/features/chat/hooks/useGroupMessages';
 import { usePrivateMessages } from '@/app/features/chat/hooks/usePrivateMessages';
+import { useMessageNotifications } from '@/app/features/chat/hooks/useMessageNotifications';
+import { ConnectionMonitor } from '@/components/common/ConnectionMonitor';
 import {
     ServerList,
     ChannelList,
@@ -61,17 +63,52 @@ export default function ChatPage() {
         loadSentRequests,
     } = useFriend();
 
-    // 转换好友为会话格式
-    const friendConversations: FriendConversation[] = friendList.map(friend => ({
-        uid: friend.uid,
-        username: friend.username,
-        email: friend.email,
-        remark: friend.remark,
-        status: 'offline' as const,
-        unread: 0,
-        lastMessage: undefined,
-        lastMessageTime: undefined,
-    }));
+    // 消息通知 Hook - 添加群聊参数
+    const {
+        unreadMessages,
+        unreadGroupMessages,
+        getUnreadCount,
+        getGroupUnreadCount,
+        getTotalUnreadCount,
+        markAsRead,
+        markGroupAsRead,
+    } = useMessageNotifications(
+        user?.uid || 0,
+        selectedConversation?.type === 'private'
+            ? (selectedConversation.data as FriendConversation).uid
+            : null,
+        selectedConversation?.type === 'group'
+            ? (selectedConversation.data as GroupChat).id
+            : null,
+        groups
+    );
+
+    // 转换好友列表，添加未读信息
+    const friendConversations: FriendConversation[] = friendList.map(friend => {
+        const unreadInfo = unreadMessages.get(friend.uid);
+
+        return {
+            uid: friend.uid,
+            username: friend.username,
+            email: friend.email,
+            remark: friend.remark,
+            status: 'offline' as const,
+            unread: unreadInfo?.unreadCount || 0,
+            lastMessage: unreadInfo?.lastMessage,
+            lastMessageTime: unreadInfo?.lastMessageTime,
+        };
+    });
+
+    const groupConversations: GroupChat[] = groups.map(group => {
+        const unreadInfo = unreadGroupMessages.get(group.id);
+
+        return {
+            ...group,
+            unread: unreadInfo?.unreadCount || group.unread || 0,
+            lastMessage: unreadInfo?.lastMessage || group.lastMessage,
+            lastMessageTime: unreadInfo?.lastMessageTime || group.lastMessageTime,
+        };
+    });
 
     // 添加消息管理
     const {
@@ -144,16 +181,22 @@ export default function ChatPage() {
     };
 
     // 选择会话
-    const handleSelectConversation = (conversation: Conversation) => {
+    const handleSelectConversation = useCallback((conversation: Conversation) => {
         setSelectedConversation(conversation);
 
         if (conversation.type === 'group') {
             const group = conversation.data as GroupChat;
             selectGroup(group);
+
+            markGroupAsRead(group.id);
         } else {
             unselectGroup();
+
+            // 标记私聊为已读
+            const friend = conversation.data as FriendConversation;
+            markAsRead(friend.uid);
         }
-    };
+    }, [selectGroup, unselectGroup, markAsRead, markGroupAsRead]);
 
     // 添加成员到群聊
     const handleAddMembers = async (conversationId: string, userIds: number[]) => {
@@ -193,6 +236,7 @@ export default function ChatPage() {
     return (
         <ConfigProvider theme={darkMode ? darkTheme : undefined}>
             <App>
+                <ConnectionMonitor />
                 <div style={{
                     height: '100vh',
                     display: 'flex',
@@ -203,12 +247,13 @@ export default function ChatPage() {
                         darkMode={darkMode}
                         onCreateGroup={() => setShowCreateGroupModal(true)}
                         isWebSocketConnected={isConnected}
+                        unreadCount={getTotalUnreadCount()}
                     />
 
                     {/* 中间 - 会话列表 */}
                     <ChannelList
                         friends={friendConversations}
-                        groups={groups}
+                        groups={groupConversations}
                         selectedConversation={selectedConversation}
                         onSelectConversation={handleSelectConversation}
                         onCreateGroup={() => setShowCreateGroupModal(true)}

@@ -1,12 +1,13 @@
 // src/components/chat/ServerList.tsx
 import React from 'react';
-import { Avatar, Tooltip, Button, Divider } from 'antd';
+import {Avatar, Tooltip, Button, Divider, Badge} from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 interface ServerListProps {
     darkMode?: boolean;
     onCreateGroup?: () => void;
     isWebSocketConnected?: boolean;
+    unreadCount?: number;
 }
 
 /**
@@ -17,6 +18,7 @@ export const ServerList: React.FC<ServerListProps> = ({
                                                           darkMode = true,
                                                           onCreateGroup,
                                                           isWebSocketConnected = false,
+                                                          unreadCount = 0,
                                                       }) => {
     return (
         <div
@@ -32,17 +34,19 @@ export const ServerList: React.FC<ServerListProps> = ({
         >
             {/* 主服务器图标 */}
             <Tooltip title="GameVault" placement="right">
-                <Avatar
-                    size={48}
-                    style={{
-                        marginBottom: 24,
-                        cursor: 'pointer',
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        fontSize: 24,
-                    }}
-                >
-                    🎮
-                </Avatar>
+                <Badge count={unreadCount} offset={[-5, 5]}>
+                    <Avatar
+                        size={48}
+                        style={{
+                            marginBottom: 24,
+                            cursor: 'pointer',
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            fontSize: 24,
+                        }}
+                    >
+                        🎮
+                    </Avatar>
+                </Badge>
             </Tooltip>
 
             <Divider style={{ margin: '8px 0' }} />

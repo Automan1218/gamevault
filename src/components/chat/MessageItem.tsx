@@ -4,6 +4,7 @@ import React from 'react';
 import { Avatar } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import type { ChatMessage } from '@/types/chat';
+import { formatMessageTime } from '@/lib/utils/timeFormat';
 
 interface MessageItemProps {
     message: ChatMessage;
@@ -20,12 +21,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                                                             senderAvatar,
                                                             darkMode = true,
                                                         }) => {
-    const formatTime = (dateString: string) => {
-        const date = new Date(dateString);
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${hours}:${minutes}`;
-    };
+    const displayTime = formatMessageTime(message.createdAt || message.timestamp);
 
     return (
         <div style={{
@@ -84,7 +80,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                     color: '#999',
                     marginTop: 4,
                 }}>
-                    {formatTime(message.createdAt)}
+                    {displayTime}
                 </div>
             </div>
         </div>

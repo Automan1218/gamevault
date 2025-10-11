@@ -63,15 +63,9 @@ export interface PostSearchParams extends PaginationParams {
 
 // User related types
 export interface User {
-    userId: number;
+    uid: number;
     username: string;
-    nickname: string;
-    email?: string;
-    status: 'active' | 'inactive' | 'banned';
-    role: 'user' | 'admin' | 'moderator';
-    createdDate: string;
-    lastLoginDate?: string;
-    profile?: UserProfile;
+    email: string;
 }
 
 export interface UserProfile {

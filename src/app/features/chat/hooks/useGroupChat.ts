@@ -1,4 +1,3 @@
-// src/app/features/chat/hooks/useGroupChat.ts
 import { useState, useEffect, useCallback } from 'react';
 import { chatApi } from '@/lib/api/chat';
 import { GroupChat, ChatMessage, GroupMember } from '@/types/chat';
@@ -20,6 +19,7 @@ export function useGroupChat() {
     const loadGroups = useCallback(async () => {
         const token = localStorage.getItem('auth_token');
 
+        // 没有token
         if (!token) {
             console.log('用户未登录（无 token），跳过加载群聊列表');
             return;
@@ -32,6 +32,7 @@ export function useGroupChat() {
             const activeGroups = groupList.filter(g => g.status !== 'dissolved');
             setGroups(activeGroups);
         } catch (error) {
+            // 加载群聊失败
             console.error('加载群聊列表失败:', error);
             message.error('加载群聊列表失败');
             setGroups([]);
@@ -77,7 +78,7 @@ export function useGroupChat() {
             try {
                 const groupMembers = await chatApi.getGroupMembers(group.id);
                 setMembers(groupMembers);
-                console.log('群聊成员加载成功:', groupMembers);
+                // console.log('群聊成员加载成功:', groupMembers);
             } catch (error) {
                 console.error('加载群聊成员失败:', error);
                 message.error('加载群聊成员失败');
@@ -89,8 +90,9 @@ export function useGroupChat() {
         [user]
     );
 
+    // 选择取消群聊
     const unselectGroup = useCallback(() => {
-        console.log('取消选择群聊');
+        // console.log('取消选择群聊');
         setCurrentGroup(null);
         setMessages([]);
         setMembers([]);
@@ -98,6 +100,7 @@ export function useGroupChat() {
 
     }, []);
 
+    //
     const sendMessage = useCallback(
         async (content: string) => {
             console.log('发送群聊消息:', content);
