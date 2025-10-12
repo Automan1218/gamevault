@@ -137,6 +137,7 @@ export default function LibraryPage() {
                     gameId={g.gameId}
                     title={g.title}
                     price={g.price}
+                    imageUrl={g.imageUrl}
                     activationCodesCount={g.activationCodes.length}
                     onViewCodes={() => {
                       setSelectedGame(g);

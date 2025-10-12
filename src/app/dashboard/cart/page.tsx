@@ -29,6 +29,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useRouter } from "next/navigation";
 import { cardStyle, primaryButtonStyle } from "@/components/common/theme";
 import type { CartItemDTO } from "@/lib/api/StoreTypes";
+import { getFullImageUrl } from "@/lib/utils/imageUtils";
 import "@/components/common/animations.css";
 
 const { Header, Content } = Layout;
@@ -144,7 +145,7 @@ export default function CartPage() {
         {/* 游戏封面 */}
         <Col xs={24} sm={6} md={4}>
           <Image
-            src={item.game.imageUrl || "/placeholder-game.jpg"}
+            src={getFullImageUrl(item.game.imageUrl)}
             alt={item.game.title}
             style={{
               width: "100%",

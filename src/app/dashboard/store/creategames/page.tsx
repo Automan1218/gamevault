@@ -55,7 +55,7 @@ export default function CreateGamePage() {
   const router = useRouter();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [imageUploading, setImageUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // 游戏类型选项
   const genreOptions = [
@@ -89,22 +89,18 @@ export default function CreateGamePage() {
     { value: "Multi-Platform", label: "多平台" },
   ];
 
-  // 处理图片上传
-  const handleImageUpload = async (file: File) => {
-    setImageUploading(true);
-    try {
-      // 这里可以集成图片上传服务，暂时使用占位符
-      // 实际项目中应该上传到云存储服务
-      const imageUrl = URL.createObjectURL(file);
-      form.setFieldsValue({ imageUrl });
-      antdMessage.success("图片上传成功");
-      return imageUrl;
-    } catch (error) {
-      antdMessage.error("图片上传失败");
-      throw error;
-    } finally {
-      setImageUploading(false);
-    }
+  // 处理图片选择 - 只做预览，不创建游戏
+  const handleImageUpload = (file: File) => {
+    // 保存文件引用
+    setSelectedFile(file);
+    
+    // 创建本地预览URL
+    const imageUrl = URL.createObjectURL(file);
+    form.setFieldsValue({ imageUrl });
+    antdMessage.success("图片选择成功，将在创建游戏时上传");
+    
+    // 返回 false 阻止默认上传行为
+    return false;
   };
 
   // 处理表单提交
@@ -118,6 +114,7 @@ export default function CreateGamePage() {
             : values.releaseDate.format('YYYY-MM-DD'))
         : undefined;
 
+      // 先创建游戏（不包含图片）
       const gameData = {
         title: values.title,
         developer: values.developer,
@@ -127,11 +124,27 @@ export default function CreateGamePage() {
         genre: values.genre,
         platform: values.platform,
         releaseDate: releaseDate,
-        imageUrl: values.imageUrl || undefined,
+        imageUrl: undefined, // 先不设置图片
         isActive: values.isActive,
       };
 
-      await gameApi.createGame(gameData);
+      // 创建游戏
+      const createdGame = await gameApi.createGame(gameData);
+      
+      // 如果有选择的图片文件，上传图片
+      if (selectedFile) {
+        // 上传图片
+        const uploadResult = await gameApi.uploadGameImage(createdGame.gameId, selectedFile);
+        
+        if (uploadResult.success && uploadResult.imageUrl) {
+          // 更新游戏信息，添加图片URL
+          await gameApi.updateGame(createdGame.gameId, {
+            ...gameData,
+            imageUrl: uploadResult.imageUrl
+          });
+        }
+      }
+      
       antdMessage.success("游戏创建成功！");
       
       // 延迟跳转，让用户看到成功消息
@@ -582,24 +595,69 @@ export default function CreateGamePage() {
                         </span>
                       }
                     >
-                      <Upload
-                        beforeUpload={handleImageUpload}
-                        showUploadList={false}
-                        accept="image/*"
-                        disabled={imageUploading}
-                      >
-                        <Button
-                          icon={<UploadOutlined />}
-                          loading={imageUploading}
-                          style={{
-                            background: "rgba(255, 255, 255, 0.1)",
-                            border: "1px solid rgba(255, 255, 255, 0.2)",
-                            color: "#fff",
-                          }}
+                      <div>
+                        <Upload
+                          beforeUpload={handleImageUpload}
+                          showUploadList={false}
+                          accept="image/*"
                         >
-                          {imageUploading ? "上传中..." : "选择图片"}
-                        </Button>
-                      </Upload>
+                          <Button
+                            icon={<UploadOutlined />}
+                            style={{
+                              background: "rgba(255, 255, 255, 0.1)",
+                              border: "1px solid rgba(255, 255, 255, 0.2)",
+                              color: "#fff",
+                            }}
+                          >
+                            选择图片
+                          </Button>
+                        </Upload>
+                        
+                        {/* 图片预览 */}
+                        {selectedFile && (
+                          <div style={{ marginTop: 16 }}>
+                            <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 8 }}>
+                              当前图片预览：
+                            </div>
+                            <div
+                              style={{
+                                width: "100%",
+                                height: 200,
+                                background: `url(${URL.createObjectURL(selectedFile)}) center/cover no-repeat`,
+                                borderRadius: 12,
+                                border: "1px solid rgba(255, 255, 255, 0.2)",
+                                position: "relative",
+                                overflow: "hidden",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  bottom: 0,
+                                  left: 0,
+                                  right: 0,
+                                  height: "40%",
+                                  background: "linear-gradient(transparent, rgba(0, 0, 0, 0.7))",
+                                }}
+                              />
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: 8,
+                                  right: 8,
+                                  background: "rgba(0, 0, 0, 0.6)",
+                                  color: "#fff",
+                                  padding: "4px 8px",
+                                  borderRadius: 4,
+                                  fontSize: 12,
+                                }}
+                              >
+                                {selectedFile.name}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </Form.Item>
                   </Space>
                 </Col>

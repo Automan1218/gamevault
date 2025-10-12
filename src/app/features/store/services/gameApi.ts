@@ -61,4 +61,24 @@ export const gameApi = {
   async getGamesByPlatform(platform: string): Promise<GameDTO[]> {
     return apiClient.get<GameDTO[]>("/games", { platform });
   },
+
+  /**
+   * 上传游戏图片
+   */
+  async uploadGameImage(gameId: number, file: File): Promise<{ success: boolean; imageUrl?: string; message: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return apiClient.post<{ success: boolean; imageUrl?: string; message: string }>(
+      `/games/${gameId}/image`,
+      formData
+    );
+  },
+
+  /**
+   * 删除游戏图片
+   */
+  async deleteGameImage(gameId: number): Promise<{ success: boolean; message: string }> {
+    return apiClient.delete<{ success: boolean; message: string }>(`/games/${gameId}/image`);
+  },
 };

@@ -17,6 +17,7 @@ import { Menubar } from "@/components/layout";
 import { GameDetailModal } from "@/components/modals/GameDetailModal";
 import { useStore } from "@/app/features/store/hooks/useStore";
 import type { GameDTO } from "@/lib/api/StoreTypes";
+import { getFullImageUrl } from "@/lib/utils/imageUtils";
 import "@/components/common/animations.css";
 
 const { Header, Content } = Layout;
@@ -146,7 +147,7 @@ export default function ShoppingPage() {
         <div
           style={{
             height: 220,
-            background: `url(${game.imageUrl || "/placeholder-game.jpg"}) center/cover no-repeat`,
+            background: `url(${getFullImageUrl(game.imageUrl)}) center/cover no-repeat`,
             position: "relative",
             overflow: "hidden",
           }}
