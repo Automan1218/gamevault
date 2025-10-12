@@ -79,7 +79,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
   const displayUsername = user?.username || propUsername || "用户";
   const displayEmail = user?.email || "未设置邮箱";
   const displayAvatar = avatarUrl || avatar;
-  
+
   // 处理头像显示逻辑
   const getAvatarSrc = () => {
     if (!displayAvatar) return undefined;
@@ -154,7 +154,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
                 handleAvatarError(new Error('头像加载失败'), true);
                 return false;
               }}
-              style={{ 
+              style={{
                 background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
                 border: '2px solid rgba(255, 255, 255, 0.2)',
               }}

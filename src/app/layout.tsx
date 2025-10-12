@@ -4,6 +4,7 @@ import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import { CartProvider } from '@/contexts/CartContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -33,9 +34,11 @@ export default function RootLayout({
                 }}
             >
                 <AntdApp>
-                    <CartProvider>
-                        {children}
-                    </CartProvider>
+                    <AuthProvider>
+                        <CartProvider>
+                            {children}
+                        </CartProvider>
+                    </AuthProvider>
                 </AntdApp>
             </ConfigProvider>
         </AntdRegistry>

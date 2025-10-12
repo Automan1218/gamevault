@@ -27,12 +27,12 @@ export function useOrders() {
   const fetchOrders = useCallback(async (page: number = 0, size: number = 10) => {
     try {
       const response = await orderApi.getOrderSummary();
-      
+
       // 处理分页（前端分页）
       const start = page * size;
       const end = start + size;
       const paginatedItems = response.items.slice(start, end);
-      
+
       return {
         items: paginatedItems,
         totalCount: response.items.length,
@@ -84,7 +84,7 @@ export function useOrders() {
     setSelectedOrder,
     fetchOrders,           // 用于library页面的分页查询
     fetchOrderDetail,      // 用于查询订单详情
-    payOrder, 
-    failOrder 
+    payOrder,
+    failOrder
   };
 }
