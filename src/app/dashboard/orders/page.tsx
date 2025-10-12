@@ -149,7 +149,7 @@ export default function OrdersPage() {
           animationDelay: `${index * 0.05}s`,
           transition: "all 0.3s ease",
         }}
-        bodyStyle={{ padding: 24 }}
+        styles={{ body: { padding: 24 } }}
       >
         {/* 订单头部 */}
         <Row justify="space-between" align="middle" style={{ marginBottom: 20 }}>
@@ -479,7 +479,7 @@ export default function OrdersPage() {
                     borderRadius: 12,
                     textAlign: "center",
                   }}
-                  bodyStyle={{ padding: 20 }}
+                  styles={{ body: { padding: 20 } }}
                 >
                   <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 8 }}>
                     总订单数
@@ -496,7 +496,7 @@ export default function OrdersPage() {
                     borderRadius: 12,
                     textAlign: "center",
                   }}
-                  bodyStyle={{ padding: 20 }}
+                  styles={{ body: { padding: 20 } }}
                 >
                   <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 8 }}>
                     待支付
@@ -515,7 +515,7 @@ export default function OrdersPage() {
                     borderRadius: 12,
                     textAlign: "center",
                   }}
-                  bodyStyle={{ padding: 20 }}
+                  styles={{ body: { padding: 20 } }}
                 >
                   <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 8 }}>
                     已完成
@@ -532,7 +532,7 @@ export default function OrdersPage() {
                     borderRadius: 12,
                     textAlign: "center",
                   }}
-                  bodyStyle={{ padding: 20 }}
+                  styles={{ body: { padding: 20 } }}
                 >
                   <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 8 }}>
                     总消费

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   App, 
   Card, 
@@ -27,11 +27,17 @@ export default function ShoppingPage() {
 
   const [selectedGame, setSelectedGame] = useState<GameDTO | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   // 筛选器状态
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
+
+  // 确保只在客户端渲染动态内容
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleCardClick = (game: GameDTO) => {
     setSelectedGame(game);
@@ -199,12 +205,14 @@ export default function ShoppingPage() {
           </div>
         </div>
       }
-      bodyStyle={{ 
-        padding: 24, 
-        flex: 1, 
-        display: "flex", 
-        flexDirection: "column",
-        justifyContent: "space-between"
+      styles={{ 
+        body: { 
+          padding: 24, 
+          flex: 1, 
+          display: "flex", 
+          flexDirection: "column",
+          justifyContent: "space-between"
+        }
       }}
     >
       <div>
@@ -417,8 +425,8 @@ export default function ShoppingPage() {
           }}
         />
         
-        {/* 星光点缀 */}
-        {[...Array(20)].map((_, i) => (
+        {/* 星光点缀 - 只在客户端渲染 */}
+        {isClient && [...Array(20)].map((_, i) => (
           <div
             key={i}
             style={{

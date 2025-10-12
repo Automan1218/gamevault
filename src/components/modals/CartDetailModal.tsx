@@ -32,12 +32,14 @@ export const CartDetailModal: React.FC<CartDetailModalProps> = ({
       footer={null}
       width={720}
       centered
-      bodyStyle={{
-        background: "rgba(17, 24, 39, 0.9)",
-        borderRadius: 16,
-        color: "#fff",
-        maxHeight: "70vh",
-        overflowY: "auto",
+      styles={{
+        body: {
+          background: "rgba(17, 24, 39, 0.9)",
+          borderRadius: 16,
+          color: "#fff",
+          maxHeight: "70vh",
+          overflowY: "auto",
+        }
       }}
     >
       {cart && cart.cartItems && cart.cartItems.length > 0 ? (

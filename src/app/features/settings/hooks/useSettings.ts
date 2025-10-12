@@ -8,7 +8,7 @@ import { getLoginRedirectUrl, navigationRoutes } from '@/lib/navigation';
 export interface UserInfo {
     username: string;
     email: string;
-    uid: number;
+    userId: number;
     nickname?: string;
     bio?: string;
     avatarUrl?: string;
@@ -32,7 +32,7 @@ export const useSettings = () => {
                 setUserInfo({
                     username: profile.username,
                     email: profile.email,
-                    uid: profile.userId,
+                    userId: profile.userId,
                     nickname: profile.nickname,
                     bio: profile.bio,
                     avatarUrl: profile.avatarUrl
@@ -47,7 +47,7 @@ export const useSettings = () => {
             setUserInfo({
                 username: basicUser.username,
                 email: basicUser.email || '',
-                uid: basicUser.userId,
+                userId: basicUser.userId,
                 nickname: undefined,
                 bio: undefined,
                 avatarUrl: undefined // 没有头像时显示默认头像

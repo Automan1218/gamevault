@@ -118,6 +118,13 @@ export default function CartPage() {
     return cart.cartItems.reduce((sum, item) => sum + item.subtotal, 0);
   };
 
+  // 对购物车商品进行排序（按添加时间或游戏ID保持稳定顺序）
+  const sortedCartItems = React.useMemo(() => {
+    if (!cart?.cartItems) return [];
+    // 按 cartItemId 排序，确保顺序稳定
+    return [...cart.cartItems].sort((a, b) => a.cartItemId - b.cartItemId);
+  }, [cart?.cartItems]);
+
   // 渲染购物车商品卡片
   const renderCartItem = (item: CartItemDTO, index: number) => (
     <Card
@@ -130,7 +137,7 @@ export default function CartPage() {
         animationDelay: `${index * 0.05}s`,
         transition: "all 0.3s ease",
       }}
-      bodyStyle={{ padding: 20 }}
+      styles={{ body: { padding: 20 } }}
       hoverable
     >
       <Row gutter={24} align="middle">
@@ -228,7 +235,7 @@ export default function CartPage() {
           position: "sticky",
           top: 80,
         }}
-        bodyStyle={{ padding: 24 }}
+        styles={{ body: { padding: 24 } }}
       >
         <div style={{ fontSize: 20, fontWeight: 600, color: "#fff", marginBottom: 20 }}>
           订单摘要
@@ -500,7 +507,7 @@ export default function CartPage() {
               {/* 左侧：商品列表 */}
               <Col xs={24} lg={16}>
                 <Space direction="vertical" size={0} style={{ width: "100%" }}>
-                  {cart.cartItems.map((item, index) => renderCartItem(item, index))}
+                  {sortedCartItems.map((item, index) => renderCartItem(item, index))}
                 </Space>
               </Col>
 
