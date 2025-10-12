@@ -98,7 +98,7 @@ export default function MyPostsPage() {
         (async () => {
             // 清除缓存，确保获取最新的用户信息
             UsersApi.clearUserCache();
-            
+
             const [id, name] = await Promise.all([
                 UsersApi.getUserId(),
                 UsersApi.getUsername(),

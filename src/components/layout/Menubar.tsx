@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Button, Space, Dropdown, Badge, Input, ConfigProvider } from 'antd';
-import { 
+import {
   SearchOutlined, 
   BellOutlined, 
   ShoppingCartOutlined, 
@@ -47,7 +47,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // 获取购物车信息
   const { cart } = useCart();
   const cartItemCount = cart?.cartItems?.length || 0;
@@ -102,18 +102,18 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
   const navItems: NavItem[] = [
     { key: 'home', label: '首页', path: navigationRoutes.home, icon: <HomeOutlined />, requireAuth: false },
     { key: 'store', label: '商城', path: navigationRoutes.shopping, icon: <ShoppingCartOutlined />, requireAuth: false },
-    { 
+    {
       key: 'forum', 
       label: '论坛', 
-      path: navigationRoutes.forum, 
-      icon: <TeamOutlined />, 
+      path: navigationRoutes.forum,
+      icon: <TeamOutlined />,
       requireAuth: false,
       hasDropdown: true,
       dropdownItems: [
         { 
           key: 'forum-home', 
           label: '论坛首页', 
-          path: navigationRoutes.forum, 
+          path: navigationRoutes.forum,
           icon: <CommentOutlined />,
           requireAuth: false 
         },
@@ -126,7 +126,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
         },
       ]
     },
-    { key: 'chat', label: '聊天室', path: '/chat', icon: <MessageOutlined />, requireAuth: true },
+    { key: 'chat', label: '聊天室', path: '/dashboard/chat', icon: <MessageOutlined />, requireAuth: true },
     { key: 'developer', label: '开发者', path: '/developer', icon: <CodeOutlined />, requireAuth: true },
   ];
 

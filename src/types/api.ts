@@ -63,7 +63,7 @@ export interface PostSearchParams extends PaginationParams {
 
 // User related types
 export interface User {
-    userId: number;
+    uid: number;
     username: string;
     nickname: string;
     email?: string;

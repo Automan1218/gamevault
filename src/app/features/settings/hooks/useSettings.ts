@@ -25,7 +25,7 @@ export const useSettings = () => {
         try {
             setLoading(true);
             setError(null);
-            
+
             // 先尝试获取完整用户资料
             try {
                 const profile = await ProfileApi.getProfile();
@@ -41,7 +41,7 @@ export const useSettings = () => {
             } catch (profileErr) {
                 console.warn('获取完整用户资料失败，尝试获取基本用户信息:', profileErr);
             }
-            
+
             // 如果获取完整资料失败，尝试获取基本用户信息
             const basicUser = await AuthApi.getCurrentUser();
             setUserInfo({
@@ -53,7 +53,7 @@ export const useSettings = () => {
                 avatarUrl: undefined // 没有头像时显示默认头像
             });
             setError('获取完整用户资料失败，显示基本信息');
-            
+
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : '获取用户信息失败';
             console.error('获取用户信息失败:', errorMessage);
