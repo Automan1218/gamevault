@@ -98,7 +98,7 @@ export default function CartPage() {
     setCheckoutLoading(true);
     try {
       await checkout(paymentMethod);
-      message.success("支付成功！");
+      message.success("订单已创建，请前往订单页面完成支付！");
       setCheckoutModalOpen(false);
       
       // 跳转到订单页面
@@ -106,7 +106,7 @@ export default function CartPage() {
         router.push("/dashboard/orders");
       }, 1000);
     } catch (error) {
-      message.error("支付失败，请重试");
+      message.error("创建订单失败，请重试");
     } finally {
       setCheckoutLoading(false);
     }
@@ -283,7 +283,7 @@ export default function CartPage() {
             marginBottom: 12,
           }}
         >
-          立即结算
+          立即下单
         </Button>
 
         <Button
@@ -525,7 +525,7 @@ export default function CartPage() {
         title={
           <div style={{ fontSize: 20, fontWeight: 600 }}>
             <CheckCircleOutlined style={{ marginRight: 8, color: "#6366f1" }} />
-            确认支付
+            确认下单
           </div>
         }
         open={checkoutModalOpen}
@@ -545,7 +545,7 @@ export default function CartPage() {
               border: "none",
             }}
           >
-            确认支付
+            确认下单
           </Button>,
         ]}
         width={500}

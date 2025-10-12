@@ -156,10 +156,10 @@ export default function CreateGamePage() {
       style={{
         minHeight: "100vh",
         background: `
-          linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-          linear-gradient(225deg, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-          radial-gradient(ellipse at top left, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-          radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+          linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+          linear-gradient(225deg, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+          radial-gradient(ellipse at top left, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
+          radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.12) 0%, transparent 50%),
           linear-gradient(180deg, #0f172a 0%, #020617 100%)
         `,
         position: "relative",
@@ -199,11 +199,11 @@ export default function CreateGamePage() {
             position: "absolute",
             top: "10%",
             left: "15%",
-            width: 400,
-            height: 400,
-            background: "radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)",
+            width: 300,
+            height: 300,
+            background: "radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%)",
             borderRadius: "50%",
-            filter: "blur(60px)",
+            filter: "blur(40px)",
             animation: "float 20s ease-in-out infinite",
           }}
         />
@@ -212,12 +212,25 @@ export default function CreateGamePage() {
             position: "absolute",
             top: "60%",
             right: "10%",
-            width: 500,
-            height: 500,
-            background: "radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)",
+            width: 350,
+            height: 350,
+            background: "radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%)",
             borderRadius: "50%",
-            filter: "blur(80px)",
+            filter: "blur(50px)",
             animation: "float 25s ease-in-out infinite reverse",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: "30%",
+            right: "30%",
+            width: 200,
+            height: 200,
+            background: "radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)",
+            borderRadius: "50%",
+            filter: "blur(30px)",
+            animation: "float 15s ease-in-out infinite",
           }}
         />
       </div>
@@ -311,10 +324,14 @@ export default function CreateGamePage() {
             className="fade-in-up"
             style={{
               ...cardStyle,
-              borderRadius: 16,
+              borderRadius: 20,
               animationDelay: "0.1s",
+              background: "rgba(15, 23, 42, 0.8)",
+              backdropFilter: "blur(20px) saturate(180%)",
+              border: "1px solid rgba(99, 102, 241, 0.2)",
+              boxShadow: "0 8px 32px rgba(99, 102, 241, 0.1), 0 4px 16px rgba(0, 0, 0, 0.3)",
             }}
-            styles={{ body: { padding: 32 } }}
+            styles={{ body: { padding: 40 } }}
           >
             <Form
               form={form}
@@ -593,11 +610,12 @@ export default function CreateGamePage() {
                     {/* 游戏状态 */}
                     <Card
                       style={{
-                        background: "rgba(255, 255, 255, 0.05)",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                        borderRadius: 12,
+                        background: "rgba(31, 41, 55, 0.6)",
+                        border: "1px solid rgba(99, 102, 241, 0.2)",
+                        borderRadius: 16,
+                        backdropFilter: "blur(10px)",
                       }}
-                      styles={{ body: { padding: 20 } }}
+                      styles={{ body: { padding: 24 } }}
                     >
                       <div style={{ color: "#fff", fontSize: 16, fontWeight: 600, marginBottom: 16 }}>
                         游戏设置
@@ -617,11 +635,12 @@ export default function CreateGamePage() {
                     {/* 预览信息 */}
                     <Card
                       style={{
-                        background: "rgba(255, 255, 255, 0.05)",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                        borderRadius: 12,
+                        background: "rgba(31, 41, 55, 0.6)",
+                        border: "1px solid rgba(99, 102, 241, 0.2)",
+                        borderRadius: 16,
+                        backdropFilter: "blur(10px)",
                       }}
-                      styles={{ body: { padding: 20 } }}
+                      styles={{ body: { padding: 24 } }}
                     >
                       <div style={{ color: "#fff", fontSize: 16, fontWeight: 600, marginBottom: 16 }}>
                         预览信息
