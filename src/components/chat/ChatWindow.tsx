@@ -57,10 +57,16 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    background: darkMode ? '#1a1a1a' : '#fff',
+                    background: darkMode ? 'rgba(15, 23, 42, 0.3)' : '#fff',
+                    backdropFilter: darkMode ? 'blur(10px)' : 'none',
                 }}
             >
-                <Empty description="选择一个会话开始聊天" />
+                <Empty 
+                    description="选择一个会话开始聊天" 
+                    style={{ 
+                        color: darkMode ? '#9ca3af' : undefined 
+                    }}
+                />
             </div>
         );
     }
@@ -93,7 +99,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                 flex: 1,
                 display: 'flex',
                 flexDirection: 'column',
-                background: darkMode ? '#1a1a1a' : '#fff',
+                background: darkMode ? 'rgba(15, 23, 42, 0.3)' : '#fff',
+                backdropFilter: darkMode ? 'blur(10px)' : 'none',
             }}
         >
             {/* 标题栏 */}
@@ -101,10 +108,11 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                 style={{
                     height: 60,
                     padding: '0 24px',
-                    borderBottom: `1px solid ${darkMode ? '#262626' : '#f0f0f0'}`,
+                    borderBottom: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.3)' : '#f0f0f0'}`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
+                    background: darkMode ? 'rgba(15, 23, 42, 0.5)' : 'transparent',
                 }}
             >
                 <Space>

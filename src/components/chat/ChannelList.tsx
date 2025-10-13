@@ -83,20 +83,21 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                     borderRadius: 8,
                     background: isSelected
                         ? darkMode
-                            ? '#262626'
+                            ? 'rgba(99, 102, 241, 0.2)'
                             : '#e6f7ff'
                         : 'transparent',
                     cursor: 'pointer',
                     marginBottom: 4,
-                    transition: 'all 0.2s',
+                    transition: 'all 0.3s ease',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
+                    border: isSelected ? '1px solid rgba(99, 102, 241, 0.4)' : '1px solid transparent',
                 }}
                 onClick={() => onSelectConversation(conversation)}
                 onMouseEnter={(e) => {
                     if (!isSelected) {
-                        e.currentTarget.style.background = darkMode ? '#1a1a1a' : '#f5f5f5';
+                        e.currentTarget.style.background = darkMode ? 'rgba(99, 102, 241, 0.08)' : '#f5f5f5';
                     }
                 }}
                 onMouseLeave={(e) => {
@@ -161,10 +162,12 @@ export const ChannelList: React.FC<ChannelListProps> = ({
         <div
             style={{
                 width: 240,
-                background: darkMode ? '#141414' : '#fafafa',
-                borderRight: `1px solid ${darkMode ? '#262626' : '#f0f0f0'}`,
+                background: darkMode ? 'rgba(15, 23, 42, 0.5)' : '#fafafa',
+                backdropFilter: darkMode ? 'blur(10px)' : 'none',
+                borderRight: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.3)' : '#f0f0f0'}`,
                 display: 'flex',
                 flexDirection: 'column',
+                boxShadow: darkMode ? '4px 0 16px rgba(0, 0, 0, 0.2)' : 'none',
             }}
         >
             {/* 搜索框 */}

@@ -2,7 +2,7 @@
 'use client';
 
 import React, {useCallback, useState} from 'react';
-import { ConfigProvider, theme, App, message as antMessage } from 'antd';
+import { ConfigProvider, theme, App, Layout, message as antMessage } from 'antd';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGroupChat } from '@/app/features/chat/hooks/useGroupChat';
 import { useFriend } from '@/app/features/friend/hooks/useFriend';
@@ -11,6 +11,7 @@ import { useGroupMessages } from '@/app/features/chat/hooks/useGroupMessages';
 import { usePrivateMessages } from '@/app/features/chat/hooks/usePrivateMessages';
 import { useMessageNotifications } from '@/app/features/chat/hooks/useMessageNotifications';
 import { ConnectionMonitor } from '@/components/common/ConnectionMonitor';
+import { Menubar } from '@/components/layout';
 import {
     ServerList,
     ChannelList,
@@ -18,6 +19,7 @@ import {
     CreateGroupModal,
     GroupSettingsModal,
 } from '@/components/chat';
+import '@/components/common/animations.css';
 
 import SearchUserModal from '@/components/friend/SearchUserModal';
 import FriendRequestsModal from '@/components/friend/FriendRequestsModal';
@@ -25,6 +27,8 @@ import AddMembersModal from '@/components/friend/AddMembersModal';
 
 import { FriendConversation, Conversation, GroupChat } from '@/types/chat';
 import { chatApi } from "@/lib/api/chat";
+
+const { Header, Content } = Layout;
 
 export default function ChatPage() {
     const { user } = useAuth();
@@ -170,14 +174,18 @@ export default function ChatPage() {
         }
     };
 
-    // 主题配置
+    // 主题配置 - 与login界面保持一致
     const darkTheme = {
         algorithm: theme.darkAlgorithm,
         token: {
-            colorPrimary: '#667eea',
-            colorBgContainer: '#1a1a1a',
-            colorBgElevated: '#262626',
-            colorBgLayout: '#0d0d0d',
+            colorPrimary: '#6366f1',
+            colorBgContainer: 'rgba(15, 23, 42, 0.8)',
+            colorBgElevated: 'rgba(31, 41, 55, 0.9)',
+            colorBorder: 'rgba(75, 85, 99, 0.3)',
+            colorText: '#f9fafb',
+            colorTextSecondary: '#d1d5db',
+            colorBgLayout: '#0f172a',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         },
     };
 
@@ -238,11 +246,93 @@ export default function ChatPage() {
         <ConfigProvider theme={darkMode ? darkTheme : undefined}>
             <App>
                 <ConnectionMonitor />
-                <div style={{
-                    height: '100vh',
-                    display: 'flex',
-                    background: darkMode ? '#0d0d0d' : '#f5f5f5'
-                }}>
+                <Layout
+                    style={{
+                        minHeight: '100vh',
+                        background: `
+                            radial-gradient(ellipse at top left, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                            radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                            radial-gradient(ellipse at center, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                            linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #020617 100%)
+                        `,
+                        position: 'relative',
+                        overflow: 'hidden',
+                    }}
+                >
+                    {/* 动态背景装饰 */}
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            pointerEvents: 'none',
+                            zIndex: 0,
+                            overflow: 'hidden',
+                        }}
+                    >
+                        {/* 浮动光球 */}
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: '10%',
+                                left: '15%',
+                                width: 300,
+                                height: 300,
+                                background: 'radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%)',
+                                borderRadius: '50%',
+                                filter: 'blur(40px)',
+                                animation: 'float 20s ease-in-out infinite',
+                            }}
+                        />
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: '60%',
+                                right: '10%',
+                                width: 350,
+                                height: 350,
+                                background: 'radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%)',
+                                borderRadius: '50%',
+                                filter: 'blur(50px)',
+                                animation: 'float 25s ease-in-out infinite reverse',
+                            }}
+                        />
+                    </div>
+
+                    {/* 固定顶部导航栏 */}
+                    <Header
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            zIndex: 1000,
+                            padding: 0,
+                            height: 'auto',
+                            lineHeight: 'normal',
+                            background: 'rgba(15, 23, 42, 0.8)',
+                            backdropFilter: 'blur(20px) saturate(180%)',
+                            borderBottom: '1px solid rgba(99, 102, 241, 0.3)',
+                            boxShadow: '0 4px 24px rgba(99, 102, 241, 0.15), 0 2px 8px rgba(0, 0, 0, 0.3)',
+                        }}
+                    >
+                        <Menubar currentPath="/dashboard/chat" />
+                    </Header>
+
+                    {/* 聊天内容区域 */}
+                    <Content
+                        style={{
+                            marginTop: 64,
+                            position: 'relative',
+                            zIndex: 1,
+                        }}
+                    >
+                        <div style={{
+                            height: 'calc(100vh - 64px)',
+                            display: 'flex',
+                        }}>
                     {/* 最左侧 - 服务器列表 */}
                     <ServerList
                         darkMode={darkMode}
@@ -326,7 +416,9 @@ export default function ChatPage() {
                         onHandle={handleFriendRequest}
                         onLoadSentRequests={loadSentRequests}
                     />
-                </div>
+                        </div>
+                    </Content>
+                </Layout>
             </App>
         </ConfigProvider>
     );
