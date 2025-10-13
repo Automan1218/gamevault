@@ -2,7 +2,7 @@
  * 用户搜索结果
  */
 export interface UserSearchResult {
-    uid: number;
+    userId: number;
     username: string;
     email: string;
     isFriend: boolean;      // 是否已是好友
@@ -30,7 +30,7 @@ export interface FriendRequest {
  * 好友信息
  */
 export interface Friend {
-    uid: number;
+    userId: number;
     username: string;
     email: string;
     remark?: string;

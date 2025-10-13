@@ -13,6 +13,7 @@ import {
   Typography,
   App,
 } from "antd";
+import { getFullImageUrl } from "@/lib/utils/imageUtils";
 import {
   ShoppingCartOutlined,
   CalendarOutlined,
@@ -137,7 +138,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
             position: "relative",
             height: 400,
             background: `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(15,23,42,0.98)), url(${
-              game.imageUrl || "/placeholder-game.jpg"
+              getFullImageUrl(game.imageUrl)
             }) center/cover no-repeat`,
             borderRadius: "16px 16px 0 0",
           }}

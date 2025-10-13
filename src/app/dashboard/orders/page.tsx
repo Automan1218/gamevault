@@ -54,29 +54,17 @@ export default function OrdersPage() {
         text: "待支付",
         bgColor: "rgba(250, 173, 20, 0.1)",
       },
-      PAID: {
-        color: "green",
-        icon: <CheckCircleOutlined />,
-        text: "已支付",
-        bgColor: "rgba(52, 211, 153, 0.1)",
-      },
       COMPLETED: {
         color: "green",
         icon: <CheckCircleOutlined />,
         text: "已完成",
         bgColor: "rgba(52, 211, 153, 0.1)",
       },
-      FAILED: {
+      CANCELLED: {
         color: "red",
         icon: <CloseCircleOutlined />,
-        text: "支付失败",
-        bgColor: "rgba(239, 68, 68, 0.1)",
-      },
-      CANCELLED: {
-        color: "default",
-        icon: <CloseCircleOutlined />,
         text: "已取消",
-        bgColor: "rgba(107, 114, 128, 0.1)",
+        bgColor: "rgba(239, 68, 68, 0.1)",
       },
     };
     return configs[status] || configs.PENDING;
@@ -149,7 +137,7 @@ export default function OrdersPage() {
           animationDelay: `${index * 0.05}s`,
           transition: "all 0.3s ease",
         }}
-        bodyStyle={{ padding: 24 }}
+        styles={{ body: { padding: 24 } }}
       >
         {/* 订单头部 */}
         <Row justify="space-between" align="middle" style={{ marginBottom: 20 }}>
@@ -325,10 +313,10 @@ export default function OrdersPage() {
   const getStats = () => {
     const total = orders.length;
     const pending = orders.filter((o) => o.status === "PENDING").length;
-    const paid = orders.filter((o) => o.status === "PAID" || o.status === "COMPLETED").length;
+    const completed = orders.filter((o) => o.status === "COMPLETED").length;
     const totalAmount = orders.reduce((sum, o) => sum + o.finalAmount, 0);
 
-    return { total, pending, paid, totalAmount };
+    return { total, pending, completed, totalAmount };
   };
 
   const stats = getStats();
@@ -479,7 +467,7 @@ export default function OrdersPage() {
                     borderRadius: 12,
                     textAlign: "center",
                   }}
-                  bodyStyle={{ padding: 20 }}
+                  styles={{ body: { padding: 20 } }}
                 >
                   <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 8 }}>
                     总订单数
@@ -496,7 +484,7 @@ export default function OrdersPage() {
                     borderRadius: 12,
                     textAlign: "center",
                   }}
-                  bodyStyle={{ padding: 20 }}
+                  styles={{ body: { padding: 20 } }}
                 >
                   <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 8 }}>
                     待支付
@@ -515,13 +503,13 @@ export default function OrdersPage() {
                     borderRadius: 12,
                     textAlign: "center",
                   }}
-                  bodyStyle={{ padding: 20 }}
+                  styles={{ body: { padding: 20 } }}
                 >
                   <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 8 }}>
                     已完成
                   </div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: "#22c55e" }}>
-                    {stats.paid}
+                    {stats.completed}
                   </div>
                 </Card>
               </Col>
@@ -532,7 +520,7 @@ export default function OrdersPage() {
                     borderRadius: 12,
                     textAlign: "center",
                   }}
-                  bodyStyle={{ padding: 20 }}
+                  styles={{ body: { padding: 20 } }}
                 >
                   <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 8 }}>
                     总消费

@@ -207,11 +207,13 @@
 import React from "react";
 import { Button, Typography } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
+import { getFullImageUrl } from "@/lib/utils/imageUtils";
 
 interface GameCardProps {
   gameId: number;
   title: string;
   price?: number;
+  imageUrl?: string;
   activationCodesCount: number;
   onViewCodes: () => void;
   index: number;
@@ -229,6 +231,7 @@ export const GameCard: React.FC<GameCardProps> = ({
   gameId,
   title,
   price,
+  imageUrl,
   activationCodesCount,
   onViewCodes,
   index,
@@ -266,8 +269,9 @@ export const GameCard: React.FC<GameCardProps> = ({
       <div
         style={{
           height: 168,
-          background:
-            "linear-gradient(135deg, rgba(99,102,241,0.35) 0%, rgba(139,92,246,0.28) 60%, rgba(6,182,212,0.32) 100%), radial-gradient(ellipse at top left, rgba(255,255,255,0.12) 0%, transparent 50%), radial-gradient(ellipse at bottom right, rgba(255,255,255,0.08) 0%, transparent 50%)",
+          background: imageUrl 
+            ? `url(${getFullImageUrl(imageUrl)}) center/cover no-repeat`
+            : "linear-gradient(135deg, rgba(99,102,241,0.35) 0%, rgba(139,92,246,0.28) 60%, rgba(6,182,212,0.32) 100%), radial-gradient(ellipse at top left, rgba(255,255,255,0.12) 0%, transparent 50%), radial-gradient(ellipse at bottom right, rgba(255,255,255,0.08) 0%, transparent 50%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -276,20 +280,37 @@ export const GameCard: React.FC<GameCardProps> = ({
           overflow: "hidden",
         }}
       >
-        <div
-          aria-hidden
-          style={{
-            fontSize: 44,
-            background:
-              "linear-gradient(135deg, #f9fafb 0%, #e5e7eb 60%, #d1d5db 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            opacity: 0.9,
-          }}
-        >
-          🎮
-        </div>
+        {/* 如果没有图片，显示游戏手柄图标 */}
+        {!imageUrl && (
+          <div
+            aria-hidden
+            style={{
+              fontSize: 44,
+              background:
+                "linear-gradient(135deg, #f9fafb 0%, #e5e7eb 60%, #d1d5db 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              opacity: 0.9,
+            }}
+          >
+            🎮
+          </div>
+        )}
+        
+        {/* 如果有图片，添加渐变遮罩 */}
+        {imageUrl && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "40%",
+              background: "linear-gradient(transparent, rgba(0, 0, 0, 0.6))",
+            }}
+          />
+        )}
 
         <Button
           type="primary"

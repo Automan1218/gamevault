@@ -66,7 +66,7 @@ export function usePrivateMessages(friendId: number | null, currentUserId: numbe
         function performSubscription() {
             try {
                 const subscription = chatWebSocket.subscribeToPrivateMessages(
-                    currentUserId.toString(),
+                    currentUserId,
                     (newMessage) => {
                         // 使用 ref 获取最新的 friendId
                         const currentFriendId = friendIdRef.current;

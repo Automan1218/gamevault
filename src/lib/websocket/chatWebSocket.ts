@@ -157,7 +157,7 @@ class ChatWebSocketClient {
     /**
      * 订阅私聊消息（带重连支持）
      */
-    subscribeToPrivateMessages(userId: string, callback: MessageCallback) {
+    subscribeToPrivateMessages(userId: number, callback: MessageCallback) {
         console.log('subscribeToPrivateMessages 被调用 - userId:', userId);
 
         if (!this.client || !this.client.connected) {

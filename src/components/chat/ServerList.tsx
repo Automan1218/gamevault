@@ -24,12 +24,14 @@ export const ServerList: React.FC<ServerListProps> = ({
         <div
             style={{
                 width: 80,
-                background: darkMode ? '#0a0a0a' : '#fff',
-                borderRight: `1px solid ${darkMode ? '#262626' : '#f0f0f0'}`,
+                background: darkMode ? 'rgba(15, 23, 42, 0.6)' : '#fff',
+                backdropFilter: darkMode ? 'blur(10px)' : 'none',
+                borderRight: `1px solid ${darkMode ? 'rgba(99, 102, 241, 0.3)' : '#f0f0f0'}`,
                 padding: '16px 8px',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
+                boxShadow: darkMode ? '4px 0 16px rgba(0, 0, 0, 0.2)' : 'none',
             }}
         >
             {/* 主服务器图标 */}
@@ -40,8 +42,18 @@ export const ServerList: React.FC<ServerListProps> = ({
                         style={{
                             marginBottom: 24,
                             cursor: 'pointer',
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%)',
                             fontSize: 24,
+                            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
+                            transition: 'all 0.3s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'scale(1.1)';
+                            e.currentTarget.style.boxShadow = '0 6px 20px rgba(99, 102, 241, 0.6)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'scale(1)';
+                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.4)';
                         }}
                     >
                         🎮

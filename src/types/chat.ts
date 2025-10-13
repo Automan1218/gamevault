@@ -19,7 +19,7 @@ export interface GroupChat {
  */
 export interface FriendConversation {
     friendId: any;
-    uid: number;
+    userId: number;
     username: string;
     email: string;
     remark?: string;

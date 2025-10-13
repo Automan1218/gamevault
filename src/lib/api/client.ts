@@ -63,17 +63,24 @@ export class ApiClient {
             const method = requestConfig.method?.toUpperCase() || 'GET';
             const shouldHaveBody = !['GET', 'HEAD'].includes(method);
 
+            // 检查是否是FormData，如果是则不设置Content-Type
+            const isFormData = requestConfig.body instanceof FormData;
+            const defaultHeaders: Record<string, string> = isFormData 
+                ? { 'Accept': 'application/json' }
+                : { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+
+            const headers: Record<string, string> = {
+                ...defaultHeaders,
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+                ...(requestConfig.headers as Record<string, string>),
+            };
+
             const response = await fetch(url, {
                 ...requestConfig,
                 signal: controller.signal,
                 mode: 'cors',
                 credentials: 'omit',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    ...(token && { 'Authorization': `Bearer ${token}` }),
-                    ...requestConfig.headers,
-                },
+                headers,
                 // Only include body for non-GET/HEAD requests
                 body: shouldHaveBody ? requestConfig.body : undefined,
             });
@@ -151,10 +158,23 @@ export class ApiClient {
     }
 
     // POST request
-    async post<T>(endpoint: string, data?: unknown): Promise<T> {
+    async post<T>(endpoint: string, data?: unknown, options: RequestInit & { params?: Record<string, unknown> } = {}): Promise<T> {
+        const { params, ...requestConfig } = options;
+        
+        // 如果是FormData，不设置Content-Type，让浏览器自动设置
+        const isFormData = data instanceof FormData;
+        const headers = isFormData 
+            ? { ...requestConfig.headers }
+            : { 
+                'Content-Type': 'application/json',
+                ...requestConfig.headers 
+              };
+        
         return this.request<T>(endpoint, {
             method: 'POST',
-            body: data ? JSON.stringify(data) : undefined,
+            body: data ? (isFormData ? data : JSON.stringify(data)) : undefined,
+            headers,
+            params,
         });
     }
 

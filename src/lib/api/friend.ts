@@ -1,7 +1,7 @@
 import { apiClient } from './client';
 
 interface UserSearchResponse {
-    uid: number;
+    userId: number;
     username: string;
     email: string;
     isFriend: boolean;
@@ -23,7 +23,7 @@ interface FriendRequestResponse {
 }
 
 interface FriendResponse {
-    uid: number;
+    userId: number;
     username: string;
     email: string;
     remark?: string;

@@ -36,12 +36,12 @@ export default function SearchUserModal({
     };
 
     const handleSendRequest = async (user: UserSearchResult) => {
-        setSendingTo(user.uid);
+        setSendingTo(user.userId);
         try {
-            await onSendRequest(user.uid, `你好，我想加你为好友`);
+            await onSendRequest(user.userId, `你好，我想加你为好友`);
             // 更新本地状态
             setSearchResults(prev =>
-                prev.map(u => u.uid === user.uid ? { ...u, hasPending: true } : u)
+                prev.map(u => u.userId === user.userId ? { ...u, hasPending: true } : u)
             );
         } finally {
             setSendingTo(null);
@@ -91,7 +91,7 @@ export default function SearchUserModal({
                                         <Button
                                             type="primary"
                                             icon={<UserAddOutlined />}
-                                            loading={sendingTo === user.uid}
+                                            loading={sendingTo === user.userId}
                                             onClick={() => handleSendRequest(user)}
                                         >
                                             添加好友

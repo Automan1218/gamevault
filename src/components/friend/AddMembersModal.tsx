@@ -88,7 +88,7 @@ export default function AddMembersModal({
                 <List
                     dataSource={friends}
                     renderItem={(friend) => {
-                        const isSelected = selectedIds.includes(friend.uid);
+                        const isSelected = selectedIds.includes(friend.userId);
 
                         return (
                             <List.Item
@@ -98,7 +98,7 @@ export default function AddMembersModal({
                                     padding: '12px',
                                     borderRadius: 8,
                                 }}
-                                onClick={() => handleToggle(friend.uid)}
+                                onClick={() => handleToggle(friend.userId)}
                             >
                                 <Space>
                                     <Checkbox checked={isSelected} />
