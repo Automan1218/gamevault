@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Dropdown, Avatar, Button, Spin } from 'antd';
-import { UserOutlined, PlaySquareOutlined, HeartOutlined, TeamOutlined, SettingOutlined, DownOutlined, LogoutOutlined } from '@ant-design/icons';
+import { UserOutlined, PlaySquareOutlined, HeartOutlined, TeamOutlined, SettingOutlined, DownOutlined, LogoutOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { useRouter } from 'next/navigation';
 import { navigationRoutes } from '@/lib/navigation';
@@ -124,6 +124,9 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
         // 设置页面路由
         router.push(navigationRoutes.settings);
         break;
+      case 'orders':
+        router.push(navigationRoutes.orders);
+        break;
       case 'logout':
         // 退出登录
         handleLogout();
@@ -217,6 +220,29 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           fontWeight: 500,
         }}>
           游戏库
+        </span>
+      ),
+      className: 'user-menu-item',
+      style: { 
+        padding: '12px 16px',
+        background: 'rgba(31, 41, 55, 0.8)',
+        transition: 'all 0.2s ease',
+        borderRadius: '8px',
+        margin: '2px 8px',
+        cursor: 'pointer',
+        borderLeft: '3px solid transparent',
+      },
+    },
+    {
+      key: 'orders',
+      icon: <ShoppingCartOutlined style={{ color: '#6366f1', transition: 'color 0.2s ease' }} />,
+      label: (
+        <span style={{ 
+          color: '#ffffff',
+          transition: 'color 0.2s ease',
+          fontWeight: 500,
+        }}>
+          我的订单
         </span>
       ),
       className: 'user-menu-item',

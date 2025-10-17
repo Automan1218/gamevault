@@ -14,7 +14,6 @@ import {
   Space,
   Divider,
   Badge,
-  Modal,
 } from "antd";
 import {
   ShoppingOutlined,
@@ -22,10 +21,11 @@ import {
   CloseCircleOutlined,
   ClockCircleOutlined,
   ExclamationCircleOutlined,
-  EyeOutlined,
 } from "@ant-design/icons";
 import { Menubar } from "@/components/layout";
 import { useOrders } from "@/app/features/orders/hooks/useOrders";
+import { PaymentModal } from "@/components/modals/PaymentModal";
+import { ENV } from "@/config/env";
 import { useRouter } from "next/navigation";
 import { cardStyle } from "@/components/common/theme";
 import type { OrderDTO, OrderItemDTO } from "@/lib/api/StoreTypes";
@@ -39,8 +39,10 @@ export default function OrdersPage() {
   const { orders, loading, payOrder, failOrder } = useOrders();
 
   const [payLoading, setPayLoading] = useState<number | null>(null);
-  const [detailModalOpen, setDetailModalOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<OrderDTO | null>(null);
+  const [payModalOpen, setPayModalOpen] = useState<{ open: boolean; order: OrderDTO | null }>(
+    { open: false, order: null }
+  );
+  
 
   // 获取订单状态配置
   const getStatusConfig = (status: string) => {
@@ -70,44 +72,63 @@ export default function OrdersPage() {
     return configs[status] || configs.PENDING;
   };
 
-  // 处理支付成功
-  const handlePaySuccess = (orderId: number) => {
-    modal.confirm({
-      title: "模拟支付成功",
-      icon: <CheckCircleOutlined style={{ color: "#22c55e" }} />,
-      content: "确认模拟此订单支付成功吗？",
-      okText: "确认",
-      cancelText: "取消",
-      onOk: async () => {
-        setPayLoading(orderId);
-        try {
-          await payOrder(orderId);
-          message.success("支付成功！游戏已添加到您的库中");
-        } catch (error) {
-          message.error("支付失败，请重试");
-        } finally {
-          setPayLoading(null);
-        }
-      },
-    });
+  // 真实沙盘模拟：打开支付表单
+  const handlePay = (order: OrderDTO) => {
+    setPayModalOpen({ open: true, order });
   };
 
-  // 处理支付失败
-  const handlePayFail = (orderId: number) => {
+  // 简单 RSA 加密（前端示例）。建议后端同时校验与解密。
+  async function encryptWithPublicKey(plain: string, pemPublicKey: string): Promise<string> {
+    const clean = pemPublicKey.replace(/-----BEGIN PUBLIC KEY-----|-----END PUBLIC KEY-----|\s+/g, "");
+    const raw = Uint8Array.from(atob(clean), c => c.charCodeAt(0));
+    const key = await crypto.subtle.importKey(
+      "spki",
+      raw.buffer,
+      { name: "RSA-OAEP", hash: "SHA-256" },
+      false,
+      ["encrypt"]
+    );
+    const enc = new TextEncoder().encode(plain);
+    const cipher = await crypto.subtle.encrypt({ name: "RSA-OAEP" }, key, enc);
+    return btoa(String.fromCharCode(...new Uint8Array(cipher)));
+  }
+
+  const handleConfirmPay = async (method: string, card: { cardHolder: string; cardNumber: string; expiry: string; cvc: string }) => {
+    const order = payModalOpen.order;
+    if (!order) return;
+    try {
+      setPayLoading(order.orderId);
+      const pubKey = (process.env.NEXT_PUBLIC_PAYMENT_PUB_KEY as string) || (ENV as any).PAYMENT_PUB_KEY;
+      const payload = JSON.stringify(card);
+      const encrypted = pubKey ? await encryptWithPublicKey(payload, pubKey) : payload;
+      // 这里按需调用后端支付创建/确认接口（如果已有则替换为真实接口）
+      // 暂用原有 payOrder(orderId) 执行模拟确认
+      await payOrder(order.orderId);
+      message.success("支付成功！游戏已添加到您的库中");
+      setPayModalOpen({ open: false, order: null });
+    } catch (e) {
+      message.error("支付失败，请重试");
+    } finally {
+      setPayLoading(null);
+    }
+  };
+
+  // 处理取消订单
+  const handleCancelOrder = (orderId: number) => {
     modal.confirm({
-      title: "模拟支付失败",
+      title: "取消订单",
       icon: <ExclamationCircleOutlined style={{ color: "#ef4444" }} />,
-      content: "确认模拟此订单支付失败吗？",
-      okText: "确认",
-      cancelText: "取消",
+      content: "确认取消此订单吗？取消后无法恢复。",
+      okText: "确认取消",
+      cancelText: "不取消",
       okType: "danger",
       onOk: async () => {
         setPayLoading(orderId);
         try {
           await failOrder(orderId);
-          message.error("支付失败");
+          message.success("订单已取消");
         } catch (error) {
-          message.error("操作失败，请重试");
+          message.error("取消订单失败，请重试");
         } finally {
           setPayLoading(null);
         }
@@ -115,11 +136,6 @@ export default function OrdersPage() {
     });
   };
 
-  // 查看订单详情
-  const handleViewDetail = (order: OrderDTO) => {
-    setSelectedOrder(order);
-    setDetailModalOpen(true);
-  };
 
   // 渲染订单卡片
   const renderOrderCard = (order: OrderDTO, index: number) => {
@@ -234,25 +250,8 @@ export default function OrdersPage() {
           </Space>
         </div>
 
-        {/* 操作按钮 */}
+        {/* 操作按钮（仅支付相关） */}
         <Row gutter={12}>
-          <Col flex="auto">
-            <Button
-              size="large"
-              block
-              icon={<EyeOutlined />}
-              onClick={() => handleViewDetail(order)}
-              style={{
-                height: 44,
-                borderRadius: 12,
-                background: "rgba(99, 102, 241, 0.1)",
-                borderColor: "rgba(99, 102, 241, 0.3)",
-                color: "#a5b4fc",
-              }}
-            >
-              查看详情
-            </Button>
-          </Col>
           {isPending && (
             <>
               <Col>
@@ -261,7 +260,7 @@ export default function OrdersPage() {
                   size="large"
                   icon={<CheckCircleOutlined />}
                   loading={payLoading === order.orderId}
-                  onClick={() => handlePaySuccess(order.orderId)}
+                  onClick={() => handlePay(order)}
                   style={{
                     height: 44,
                     borderRadius: 12,
@@ -270,7 +269,7 @@ export default function OrdersPage() {
                     minWidth: 140,
                   }}
                 >
-                  模拟支付成功
+                  去支付
                 </Button>
               </Col>
               <Col>
@@ -279,14 +278,14 @@ export default function OrdersPage() {
                   size="large"
                   icon={<CloseCircleOutlined />}
                   loading={payLoading === order.orderId}
-                  onClick={() => handlePayFail(order.orderId)}
+                  onClick={() => handleCancelOrder(order.orderId)}
                   style={{
                     height: 44,
                     borderRadius: 12,
                     minWidth: 140,
                   }}
                 >
-                  模拟支付失败
+                  取消订单
                 </Button>
               </Col>
             </>
@@ -295,6 +294,26 @@ export default function OrdersPage() {
       </Card>
     );
   };
+
+  // 支付表单弹窗
+  const payAmount = payModalOpen.order?.finalAmount;
+
+  // 处理支付弹窗关闭
+  const handlePaymentModalClose = () => {
+    if (payModalOpen.order) {
+      message.warning("支付未完成，请重新点击'去支付'按钮完成支付");
+    }
+    setPayModalOpen({ open: false, order: null });
+  };
+
+  const renderPayModal = () => (
+    <PaymentModal
+      open={payModalOpen.open}
+      onClose={handlePaymentModalClose}
+      amount={payAmount}
+      onConfirm={handleConfirmPay}
+    />
+  );
 
   // 骨架屏
   const renderSkeleton = () => (
@@ -430,6 +449,7 @@ export default function OrdersPage() {
           zIndex: 1,
         }}
       >
+        {renderPayModal()}
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           {/* 页面标题 */}
           <div
@@ -584,151 +604,6 @@ export default function OrdersPage() {
           )}
         </div>
       </Content>
-
-      {/* 订单详情弹窗 */}
-      <Modal
-        title={
-          <div style={{ fontSize: 20, fontWeight: 600 }}>
-            <ShoppingOutlined style={{ marginRight: 8, color: "#6366f1" }} />
-            订单详情 #{selectedOrder?.orderId}
-          </div>
-        }
-        open={detailModalOpen}
-        onCancel={() => {
-          setDetailModalOpen(false);
-          setSelectedOrder(null);
-        }}
-        footer={[
-          <Button
-            key="close"
-            type="primary"
-            onClick={() => {
-              setDetailModalOpen(false);
-              setSelectedOrder(null);
-            }}
-            size="large"
-            style={{
-              background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
-              border: "none",
-            }}
-          >
-            关闭
-          </Button>,
-        ]}
-        width={700}
-      >
-        {selectedOrder && (
-          <div style={{ padding: "20px 0" }}>
-            {/* 订单基本信息 */}
-            <div style={{ marginBottom: 24 }}>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <div style={{ marginBottom: 16 }}>
-                    <div style={{ color: "#9ca3af", fontSize: 13, marginBottom: 4 }}>
-                      订单状态
-                    </div>
-                    <Tag
-                      icon={getStatusConfig(selectedOrder.status).icon}
-                      color={getStatusConfig(selectedOrder.status).color}
-                      style={{ fontSize: 14, padding: "4px 12px" }}
-                    >
-                      {getStatusConfig(selectedOrder.status).text}
-                    </Tag>
-                  </div>
-                </Col>
-                <Col span={12}>
-                  <div style={{ marginBottom: 16 }}>
-                    <div style={{ color: "#9ca3af", fontSize: 13, marginBottom: 4 }}>
-                      支付方式
-                    </div>
-                    <div style={{ fontSize: 15, fontWeight: 600 }}>
-                      {selectedOrder.paymentMethod || "未选择"}
-                    </div>
-                  </div>
-                </Col>
-                <Col span={24}>
-                  <div style={{ marginBottom: 16 }}>
-                    <div style={{ color: "#9ca3af", fontSize: 13, marginBottom: 4 }}>
-                      下单时间
-                    </div>
-                    <div style={{ fontSize: 15 }}>
-                      {new Date(selectedOrder.orderDate).toLocaleString("zh-CN")}
-                    </div>
-                  </div>
-                </Col>
-              </Row>
-            </div>
-
-            <Divider />
-
-            {/* 商品列表 */}
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>
-                商品清单
-              </div>
-              <Space direction="vertical" size={12} style={{ width: "100%" }}>
-                {selectedOrder.orderItems.map((item: OrderItemDTO) => (
-                  <Card
-                    key={item.orderItemId}
-                    size="small"
-                    style={{
-                      background: "rgba(31, 41, 55, 0.5)",
-                      border: "1px solid rgba(75, 85, 99, 0.3)",
-                    }}
-                  >
-                    <Row justify="space-between" align="middle">
-                      <Col>
-                        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
-                          {item.gameTitle || `游戏 #${item.gameId}`}
-                        </div>
-                        {item.activationCode && (
-                          <div style={{ fontSize: 13, color: "#22c55e" }}>
-                            激活码：{item.activationCode}
-                          </div>
-                        )}
-                      </Col>
-                      <Col>
-                        <div style={{ textAlign: "right" }}>
-                          {item.discountPrice && item.discountPrice < item.unitPrice ? (
-                            <>
-                              <div
-                                style={{
-                                  color: "#6b7280",
-                                  textDecoration: "line-through",
-                                  fontSize: 13,
-                                }}
-                              >
-                                ￥{item.unitPrice.toFixed(2)}
-                              </div>
-                              <div style={{ color: "#22c55e", fontWeight: 600, fontSize: 16 }}>
-                                ￥{item.discountPrice.toFixed(2)}
-                              </div>
-                            </>
-                          ) : (
-                            <div style={{ fontWeight: 600, fontSize: 16 }}>
-                              ￥{item.unitPrice.toFixed(2)}
-                            </div>
-                          )}
-                        </div>
-                      </Col>
-                    </Row>
-                  </Card>
-                ))}
-              </Space>
-            </div>
-
-            <Divider />
-
-            {/* 价格汇总 */}
-            <Row justify="space-between" style={{ fontSize: 18, fontWeight: 700 }}>
-              <Col>订单总额：</Col>
-              <Col style={{ color: "#22c55e", fontSize: 24 }}>
-                ￥{selectedOrder.finalAmount.toFixed(2)}
-              </Col>
-            </Row>
-          </div>
-        )}
-      </Modal>
     </Layout>
   );
 }

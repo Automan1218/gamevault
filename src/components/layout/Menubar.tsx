@@ -160,6 +160,17 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
     router.push(getLoginRedirectUrl(resolvedCurrentPath));
   };
 
+  // 搜索输入状态与提交（第一版实现）
+  const [searchValue, setSearchValue] = useState<string>("");
+  const handleSearchSubmit = () => {
+    const q = searchValue.trim();
+    if (q) {
+      router.push(`${navigationRoutes.shopping}?q=${encodeURIComponent(q)}`);
+    } else {
+      router.push(navigationRoutes.shopping);
+    }
+  };
+
   return (
     <ConfigProvider theme={darkTheme}>
       <div
@@ -377,6 +388,9 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
               fontSize: '14px',
               transition: 'all 0.3s ease',
             }}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onPressEnter={handleSearchSubmit}
             onFocus={(e) => {
               e.target.style.borderColor = 'rgba(99, 102, 241, 0.5)';
               e.target.style.boxShadow = '0 0 0 2px rgba(99, 102, 241, 0.1)';

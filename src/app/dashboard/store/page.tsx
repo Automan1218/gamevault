@@ -16,6 +16,7 @@ import {
 import { Menubar } from "@/components/layout";
 import { GameDetailModal } from "@/components/modals/GameDetailModal";
 import { useStore } from "@/app/features/store/hooks/useStore";
+import { useSearchParams } from "next/navigation";
 import type { GameDTO } from "@/lib/api/StoreTypes";
 import { getFullImageUrl } from "@/lib/utils/imageUtils";
 import "@/components/common/animations.css";
@@ -24,7 +25,9 @@ const { Header, Content } = Layout;
 
 export default function ShoppingPage() {
   const { message } = App.useApp();
-  const { filteredGames, loading: storeLoading } = useStore();
+  const searchParams = useSearchParams();
+  const initialQ = searchParams?.get('q') || '';
+  const { games, loading: storeLoading, setSearchQuery } = useStore(initialQ);
 
   const [selectedGame, setSelectedGame] = useState<GameDTO | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -56,7 +59,7 @@ export default function ShoppingPage() {
     const platforms = new Set<string>();
     const genres = new Set<string>();
 
-    filteredGames.forEach(game => {
+    games.forEach(game => {
       if (game.releaseDate) {
         const year = new Date(game.releaseDate).getFullYear().toString();
         years.add(year);
@@ -88,8 +91,13 @@ export default function ShoppingPage() {
     });
   };
 
-  // 获取筛选后的游戏列表
-  const displayGames = applyFilters(filteredGames);
+  // 获取筛选后的游戏列表（基于后端检索结果）
+  const displayGames = applyFilters(games);
+
+  // 当 URL 的 q 变化时，同步触发检索
+  useEffect(() => {
+    setSearchQuery(initialQ);
+  }, [initialQ, setSearchQuery]);
 
   // 清除所有筛选
   const clearAllFilters = () => {
