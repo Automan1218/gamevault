@@ -12,7 +12,7 @@ import {
     GameBoard,
     UpdateForumPostRequest
 } from '../types/forumTypes';
-import {apiClient} from "@/lib/api";
+import {forumApiClient} from "@/lib/api/client";
 
 export class ForumApi {
     // 获取论坛帖子列表（包含Forum特定逻辑）

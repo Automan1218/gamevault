@@ -9,7 +9,7 @@ import { LibraryApi } from './library';
 import { OrdersApi } from './orders';
 
 // API Clients
-export { apiClient } from './client';
+export { apiClient, authApiClient, shopApiClient, forumApiClient } from './client';
 export { AuthApi } from './auth';
 export { PostsApi } from './posts';
 export { UsersApi } from './users';

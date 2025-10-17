@@ -235,5 +235,8 @@ export const authApiClient = new ApiClient(ENV.AUTH_API_URL);
 // 商城服务客户端 - 用于游戏商城、购物车、支付、激活码等
 export const shopApiClient = new ApiClient(ENV.SHOP_API_URL);
 
+// 论坛服务客户端 - 用于论坛帖子、回复、点赞等
+export const forumApiClient = new ApiClient(ENV.FORUM_API_URL);
+
 // 默认API客户端（保持向后兼容，使用认证服务）
 export const apiClient = authApiClient;

@@ -1,5 +1,5 @@
 // src/api/posts.ts
-import {apiClient} from './client';
+import {forumApiClient} from './client';
 import {ENV} from '@/config/env';
 import {ForumReply, ReplyListResponse} from "@/app/features/forum/types/forumTypes";
 
@@ -41,7 +41,7 @@ export class PostsApi {
         size: number = ENV.DEFAULT_PAGE_SIZE
     ): Promise<PostListResponse> {
         try {
-            return await apiClient.get<PostListResponse>('/forum/posts', {
+            return await forumApiClient.get<PostListResponse>('/forum/posts', {
                 page,
                 size: Math.min(size, ENV.MAX_PAGE_SIZE)
             });
@@ -54,7 +54,7 @@ export class PostsApi {
     // 根据ID获取帖子详情 - 对应 GET /api/forum/posts/{id}
     static async getPostById(id: number): Promise<Post> {
         try {
-            const response = await apiClient.get<{ post: Post }>(`/forum/posts/${id}`);
+            const response = await forumApiClient.get<{ post: Post }>(`/forum/posts/${id}`);
             return response.post;
         } catch (error) {
             console.error(`Failed to fetch post ${id}:`, error);
@@ -65,7 +65,7 @@ export class PostsApi {
     // 创建新帖子 - 对应 POST /api/forum/posts
     static async createPost(postData: CreatePostRequest): Promise<Post> {
         try {
-            const response = await apiClient.authenticatedRequest<{ post: Post }>('/forum/posts', postData,
+            const response = await forumApiClient.authenticatedRequest<{ post: Post }>('/forum/posts', postData,
                 {
                     method: 'POST'
                 }
@@ -84,7 +84,7 @@ export class PostsApi {
         size: number = ENV.DEFAULT_PAGE_SIZE
     ): Promise<PostListResponse> {
         try {
-            return await apiClient.get<PostListResponse>('/forum/posts/search', {
+            return await forumApiClient.get<PostListResponse>('/forum/posts/search', {
                 keyword,
                 page,
                 size: Math.min(size, ENV.MAX_PAGE_SIZE)
@@ -98,7 +98,7 @@ export class PostsApi {
     // 删除帖子 - 对应 DELETE /api/forum/posts/{id}
     static async deletePost(id: number): Promise<void> {
         try {
-            await apiClient.delete(`/forum/posts/${id}`);
+            await forumApiClient.delete(`/forum/posts/${id}`);
         } catch (error) {
             console.error(`Failed to delete post ${id}:`, error);
             throw new Error('删除帖子失败');
@@ -110,7 +110,7 @@ export class PostsApi {
 // 更新帖子
     static async updatePost(id: number, postData: Partial<CreatePostRequest>): Promise<Post> {
         try {
-            const response = await apiClient.authenticatedRequest<{ post: Post }>(
+            const response = await forumApiClient.authenticatedRequest<{ post: Post }>(
                 `/forum/posts/${id}`,
                 postData,
                 {
@@ -131,7 +131,7 @@ export class PostsApi {
         size: number = ENV.DEFAULT_PAGE_SIZE
     ): Promise<PostListResponse> {
         try {
-            const response = await apiClient.get<PostListResponse>(
+            const response = await forumApiClient.get<PostListResponse>(
                 `/forum/posts/user/${userId}`,
                 {
                     page,
@@ -148,7 +148,7 @@ export class PostsApi {
 // 点赞帖子 (暂时注释，等后端实现)
     static async likePost(id: number): Promise<void> {
         try {
-            await apiClient.authenticatedRequest(`/forum/posts/${id}/like`, undefined, {
+            await forumApiClient.authenticatedRequest(`/forum/posts/${id}/like`, undefined, {
                 method: 'POST',
             });
         } catch (error) {
@@ -160,7 +160,7 @@ export class PostsApi {
 // 取消点赞 (暂时注释，等后端实现)
     static async unlikePost(id: number): Promise<void> {
         try {
-            await apiClient.authenticatedRequest(`/forum/posts/${id}/like`, undefined, {
+            await forumApiClient.authenticatedRequest(`/forum/posts/${id}/like`, undefined, {
                 method: 'DELETE',
             });
         } catch (error) {
@@ -175,7 +175,7 @@ export class PostsApi {
         likeCount: number;
     }> {
         try {
-            const response = await apiClient.authenticatedRequest<{
+            const response = await forumApiClient.authenticatedRequest<{
                 success: boolean;
                 liked: boolean;
                 likeCount: number;
@@ -202,7 +202,7 @@ export class PostsApi {
         body: string
     ): Promise<ForumReply> {
         try {
-            const response = await apiClient.authenticatedRequest<{
+            const response = await forumApiClient.authenticatedRequest<{
                 reply: ForumReply;
                 message: string;
             }>(
@@ -227,7 +227,7 @@ export class PostsApi {
         size: number = 20
     ): Promise<ReplyListResponse> {
         try {
-            return await apiClient.get<ReplyListResponse>(
+            return await forumApiClient.get<ReplyListResponse>(
                 `/forum/posts/${postId}/replies`,
                 { page, size }
             );
@@ -246,7 +246,7 @@ export class PostsApi {
         replyId: number
     ): Promise<void> {
         try {
-            await apiClient.authenticatedRequest(
+            await forumApiClient.authenticatedRequest(
                 `/forum/posts/${postId}/replies/${replyId}`,
                 undefined,
                 { method: 'DELETE' }

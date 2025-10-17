@@ -6,8 +6,8 @@ export const ENV = {
     // 商城服务 API - 游戏商城、购物车、支付、激活码 (端口8081)
     SHOP_API_URL: process.env.NEXT_PUBLIC_SHOP_API_URL || 'http://localhost:8081/api',
     
-    // 论坛API（暂时使用认证服务）
-    FORUM_API_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/api',
+    // 论坛API - 论坛服务 (端口8082)
+    FORUM_API_URL: process.env.NEXT_PUBLIC_FORUM_API_URL || 'http://localhost:8082/api',
 
 
     // Application Configuration
