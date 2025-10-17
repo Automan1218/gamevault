@@ -15,9 +15,16 @@ export function getFullImageUrl(imageUrl?: string | null): string {
     return imageUrl;
   }
   
-  // 如果是相对路径，添加后端基础URL
-  const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  return `${backendUrl}${imageUrl}`;
+  // 根据图片路径判断使用哪个服务
+  // 游戏图片存储在商城服务（8081）
+  if (imageUrl.includes('/uploads/games/')) {
+    const shopUrl = process.env.NEXT_PUBLIC_SHOP_API_URL?.replace('/api', '') || 'http://localhost:8081';
+    return `${shopUrl}${imageUrl}`;
+  }
+  
+  // 其他图片（如头像）存储在认证服务（8080）
+  const authUrl = process.env.NEXT_PUBLIC_AUTH_API_URL?.replace('/api', '') || 'http://localhost:8080';
+  return `${authUrl}${imageUrl}`;
 }
 
 /**
@@ -35,7 +42,7 @@ export function getFullAvatarUrl(avatarUrl?: string | null): string {
     return avatarUrl;
   }
   
-  // 如果是相对路径，添加后端基础URL
-  const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  return `${backendUrl}${avatarUrl}`;
+  // 头像存储在认证服务（8080）
+  const authUrl = process.env.NEXT_PUBLIC_AUTH_API_URL?.replace('/api', '') || 'http://localhost:8080';
+  return `${authUrl}${avatarUrl}`;
 }

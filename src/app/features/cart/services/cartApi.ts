@@ -1,33 +1,34 @@
-import { apiClient } from "@/lib/api/client";
+import { shopApiClient } from "@/lib/api/client";
 import type { CartDTO } from "@/lib/api/StoreTypes";
 import type { OrderDTO } from "@/lib/api/StoreTypes";
 
+// 购物车API - 使用商城服务客户端（端口8081）
 export const cartApi = {
   async getCart(): Promise<CartDTO> {
-    return apiClient.get<CartDTO>("/cart");
+    return shopApiClient.get<CartDTO>("/cart");
   },
 
   async addToCart(gameId: number, quantity: number = 1): Promise<CartDTO> {
-    return apiClient.post<CartDTO>(`/cart/items?gameId=${gameId}&quantity=${quantity}`);
+    return shopApiClient.post<CartDTO>(`/cart/items?gameId=${gameId}&quantity=${quantity}`);
   },
 
   async updateQuantity(gameId: number, quantity: number): Promise<CartDTO> {
-    return apiClient.put<CartDTO>(`/cart/items/${gameId}?quantity=${quantity}`);
+    return shopApiClient.put<CartDTO>(`/cart/items/${gameId}?quantity=${quantity}`);
   },
 
   async removeFromCart(gameId: number): Promise<CartDTO> {
-    return apiClient.delete<CartDTO>(`/cart/items/${gameId}`);
+    return shopApiClient.delete<CartDTO>(`/cart/items/${gameId}`);
   },
 
   async clearCart(): Promise<CartDTO> {
-    return apiClient.delete<CartDTO>("/cart");
+    return shopApiClient.delete<CartDTO>("/cart");
   },
 
   async applyDiscount(strategyType: string): Promise<CartDTO> {
-    return apiClient.post<CartDTO>("/cart/discount", { strategyType });
+    return shopApiClient.post<CartDTO>("/cart/discount", { strategyType });
   },
 
   async checkout(method: string): Promise<OrderDTO> {
-    return apiClient.post<OrderDTO>(`/cart/checkout?method=${method}`);
+    return shopApiClient.post<OrderDTO>(`/cart/checkout?method=${method}`);
   },
 };

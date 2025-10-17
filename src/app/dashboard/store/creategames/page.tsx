@@ -91,6 +91,20 @@ export default function CreateGamePage() {
 
   // 处理图片选择 - 只做预览，不创建游戏
   const handleImageUpload = (file: File) => {
+    // 验证文件大小（最大5MB）
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      antdMessage.error("图片大小不能超过5MB，请选择较小的图片");
+      return false;
+    }
+
+    // 验证文件类型
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      antdMessage.error("只支持 JPG、PNG、GIF、WEBP 格式的图片");
+      return false;
+    }
+
     // 保存文件引用
     setSelectedFile(file);
     
@@ -106,6 +120,8 @@ export default function CreateGamePage() {
   // 处理表单提交
   const handleSubmit = async (values: CreateGameFormData) => {
     setLoading(true);
+    let createdGameId: number | null = null;
+    
     try {
       // 格式化日期
       const releaseDate = values.releaseDate 
@@ -130,18 +146,32 @@ export default function CreateGamePage() {
 
       // 创建游戏
       const createdGame = await gameApi.createGame(gameData);
+      createdGameId = createdGame.gameId;
       
       // 如果有选择的图片文件，上传图片
       if (selectedFile) {
-        // 上传图片
-        const uploadResult = await gameApi.uploadGameImage(createdGame.gameId, selectedFile);
-        
-        if (uploadResult.success && uploadResult.imageUrl) {
-          // 更新游戏信息，添加图片URL
-          await gameApi.updateGame(createdGame.gameId, {
-            ...gameData,
-            imageUrl: uploadResult.imageUrl
-          });
+        try {
+          // 上传图片
+          const uploadResult = await gameApi.uploadGameImage(createdGame.gameId, selectedFile);
+          
+          if (uploadResult.success && uploadResult.imageUrl) {
+            // 更新游戏信息，添加图片URL
+            await gameApi.updateGame(createdGame.gameId, {
+              ...gameData,
+              imageUrl: uploadResult.imageUrl
+            });
+          } else {
+            throw new Error(uploadResult.message || "图片上传失败");
+          }
+        } catch (uploadError: any) {
+          // 图片上传失败，删除已创建的游戏
+          console.error("图片上传失败，正在回滚游戏创建:", uploadError);
+          try {
+            await gameApi.deleteGame(createdGame.gameId);
+          } catch (deleteError) {
+            console.error("删除游戏失败:", deleteError);
+          }
+          throw new Error(`图片上传失败: ${uploadError.message || "未知错误"}。游戏未创建。`);
         }
       }
       

@@ -229,4 +229,11 @@ export class ApiClient {
     }
 }
 
-export const apiClient = new ApiClient(ENV.FORUM_API_URL);
+// 认证服务客户端 - 用于用户认证、资料、订单查询、游戏库等
+export const authApiClient = new ApiClient(ENV.AUTH_API_URL);
+
+// 商城服务客户端 - 用于游戏商城、购物车、支付、激活码等
+export const shopApiClient = new ApiClient(ENV.SHOP_API_URL);
+
+// 默认API客户端（保持向后兼容，使用认证服务）
+export const apiClient = authApiClient;
