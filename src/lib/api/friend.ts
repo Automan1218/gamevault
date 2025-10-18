@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { chatroomApiClient } from './client';
 
 interface UserSearchResponse {
     userId: number;
@@ -35,49 +35,49 @@ export class FriendApi {
      * 搜索好友列表
      */
     async searchUsers(keyword: string): Promise<UserSearchResponse[]> {
-        return apiClient.get<UserSearchResponse[]>('/friend/search', { keyword });
+        return chatroomApiClient.get<UserSearchResponse[]>('/friend/search', { keyword });
     }
 
     /**
      * 发送好友请求
      */
     async sendFriendRequest(toUserId: number, message?: string): Promise<void> {
-        await apiClient.post('/friend/request/send', { toUserId, message });
+        await chatroomApiClient.post('/friend/request/send', { toUserId, message });
     }
 
     /**
      * 获取收到的好友请求
      */
     async getReceivedRequests(): Promise<FriendRequestResponse[]> {
-        return apiClient.get<FriendRequestResponse[]>('/friend/request/received');
+        return chatroomApiClient.get<FriendRequestResponse[]>('/friend/request/received');
     }
 
     /**
      * 获取发送的好友请求
      */
     async getSentRequests(): Promise<FriendRequestResponse[]> {
-        return apiClient.get<FriendRequestResponse[]>('/friend/request/sent');
+        return chatroomApiClient.get<FriendRequestResponse[]>('/friend/request/sent');
     }
 
     /**
      * 处理好友请求
      */
     async handleFriendRequest(requestId: number, accept: boolean): Promise<void> {
-        await apiClient.post('/friend/request/handle', { requestId, accept });
+        await chatroomApiClient.post('/friend/request/handle', { requestId, accept });
     }
 
     /**
      * 获取好友列表
      */
     async getFriends(): Promise<FriendResponse[]> {
-        return apiClient.get<FriendResponse[]>('/friend/list');
+        return chatroomApiClient.get<FriendResponse[]>('/friend/list');
     }
 
     /**
      * 删除好友
      */
     async deleteFriend(friendId: number): Promise<void> {
-        await apiClient.delete(`/friend/${friendId}`);
+        await chatroomApiClient.delete(`/friend/${friendId}`);
     }
 }
 

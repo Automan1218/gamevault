@@ -8,6 +8,12 @@ export const ENV = {
     
     // 论坛API - 论坛服务 (端口8082)
     FORUM_API_URL: process.env.NEXT_PUBLIC_FORUM_API_URL || 'http://localhost:8082/api',
+    
+    // 聊天室服务 API - 群聊、好友、消息 (端口8083)
+    CHATROOM_API_URL: process.env.NEXT_PUBLIC_CHATROOM_API_URL || 'http://localhost:8083/api',
+    
+    // WebSocket URL - 实时消息推送 (端口8083)
+    WS_URL: process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:8083',
 
 
     // Application Configuration
@@ -44,6 +50,8 @@ if (process.env.NODE_ENV === 'development') {
         AUTH_API_URL: ENV.AUTH_API_URL,
         SHOP_API_URL: ENV.SHOP_API_URL,
         FORUM_API_URL: ENV.FORUM_API_URL,
+        CHATROOM_API_URL: ENV.CHATROOM_API_URL,
+        WS_URL: ENV.WS_URL,
     });
 }
 // Type for environment variables

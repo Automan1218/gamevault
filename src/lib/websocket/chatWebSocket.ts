@@ -2,6 +2,7 @@
 
 import { Client, StompSubscription } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { ENV } from '@/config/env';
 
 export type MessageCallback = (message: any) => void;
 
@@ -25,8 +26,8 @@ class ChatWebSocketClient {
             this.isManualDisconnect = false;
 
             this.client = new Client({
-                // 使用 SockJS
-                webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+                // 使用 SockJS - 连接到聊天室微服务
+                webSocketFactory: () => new SockJS(`${ENV.WS_URL}/ws`),
 
                 // 连接头部（带 JWT Token）
                 connectHeaders: {

@@ -1,5 +1,5 @@
 // lib/api/chat.ts
-import { apiClient } from './client';
+import { chatroomApiClient } from './client';
 import type {GroupChat, GroupMember} from '@/types/chat';
 
 // 后端响应类型定义
@@ -32,7 +32,7 @@ export class ChatApi {
      * 获取用户的所有群聊列表
      */
     async getGroupList(): Promise<GroupChat[]> {
-        const conversations = await apiClient.get<ConversationListItem[]>('/conversation/list');
+        const conversations = await chatroomApiClient.get<ConversationListItem[]>('/conversation/list');
 
         return conversations.map((conv) => ({
             id: conv.id,
@@ -48,7 +48,7 @@ export class ChatApi {
      * 创建群聊
      */
     async createGroup(params: { name: string }): Promise<GroupChat> {
-        const response = await apiClient.post<CreateConversationResponse>(
+        const response = await chatroomApiClient.post<CreateConversationResponse>(
             '/conversation/create',
             { title: params.name }
         );
@@ -73,7 +73,7 @@ export class ChatApi {
      * 解散群聊
      */
     async dissolveGroup(conversationId: number): Promise<void> {
-        await apiClient.post<void>('/conversation/dissolve', {
+        await chatroomApiClient.post<void>('/conversation/dissolve', {
             conversationId: parseInt(conversationId)
         });
     }
@@ -82,7 +82,7 @@ export class ChatApi {
      * 获取群聊成员列表
      */
     async getGroupMembers(conversationId: number): Promise<GroupMember[]> {
-        const members = await apiClient.get<MemberResponse[]>(
+        const members = await chatroomApiClient.get<MemberResponse[]>(
             `/conversation/${conversationId}/members`
         );
 
@@ -100,7 +100,7 @@ export class ChatApi {
      * 添加成员到群聊
      */
     async addMembersToGroup(conversationId: number, userIds: number[]): Promise<void> {
-        await apiClient.post(`/conversation/${conversationId}/members/add`, {
+        await chatroomApiClient.post(`/conversation/${conversationId}/members/add`, {
             userIds
         });
     }
