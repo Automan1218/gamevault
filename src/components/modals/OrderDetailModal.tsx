@@ -3,9 +3,14 @@ import { Modal, Descriptions, Typography } from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
 
 interface OrderItem {
+  orderItemId: number;
+  orderId: number;
+  userId: number;
   gameId: number;
   unitPrice: number;
   discountPrice?: number;
+  orderDate: string;
+  orderStatus: string;
   activationCodes?: string[];
 }
 

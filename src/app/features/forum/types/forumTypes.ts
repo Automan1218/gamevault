@@ -2,20 +2,24 @@
 
 // 基础帖子类型（基于你现有的Post接口扩展）
 export interface ForumPost {
-    postId: number;
+    //postId: number;       // 匹配后端的postId
+    contentId: number;  // 匹配后端的contentId
     title: string;
     body: string;
     bodyPlain?: string;
     authorId: number;
+    authorUsername?: string;  // 匹配后端的authorUsername
+    authorEmail?: string;     // 匹配后端的authorEmail
     authorName?: string;
     authorNickname?: string;
     authorAvatar?: string;
     viewCount: number;
     likeCount: number;
-    replyCount: number;
+    replyCount?: number;
     createdDate: string;
     updatedDate: string;
-
+    status: string;           // 匹配后端的status字段
+    isLiked: boolean;
     // Forum特有字段
     category?: string;
     tags?: string[];
@@ -106,7 +110,7 @@ export interface ForumPostCardProps {
     post: ForumPost;
     showCategory?: boolean;
     showActions?: boolean;
-    onLike?: (postId: number) => void;
+    onLike?: (contentId: number) => void;
     onShare?: (post: ForumPost) => void;
     onClick?: (post: ForumPost) => void;
 }
@@ -146,26 +150,42 @@ export interface ForumPostForm {
 }
 
 // 论坛回复类型
+// features/forum/types/forumTypes.ts
+
 export interface ForumReply {
-    id: number;
-    postId: number;
-    content: string;
+    replyId: number;
+    parentId?: number;           // 父帖子ID
+    body: string;                // 回复内容（后端用 body）
+    bodyPlain?: string;          // 纯文本内容
     authorId: number;
-    authorName: string;
-    authorAvatar?: string;
+    authorName?: string;         // ⚠️ 改成可选
+    authorNickname?: string;
+    authorAvatarUrl?: string;    // 后端返回的字段名
     createdDate: string;
     updatedDate?: string;
     likeCount: number;
-    replyTo?: number; // 回复的回复ID
+
+    // 前端扩展字段（用于回复的回复）
+    replyTo?: number;
+    replyToName?: string;
 }
 
+export interface ReplyListResponse {
+    replies: ForumReply[];
+    totalCount: number;
+    currentPage: number;
+    pageSize: number;
+    totalPages: number;
+}
 // 论坛回复请求
 export interface CreateForumReplyRequest {
-    postId: number;
+    contentId: number;
     content: string;
     replyTo?: number;
 }
-
+export interface CreateReplyRequest {
+    body: string;  // 注意:后端用的是 body,不是 content
+}
 // 常量类型
 export const FORUM_SORT_OPTIONS = {
     LATEST: 'latest',

@@ -30,7 +30,8 @@ export class UsersApi {
         }
 
         try {
-            const response = await fetch(`${ENV.FORUM_API_URL}/auth/me`, {
+            // 使用认证服务（端口8080）获取用户信息，而不是论坛服务
+            const response = await fetch(`${ENV.AUTH_API_URL}/auth/me`, {
                 headers: {
                     'Authorization': `Bearer ${AuthApi.getToken()}`,
                 },

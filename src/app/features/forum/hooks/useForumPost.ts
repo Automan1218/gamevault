@@ -10,19 +10,19 @@ import {
 } from '../types/forumTypes';
 
 // Hook for single post
-export const useForumPost = (postId: number) => {
+export const useForumPost = (contentId: number) => {
     const [post, setPost] = useState<ForumPost | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const fetchPost = useCallback(async () => {
-        if (!postId) return;
+        if (!contentId) return;
 
         setLoading(true);
         setError(null);
 
         try {
-            const response = await ForumApi.getForumPostById(postId);
+            const response = await ForumApi.getForumPostById(contentId);
             setPost(response);
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : '操作失败';
@@ -30,14 +30,14 @@ export const useForumPost = (postId: number) => {
         } finally {
             setLoading(false);
         }
-    }, [postId]);
+    }, [contentId]);
 
     // 点赞帖子
     const likePost = useCallback(async () => {
         if (!post) return;
 
         try {
-            await ForumApi.likeForumPost(post.postId);
+            await ForumApi.likeForumPost(post.contentId);
             setPost(prev => prev ? { ...prev, likeCount: prev.likeCount + 1 } : null);
         } catch (error) {
             console.error('Failed to like post:', error);
@@ -50,7 +50,7 @@ export const useForumPost = (postId: number) => {
         if (!post) return;
 
         try {
-            await ForumApi.unlikeForumPost(post.postId);
+            await ForumApi.unlikeForumPost(post.contentId);
             setPost(prev => prev ? {
                 ...prev,
                 likeCount: Math.max(0, prev.likeCount - 1)
@@ -66,7 +66,7 @@ export const useForumPost = (postId: number) => {
         if (!post) return;
 
         try {
-            const updatedPost = await ForumApi.updateForumPost(post.postId, data);
+            const updatedPost = await ForumApi.updateForumPost(post.contentId, data);
             setPost(updatedPost);
             return updatedPost;
         } catch (error) {
@@ -80,7 +80,7 @@ export const useForumPost = (postId: number) => {
         if (!post) return;
 
         try {
-            await ForumApi.deleteForumPost(post.postId);
+            await ForumApi.deleteForumPost(post.contentId);
             setPost(null);
         } catch (error) {
             console.error('Failed to delete post:', error);

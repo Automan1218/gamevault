@@ -710,7 +710,7 @@
 //
 'use client';
 import { useRouter } from 'next/navigation';
-import { navigationRoutes } from '@/lib/navigation';
+import { getLoginRedirectUrl, navigationRoutes } from '@/lib/navigation';
 import { Menubar } from '@/components/layout';
 
 import type { MenuProps } from 'antd';
@@ -781,7 +781,7 @@ const HomePage = () => {
     const router = useRouter();
 
     const handleCommunityClick = () => {
-        router.push(navigationRoutes.community); // 跳转到 /dashboard/forum
+        router.push(navigationRoutes.forum); // 跳转到 /dashboard/forum
     };
 
     const handleGamesClick = () => {
@@ -958,12 +958,10 @@ const communityPosts = [
 
 const GameVaultHomepage = () => {
     const [mounted, setMounted] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
     const router = useRouter();
 
     const handleCommunityClick = () => {
-        router.push(navigationRoutes.community);
+        router.push(navigationRoutes.forum);
     };
 
     const handleGamesClick = () => {
@@ -977,16 +975,8 @@ const GameVaultHomepage = () => {
         setMounted(true);
     }, []);
 
-    // 检查登录状态
-    useEffect(() => {
-        if (mounted) {
-            const checkLoginStatus = () => {
-                const token = localStorage.getItem('auth_token');
-                setIsLoggedIn(!!token);
-            };
-            checkLoginStatus();
-        }
-    }, [mounted]);
+    // 动态检查登录状态（每次渲染都检查）
+    const isLoggedIn = mounted ? (typeof window !== 'undefined' && !!localStorage.getItem('auth_token')) : false;
 
     const toggleLike = (gameId: string | number) => {
         setLikedGames(prev => {
@@ -1002,19 +992,22 @@ const GameVaultHomepage = () => {
 
     // 处理登录
     const handleLogin = () => {
-        router.push(navigationRoutes.login);
+        const target = typeof window !== 'undefined'
+            ? window.location.pathname + window.location.search
+            : navigationRoutes.home;
+        router.push(getLoginRedirectUrl(target));
     };
 
     // 处理登出
     const handleLogout = () => {
         localStorage.removeItem('auth_token');
-        setIsLoggedIn(false);
+        // 不需要 setIsLoggedIn，因为 isLoggedIn 会自动重新计算
         router.push('/');
     };
 
     const userMenuItems: MenuProps['items'] = [
         { key: 'profile', icon: <UserOutlined />, label: '个人资料' },
-        { key: 'library', icon: <AppstoreOutlined />, label: '游戏库', onClick: () => router.push('/library') },
+        { key: 'library', icon: <AppstoreOutlined />, label: '游戏库', onClick: () => router.push(navigationRoutes.library) },
         { key: 'wishlist', icon: <HeartOutlined />, label: '愿望单' },
         { key: 'friends', icon: <TeamOutlined />, label: '好友' },
         { type: 'divider' },

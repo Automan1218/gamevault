@@ -1,10 +1,13 @@
 // src/config/env.ts
 export const ENV = {
-    // API Configuration
-    FORUM_API_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://172.20.10.3:8081/api',
-
-    // 第三方认证 API (仅用于登录/注册)
+    // 认证服务 API - 用户认证、资料、订单查询、游戏库 (端口8080)
     AUTH_API_URL: process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:8080/api',
+    
+    // 商城服务 API - 游戏商城、购物车、支付、激活码 (端口8081)
+    SHOP_API_URL: process.env.NEXT_PUBLIC_SHOP_API_URL || 'http://localhost:8081/api',
+    
+    // 论坛API - 论坛服务 (端口8082)
+    FORUM_API_URL: process.env.NEXT_PUBLIC_FORUM_API_URL || 'http://localhost:8082/api',
 
 
     // Application Configuration
@@ -38,8 +41,9 @@ export const ENV = {
 } as const;
 if (process.env.NODE_ENV === 'development') {
     console.log('Environment configuration:', {
-        FORUM_API_URL: ENV.FORUM_API_URL,
         AUTH_API_URL: ENV.AUTH_API_URL,
+        SHOP_API_URL: ENV.SHOP_API_URL,
+        FORUM_API_URL: ENV.FORUM_API_URL,
     });
 }
 // Type for environment variables

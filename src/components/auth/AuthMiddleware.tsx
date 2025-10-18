@@ -4,6 +4,7 @@
 import React, { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { getLoginRedirectUrl } from '@/lib/navigation';
 
 interface AuthMiddlewareProps {
   children: React.ReactNode;
@@ -11,11 +12,11 @@ interface AuthMiddlewareProps {
 
 // 需要认证的页面路径
 const PROTECTED_ROUTES = [
-  '/library',
-  '/orders',
-  '/settings',
-  '/chat',
-  '/developer',
+  '/dashboard/library',
+  '/dashboard/orders',
+  '/dashboard/settings',
+  '/dashboard/chat',
+  '/dashboard/developer',
 ];
 
 // 不需要认证的页面路径
@@ -47,8 +48,10 @@ export function AuthMiddleware({ children }: AuthMiddlewareProps) {
 
     // 如果是受保护的页面且用户未认证，重定向到登录页
     if (isProtectedRoute && !isAuthenticated) {
-      const redirectUrl = encodeURIComponent(pathname);
-      router.push(`/auth/login?redirect=${redirectUrl}`);
+      const redirectTarget = typeof window !== 'undefined'
+        ? window.location.pathname + window.location.search + window.location.hash
+        : pathname;
+      router.push(getLoginRedirectUrl(redirectTarget));
       return;
     }
 
@@ -56,7 +59,7 @@ export function AuthMiddleware({ children }: AuthMiddlewareProps) {
     if (isAuthenticated && pathname.startsWith('/auth/login')) {
       const urlParams = new URLSearchParams(window.location.search);
       const redirect = urlParams.get('redirect');
-      router.push(redirect || '/library');
+      router.push(redirect || '/dashboard/library');
       return;
     }
   }, [isAuthenticated, isLoading, pathname, router]);

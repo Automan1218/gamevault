@@ -63,17 +63,24 @@ export class ApiClient {
             const method = requestConfig.method?.toUpperCase() || 'GET';
             const shouldHaveBody = !['GET', 'HEAD'].includes(method);
 
+            // 检查是否是FormData，如果是则不设置Content-Type
+            const isFormData = requestConfig.body instanceof FormData;
+            const defaultHeaders: Record<string, string> = isFormData 
+                ? { 'Accept': 'application/json' }
+                : { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+
+            const headers: Record<string, string> = {
+                ...defaultHeaders,
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+                ...(requestConfig.headers as Record<string, string>),
+            };
+
             const response = await fetch(url, {
                 ...requestConfig,
                 signal: controller.signal,
                 mode: 'cors',
                 credentials: 'omit',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    ...(token && { 'Authorization': `Bearer ${token}` }),
-                    ...requestConfig.headers,
-                },
+                headers,
                 // Only include body for non-GET/HEAD requests
                 body: shouldHaveBody ? requestConfig.body : undefined,
             });
@@ -85,12 +92,26 @@ export class ApiClient {
             }
 
             const contentType = response.headers.get('content-type');
+            let jsonData;
             if (contentType && contentType.includes('application/json')) {
-                return await response.json();
+                jsonData = await response.json();
             } else {
                 const text = await response.text();
-                return (text ? JSON.parse(text) : {}) as T;
+                jsonData = text ? JSON.parse(text) : {};
             }
+
+            // 处理后端 BaseResponse 包装格式
+            // 如果响应包含 code 和 data 字段，提取 data
+            if (jsonData && typeof jsonData === 'object' && 'code' in jsonData && 'data' in jsonData) {
+                if (jsonData.code === 0) {
+                    return jsonData.data as T;
+                } else {
+                    // 处理业务错误
+                    throw new Error(jsonData.message || '请求失败');
+                }
+            }
+
+            return jsonData as T;
         } catch (error) {
             clearTimeout(timeoutId);
 
@@ -137,10 +158,23 @@ export class ApiClient {
     }
 
     // POST request
-    async post<T>(endpoint: string, data?: unknown): Promise<T> {
+    async post<T>(endpoint: string, data?: unknown, options: RequestInit & { params?: Record<string, unknown> } = {}): Promise<T> {
+        const { params, ...requestConfig } = options;
+        
+        // 如果是FormData，不设置Content-Type，让浏览器自动设置
+        const isFormData = data instanceof FormData;
+        const headers = isFormData 
+            ? { ...requestConfig.headers }
+            : { 
+                'Content-Type': 'application/json',
+                ...requestConfig.headers 
+              };
+        
         return this.request<T>(endpoint, {
             method: 'POST',
-            body: data ? JSON.stringify(data) : undefined,
+            body: data ? (isFormData ? data : JSON.stringify(data)) : undefined,
+            headers,
+            params,
         });
     }
 
@@ -195,4 +229,14 @@ export class ApiClient {
     }
 }
 
-export const apiClient = new ApiClient(ENV.FORUM_API_URL);
+// 认证服务客户端 - 用于用户认证、资料、订单查询、游戏库等
+export const authApiClient = new ApiClient(ENV.AUTH_API_URL);
+
+// 商城服务客户端 - 用于游戏商城、购物车、支付、激活码等
+export const shopApiClient = new ApiClient(ENV.SHOP_API_URL);
+
+// 论坛服务客户端 - 用于论坛帖子、回复、点赞等
+export const forumApiClient = new ApiClient(ENV.FORUM_API_URL);
+
+// 默认API客户端（保持向后兼容，使用认证服务）
+export const apiClient = authApiClient;

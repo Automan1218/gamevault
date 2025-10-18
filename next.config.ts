@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
         return [
             {
                 source: '/api/:path*',
-                destination: 'http://localhost:8081/api/:path*', // 指向你的后端 API
+                destination: 'http://localhost:8080/api/:path*', // 指向你的后端 API
             },
         ]
     },

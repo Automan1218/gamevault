@@ -14,7 +14,7 @@ export const navigationRoutes = {
 
     // Forum相关 - 更新为新的路由结构
     forum: '/dashboard/forum',
-    forumDetail: (id: number) => `/dashboard/forum/${id}`,
+    forumDetail: `/dashboard/forum/detail`,
     forumEdit: (id: number) => `/dashboard/forum/${id}/edit`,
     forumCategory: (categoryId: string) => `/dashboard/forum/category/${categoryId}`,
     forumSearch: '/dashboard/forum/search',
@@ -24,21 +24,22 @@ export const navigationRoutes = {
     forumFavorites: '/dashboard/forum/favorites',
     forumUserPosts: (userId: number) => `/dashboard/forum/user/${userId}`,
 
-    // Chat相关 - 新增
     chat: '/dashboard/chat',
     chatRoom: (roomId: string) => `/dashboard/chat/${roomId}`,
     chatCreate: '/dashboard/chat/create',
 
-    // Developer相关 - 新增
+    // Developer相关
     developer: '/dashboard/developer',
     developerProfile: (userId: string) => `/dashboard/developer/${userId}`,
     developerProjects: '/dashboard/developer/projects',
     developerEditor: '/dashboard/developer/editor',
 
-    // Shopping相关 - 新增（未来扩展）
-    shopping: '/dashboard/shopping',
-    shoppingProduct: (productId: string) => `/dashboard/shopping/${productId}`,
-    shoppingCart: '/dashboard/shopping/cart',
+    // Store & Shopping相关
+    store: '/dashboard/store',
+    shopping: '/dashboard/store',
+    storeProduct: (productId: string) => `/dashboard/store/${productId}`,
+    cart: '/dashboard/cart',
+    checkout: '/dashboard/checkout',
 
     // 帖子相关 - 保留旧版兼容
     postCreate: '/dashboard/forum/create',
@@ -49,16 +50,14 @@ export const navigationRoutes = {
     profile: (id: number) => `/profile/${id}`,
     myPosts: '/dashboard/forum/profile',
     favorites: '/favorites',
-    settings: '/settings',
+    settings: '/dashboard/settings',
     notifications: '/notifications',
-    library: '/library', // 游戏库路由
+    library: '/dashboard/library', // 游戏库路由
+    orders: '/dashboard/orders', // 订单路由
 
     // 板块相关 - 更新跳转目标
+    games: '/dashboard/forum/category/games',        // 游戏板块跳转到forum的游戏分类
     shop: '/dashboard/forum/category/games',        // 游戏板块跳转到forum的游戏分类
-    community: '/dashboard/forum',                   // 社区跳转到论坛
-
-
-
 
     // 搜索
     search: (keyword: string) => `/search?q=${encodeURIComponent(keyword)}`,
@@ -92,13 +91,16 @@ export const breadcrumbConfig = {
 
     // Shopping相关
     '/dashboard/shopping': '商城',
-    '/dashboard/shopping/cart': '购物车',
+    '/dashboard/cart': '购物车',
+    '/dashboard/checkout': '结算',
 
     // 旧版兼容
     '/my-posts': '我的发帖',
     '/post/create': '发布新帖',
     '/favorites': '我的收藏',
-    '/settings': '设置',
+    '/dashboard/settings': '设置',
+    '/dashboard/library': '游戏库',
+    '/dashboard/orders': '订单',
     '/notifications': '通知',
 
     // 板块相关
@@ -165,6 +167,19 @@ export const getPageTitle = (path: string): string => {
     return breadcrumbConfig[path as keyof typeof breadcrumbConfig] || 'GameVault';
 };
 
+export const getLoginRedirectUrl = (targetPath?: string): string => {
+    const fallback = navigationRoutes.home;
+    if (!targetPath || typeof targetPath !== 'string') {
+        return `${navigationRoutes.login}?redirect=${encodeURIComponent(fallback)}`;
+    }
+
+    const trimmed = targetPath.trim();
+    const withLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed.replace(/^\/+/, '')}`;
+
+    return `${navigationRoutes.login}?redirect=${encodeURIComponent(withLeadingSlash || fallback)}`;
+};
+
+
 export const isForumRoute = (path: string): boolean => {
     return path.startsWith('/dashboard/forum') || path.startsWith('/post/') || path === '/my-posts' || path === '/favorites';
 };
@@ -178,5 +193,5 @@ export const isDeveloperRoute = (path: string): boolean => {
 };
 
 export const isShoppingRoute = (path: string): boolean => {
-    return path.startsWith('/dashboard/shopping');
+    return path.startsWith('/dashboard/shopping') || path.startsWith('/dashboard/cart') || path.startsWith('/dashboard/checkout');
 };

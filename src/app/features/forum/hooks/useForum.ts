@@ -85,46 +85,34 @@ export const useForum = (initialFilter?: ForumPostFilter) => {
     }, []);
 
     // 点赞帖子
-    const likePost = useCallback(async (postId: number) => {
+    // 替换原来的 likePost 和 unlikePost
+    const toggleLike = useCallback(async (postId: number) => {
         try {
-            await ForumApi.likeForumPost(postId);
+            const { liked, likeCount } = await ForumApi.toggleLikeForumPost(postId);
 
             // 更新本地状态
             setState(prev => ({
                 ...prev,
                 posts: prev.posts.map(post =>
-                    post.postId === postId
-                        ? { ...post, likeCount: post.likeCount + 1 }
+                    post.contentId === postId
+                        ? {
+                            ...post,
+                            isLiked: liked,
+                            likeCount: likeCount
+                        }
                         : post
                 )
             }));
+
+            return liked; // 返回最新状态，方便调用方显示消息
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : '点赞失败';
-            console.error('Failed to like post:', errorMessage);
+            const errorMessage = error instanceof Error ? error.message : '操作失败';
+            console.error('Failed to toggle like:', errorMessage);
             throw new Error(errorMessage);
         }
     }, []);
 
-    // 取消点赞
-    const unlikePost = useCallback(async (postId: number) => {
-        try {
-            await ForumApi.unlikeForumPost(postId);
 
-            // 更新本地状态
-            setState(prev => ({
-                ...prev,
-                posts: prev.posts.map(post =>
-                    post.postId === postId
-                        ? { ...post, likeCount: Math.max(0, post.likeCount - 1) }
-                        : post
-                )
-            }));
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : '取消点赞失败';
-            console.error('Failed to unlike post:', errorMessage);
-            throw new Error(errorMessage);
-        }
-    }, []);
 
     // 初始化
     useEffect(() => {
@@ -149,8 +137,7 @@ export const useForum = (initialFilter?: ForumPostFilter) => {
         applyFilter,
         clearFilter,
         fetchStats,
-        likePost,
-        unlikePost
+        toggleLike
     };
 };
 
