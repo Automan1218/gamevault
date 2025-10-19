@@ -4,16 +4,16 @@ export const ENV = {
     AUTH_API_URL: process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:8080/api',
     
     // 商城服务 API - 游戏商城、购物车、支付、激活码 (端口8081)
-    SHOP_API_URL: process.env.NEXT_PUBLIC_SHOP_API_URL || 'http://localhost:8081/api',
+    SHOP_API_URL: process.env.NEXT_PUBLIC_SHOP_API_URL || 'http://localhost:8080/api',
     
     // 论坛API - 论坛服务 (端口8082)
-    FORUM_API_URL: process.env.NEXT_PUBLIC_FORUM_API_URL || 'http://localhost:8082/api',
+    FORUM_API_URL: process.env.NEXT_PUBLIC_FORUM_API_URL || 'http://localhost:8080/api',
     
     // 聊天室服务 API - 群聊、好友、消息 (端口8083)
-    CHATROOM_API_URL: process.env.NEXT_PUBLIC_CHATROOM_API_URL || 'http://localhost:8083/api',
+    CHATROOM_API_URL: process.env.NEXT_PUBLIC_CHATROOM_API_URL || 'http://localhost:8080/api',
     
     // WebSocket URL - 实时消息推送 (端口8083)
-    WS_URL: process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:8083',
+    WS_URL: process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:8080',
 
 
     // Application Configuration
