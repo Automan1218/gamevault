@@ -68,43 +68,39 @@ export default function ForumPage() {
     const hotGames = [
         {
             id: 1,
-            name: '原神',
-            nameEn: 'Genshin Impact',
-            description: '开放世界冒险游戏',
+            name: 'Genshin Impact',
+            description: 'Open World Adventure Game',
             icon: '🎮',
             gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            players: '125万在线',
-            posts: '8.5K 讨论',
+            players: '1.25M Online',
+            posts: '8.5K Discussions',
         },
         {
             id: 2,
-            name: '英雄联盟',
-            nameEn: 'League of Legends',
-            description: '经典MOBA竞技游戏',
+            name: 'League of Legends',
+            description: 'Classic MOBA Game',
             icon: '⚔️',
             gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-            players: '98万在线',
-            posts: '12.3K 讨论',
+            players: '980K Online',
+            posts: '12.3K Discussions',
         },
         {
             id: 3,
-            name: 'CS:GO',
-            nameEn: 'Counter-Strike: Global Offensive',
-            description: '第一人称射击游戏',
+            name: 'Counter-Strike: Global Offensive',
+            description: 'First-Person Shooter',
             icon: '🔫',
             gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-            players: '76万在线',
-            posts: '6.8K 讨论',
+            players: '760K Online',
+            posts: '6.8K Discussions',
         },
         {
             id: 4,
-            name: '瓦罗兰特',
-            nameEn: 'Valorant',
-            description: '战术射击竞技游戏',
+            name: 'Valorant',
+            description: 'Tactical Shooter Game',
             icon: '💎',
             gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-            players: '54万在线',
-            posts: '4.2K 讨论',
+            players: '540K Online',
+            posts: '4.2K Discussions',
         },
     ];
 
@@ -162,7 +158,7 @@ export default function ForumPage() {
                                 fontWeight: 600,
                             }}
                         >
-                            讨论
+                            Topic
                         </Tag>
                         {post.viewCount > 1000 && (
                             <Tag 
@@ -538,7 +534,7 @@ export default function ForumPage() {
                                                             fontWeight: 500,
                                                         }}
                                                     >
-                                                        {game.nameEn}
+                                                        {game.name}
                                                     </Text>
                                                     <Text 
                                                         style={{ 
@@ -657,7 +653,7 @@ export default function ForumPage() {
                                             borderRadius: '12px',
                                         }}
                                     >
-                                        最新
+                                        Latest
                                     </Button>
                                     <Button
                                         type={activeTab === 'hot' ? 'primary' : 'text'}
@@ -674,7 +670,7 @@ export default function ForumPage() {
                                             borderRadius: '12px',
                                         }}
                                     >
-                                        热门
+                                        Popular
                                     </Button>
                                     {isLoggedIn && (
                                         <Button
@@ -741,7 +737,7 @@ export default function ForumPage() {
                                                         fontWeight: 600,
                                                     }}
                                                             >
-                                                                加载更多
+                                                                Load More
                                                             </Button>
                                                         </div>
                                                     )}

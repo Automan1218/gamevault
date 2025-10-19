@@ -199,7 +199,7 @@ export class PostsApi {
      */
     static async createReply(
         postId: number,
-        body: string
+        data: { body: string; replyTo?: number }  // ✅ 接收对象，支持 replyTo
     ): Promise<ForumReply> {
         try {
             const response = await forumApiClient.authenticatedRequest<{
@@ -207,7 +207,7 @@ export class PostsApi {
                 message: string;
             }>(
                 `/forum/posts/${postId}/replies`,
-                { body },  // 后端期望的是 { body: "..." }
+                data,  // 传递整个对象 { body: "...", replyTo?: ... }
                 { method: 'POST' }
             );
             return response.reply;
@@ -254,6 +254,46 @@ export class PostsApi {
         } catch (error) {
             console.error(`Failed to delete reply:`, error);
             throw new Error('删除回复失败');
+        }
+    }
+
+    /**
+     * 点赞回复
+     * POST /api/forum/posts/{postId}/replies/{replyId}/like
+     */
+    static async likeReply(
+        postId: number,
+        replyId: number
+    ): Promise<void> {
+        try {
+            await forumApiClient.authenticatedRequest(
+                `/forum/posts/${postId}/replies/${replyId}/like`,
+                undefined,
+                { method: 'POST' }
+            );
+        } catch (error) {
+            console.error(`Failed to like reply:`, error);
+            throw new Error('点赞回复失败');
+        }
+    }
+
+    /**
+     * 取消点赞回复
+     * DELETE /api/forum/posts/{postId}/replies/{replyId}/like
+     */
+    static async unlikeReply(
+        postId: number,
+        replyId: number
+    ): Promise<void> {
+        try {
+            await forumApiClient.authenticatedRequest(
+                `/forum/posts/${postId}/replies/${replyId}/like`,
+                undefined,
+                { method: 'DELETE' }
+            );
+        } catch (error) {
+            console.error(`Failed to unlike reply:`, error);
+            throw new Error('取消点赞回复失败');
         }
     }
 }
