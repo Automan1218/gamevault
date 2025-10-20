@@ -26,7 +26,7 @@ import {
     CommentOutlined,
     EyeOutlined,
     FileTextOutlined,
-    HeartOutlined,
+    MailOutlined,
     LikeOutlined,
     MessageOutlined,
     PlusOutlined,
@@ -53,8 +53,6 @@ export default function ForumPage() {
         posts,
         loading,
         error,
-        currentPage,
-        refresh,
         loadMore,
         toggleLike
     } = useForum();
@@ -63,7 +61,7 @@ export default function ForumPage() {
     const [activeTab, setActiveTab] = useState('latest');
     const [mounted, setMounted] = useState(false);
     const { message } = App.useApp();
-
+    const [isHovered, setIsHovered] = useState(false);
     // 热门游戏数据
     const hotGames = [
         {
@@ -430,7 +428,9 @@ export default function ForumPage() {
             {/* 主内容区 */}
             <div 
                 className="animate-fade-in-up"
-                style={{ 
+                style={{
+                    padding:'24px',
+                    position: 'relative',
                     minHeight: '100vh',
                     background: `
                         radial-gradient(ellipse at top left, rgba(99, 102, 241, 0.3) 0%, transparent 50%),
@@ -440,6 +440,7 @@ export default function ForumPage() {
                     `,
                     paddingTop: '88px',
                     paddingBottom: '40px',
+
                 }}
             >
             <div style={{ 
@@ -598,36 +599,7 @@ export default function ForumPage() {
                             </div>
 
                     {/* 发帖按钮 */}
-                    {isLoggedIn && (
-                            <Button
-                                type="primary"
-                                size="large"
-                                block
-                                icon={<PlusOutlined />}
-                                style={{
-                                        height: 56,
-                                        fontSize: 18,
-                                        fontWeight: 600,
-                                        marginBottom: 24,
-                                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%)',
-                                        border: 'none',
-                                        borderRadius: '16px',
-                                        boxShadow: '0 8px 32px rgba(99, 102, 241, 0.3)',
-                                        transition: 'all 0.3s ease',
-                                }}
-                                onClick={() => router.push(navigationRoutes.postCreate)}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(-2px)';
-                                        e.currentTarget.style.boxShadow = '0 12px 40px rgba(99, 102, 241, 0.4)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.boxShadow = '0 8px 32px rgba(99, 102, 241, 0.3)';
-                                    }}
-                            >
-                                发布新帖
-                            </Button>
-                            )}
+
 
                             {/* 标签导航 */}
                             <Card 
@@ -672,25 +644,6 @@ export default function ForumPage() {
                                     >
                                         Popular
                                     </Button>
-                                    {isLoggedIn && (
-                                        <Button
-                                            type={activeTab === 'following' ? 'primary' : 'text'}
-                                            icon={<HeartOutlined />}
-                                            size="large"
-                                            onClick={() => setActiveTab('following')}
-                                            style={{
-                                                background: activeTab === 'following' 
-                                                    ? 'linear-gradient(135deg, #ec4899 0%, #d946ef 100%)' 
-                                                    : 'transparent',
-                                                border: 'none',
-                                                color: activeTab === 'following' ? '#fff' : '#9ca3af',
-                                                fontWeight: 600,
-                                                borderRadius: '12px',
-                                            }}
-                                        >
-                                            关注
-                                        </Button>
-                                    )}
                                 </Space>
                             </Card>
 
@@ -777,6 +730,70 @@ export default function ForumPage() {
                     </Row>
                 </div>
             </div>
+            {isLoggedIn && (
+
+                <Button
+                    type="primary"
+                    style={{
+                        position: 'fixed',
+                        right: 20,
+                        bottom: 32,
+                        width: isHovered ? 180 : 64,
+                        height: 64,
+                        fontSize: 24,
+                        fontWeight: 600,
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%)',
+                        border: 'none',
+                        borderRadius: isHovered ? '32px' : '50%',
+                        boxShadow: isHovered
+                            ? '0 12px 48px rgba(99, 102, 241, 0.5)'
+                            : '0 8px 32px rgba(99, 102, 241, 0.4)',
+                        transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                        transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
+                        zIndex: 1000,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: isHovered ? 'flex-start' : 'center',
+                        padding: isHovered ? '0 20px' : 0,
+                        overflow: 'hidden',
+
+                    }}
+
+                    onClick={() => router.push(navigationRoutes.postCreate)}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                >
+                    <MailOutlined
+                        style={{
+                            position: 'absolute',
+                            left: isHovered ? 20 : '50%',
+                            top: '50%',
+                            transform: isHovered ? 'translate(0, -50%)' : 'translate(-50%, -50%)',
+                            fontSize: '24px',
+                            color: '#fff',
+                            transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                            zIndex: 1,
+                        }}
+                    />
+                    <span
+                        style={{
+                            position: 'absolute',
+                            left: 56,
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            opacity: isHovered ? 1 : 0,
+                            whiteSpace: 'nowrap',
+                            fontSize: '16px',
+                            fontWeight: 600,
+                            color: '#fff',
+                            transition: 'opacity 0.3s ease',
+                            pointerEvents: 'none',
+                        }}
+                    >
+                        New Post
+                    </span>
+                </Button>
+            )}
         </ConfigProvider>
     );
 }

@@ -383,18 +383,28 @@ export default function PostDetailPage() {
 
     // 提交回复
     // 修改函数签名
-    const handleSubmitReply = async (customContent?: string, customReplyTo?: ForumReply | null) => {
+    const handleSubmitReply = async (valuesOrContent?: any, customReplyTo?: ForumReply | null) => {
         if (!currentUserId || !contentId) {
             message.warning('请先登录后再回复');
             router.push(navigationRoutes.login);
             return;
         }
 
-        // 🔥 使用传入的参数，如果没有则使用 state
-        const content = customContent ?? replyContent;
+        let content: string;
+        if (typeof valuesOrContent === 'string') {
+            // 直接传入字符串（内联回复）
+            content = valuesOrContent;
+        } else if (valuesOrContent && valuesOrContent.content) {
+            // Form.onFinish 传入的对象 { content: '...' }
+            content = valuesOrContent.content;
+        } else {
+            // 使用 state 中的值
+            content = replyContent;
+        }
+
         const targetReply = customReplyTo !== undefined ? customReplyTo : replyToReply;
 
-        if (!content.trim()) {
+        if (!content || !content.trim()) {
             message.warning('回复内容不能为空');
             return;
         }
@@ -944,7 +954,7 @@ export default function PostDetailPage() {
                                                 <Space>
                                                     <EyeOutlined style={{ color: '#9ca3af' }} />
                                                     <Text type="secondary" style={{ color: '#9ca3af' }}>
-                                                        {post.viewCount} 浏览
+                                                        {post.viewCount} View
                                                     </Text>
                                                 </Space>
                                             </Space>
@@ -953,18 +963,17 @@ export default function PostDetailPage() {
                                         <Divider style={{ borderColor: 'rgba(99, 102, 241, 0.2)' }} />
 
                                         {/* 帖子内容 */}
+
                                         <div
+                                            className="quill-content"  // 添加这个 class
                                             style={{
                                                 color: '#e5e7eb',
                                                 fontSize: '15px',
                                                 lineHeight: 1.8,
                                                 minHeight: 200,
-                                                whiteSpace: 'pre-wrap',
-                                                wordBreak: 'break-word',
                                             }}
-                                        >
-                                            {post.bodyPlain || post.body}
-                                        </div>
+                                            dangerouslySetInnerHTML={{ __html: post.body }}  // 使用 HTML 渲染
+                                        />
 
                                         {/* 标签 */}
                                         {post.tags && post.tags.length > 0 && (
@@ -1011,24 +1020,6 @@ export default function PostDetailPage() {
                                                     >
                                                         {post.replyCount || 0}
                                                     </Button>
-                                                    <Button
-                                                        type="text"
-                                                        icon={isStarred ? <StarFilled /> : <StarOutlined />}
-                                                        onClick={handleStarPost}
-                                                        style={{
-                                                            color: isStarred ? '#fbbf24' : '#9ca3af',
-                                                        }}
-                                                    >
-                                                        收藏
-                                                    </Button>
-                                                    <Button
-                                                        type="text"
-                                                        icon={<ShareAltOutlined />}
-                                                        onClick={handleSharePost}
-                                                        style={{ color: '#9ca3af' }}
-                                                    >
-                                                        分享
-                                                    </Button>
                                                 </Space>
                                             </Col>
                                             <Col>
@@ -1037,23 +1028,11 @@ export default function PostDetailPage() {
                                                         <>
                                                             <Button
                                                                 type="text"
-                                                                icon={<EditOutlined />}
-                                                                onClick={() => {
-                                                                    if (!contentId) return;
-                                                                    PostStateManager.setCurrentPost(contentId);
-                                                                    router.push('/dashboard/forum/edit');
-                                                                }}
-                                                                style={{ color: '#9ca3af' }}
-                                                            >
-                                                                编辑
-                                                            </Button>
-                                                            <Button
-                                                                type="text"
                                                                 danger
                                                                 icon={<DeleteOutlined />}
                                                                 onClick={() => setDeleteModalVisible(true)}
                                                             >
-                                                                删除
+                                                                Delete
                                                             </Button>
                                                         </>
                                                     )}
@@ -1141,7 +1120,7 @@ export default function PostDetailPage() {
                                                                 borderRadius: '8px',
                                                             }}
                                                         >
-                                                            发表回复
+                                                            Reply
                                                         </Button>
                                                     </Form.Item>
                                                 </Form>
