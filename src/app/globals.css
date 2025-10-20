@@ -122,3 +122,82 @@ a {
     font-style: italic;
     color: #9ca3af;
 }
+
+/* 编辑器内容区域文字颜色 */
+.custom-quill-editor .ql-editor {
+    min-height: 400px;
+    color: #f9fafb !important;  /* 👈 添加 !important 强制生效 */
+}
+
+/* 编辑器内所有文本 */
+.custom-quill-editor .ql-editor * {
+    color: #f9fafb !important;
+}
+
+/* placeholder 颜色 */
+.custom-quill-editor .ql-editor.ql-blank::before {
+    color: #9ca3af !important;
+    font-style: normal;
+}
+
+/* 富文本编辑器 - 工具栏图标颜色 */
+.custom-quill-editor .ql-toolbar .ql-stroke {
+    stroke: #f9fafb !important;
+}
+
+.custom-quill-editor .ql-toolbar .ql-fill {
+    fill: #f9fafb !important;
+}
+
+.custom-quill-editor .ql-toolbar button:hover .ql-stroke {
+    stroke: #6366f1 !important;
+}
+
+.custom-quill-editor .ql-toolbar button:hover .ql-fill {
+    fill: #6366f1 !important;
+}
+
+.custom-quill-editor .ql-toolbar button.ql-active .ql-stroke {
+    stroke: #6366f1 !important;
+}
+
+.custom-quill-editor .ql-toolbar button.ql-active .ql-fill {
+    fill: #6366f1 !important;
+}
+
+/* 下拉选择器的文字和箭头 */
+.custom-quill-editor .ql-toolbar .ql-picker-label {
+    color: #f9fafb !important;
+}
+
+.custom-quill-editor .ql-toolbar .ql-picker-label::before {
+    color: #f9fafb !important;
+}
+
+/* 下拉选择器的箭头 */
+.custom-quill-editor .ql-toolbar .ql-picker-label svg {
+    opacity: 1;
+}
+
+.custom-quill-editor .ql-toolbar .ql-picker-label .ql-stroke {
+    stroke: #f9fafb !important;
+}
+
+/* 编辑器内容文字颜色 */
+.custom-quill-editor .ql-editor {
+    color: #f9fafb !important;
+}
+
+.custom-quill-editor .ql-editor p,
+.custom-quill-editor .ql-editor div,
+.custom-quill-editor .ql-editor span,
+.custom-quill-editor .ql-editor h1,
+.custom-quill-editor .ql-editor h2,
+.custom-quill-editor .ql-editor h3 {
+    color: #f9fafb !important;
+}
+
+/* placeholder 文字颜色 */
+.custom-quill-editor .ql-editor.ql-blank::before {
+    color: #9ca3af !important;
+}
