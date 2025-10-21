@@ -11,7 +11,10 @@ export const ENV = {
     
     // 聊天室服务 API - 群聊、好友、消息 (端口8083)
     CHATROOM_API_URL: process.env.NEXT_PUBLIC_CHATROOM_API_URL || 'http://localhost:8080/api',
-    
+
+    // 文件服务 API - 文件上传、下载、管理 (端口8080，与认证服务同端口)
+    FILE_API_URL: process.env.NEXT_PUBLIC_FILE_API_URL || 'http://localhost:8080/api',
+
     // WebSocket URL - 实时消息推送 (端口8083)
     WS_URL: process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:8080',
 

@@ -1,14 +1,16 @@
+// src/app/features/chat/hooks/useGroupMessages.ts
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { chatWebSocket } from '@/lib/websocket/chatWebSocket';
+import { chatWebSocket, FileMessageInfo } from '@/lib/websocket/chatWebSocket';
 import { MessageApi } from '@/lib/api/message';
 import type { ChatMessage } from '@/types/chat';
+import type { FileUploadResponse } from '@/lib/api/file';
 import { message as antMessage } from 'antd';
 
 export function useGroupMessages(conversationId: number | null) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [loading, setLoading] = useState(false);
     const [sending, setSending] = useState(false);
-    const [error, setError] = useState<string | null>(null);  // 错误状态
+    const [error, setError] = useState<string | null>(null);
 
     const subscriptionRef = useRef<any>(null);
     const isSubscribedRef = useRef(false);
@@ -21,7 +23,7 @@ export function useGroupMessages(conversationId: number | null) {
         }
 
         setLoading(true);
-        setError(null);  // 清除之前的错误
+        setError(null);
 
         try {
             console.log('加载群聊历史 - conversationId:', conversationId);
@@ -34,7 +36,7 @@ export function useGroupMessages(conversationId: number | null) {
             console.error('加载失败:', err);
             setError(errorMsg);
             antMessage.error(errorMsg);
-            setMessages([]);  // 清空消息
+            setMessages([]);
         } finally {
             setLoading(false);
         }
@@ -109,9 +111,15 @@ export function useGroupMessages(conversationId: number | null) {
         loadMessages();
     }, [loadMessages]);
 
-    // 发送消息（带错误处理）
-    const sendMessage = useCallback(async (content: string) => {
-        if (!conversationId || !content.trim()) {
+    // 发送消息（支持文件）
+    const sendMessage = useCallback(async (content: string, fileInfo?: FileUploadResponse) => {
+        console.log('🟢 useGroupMessages.sendMessage 被调用');
+        console.log('   conversationId:', conversationId);
+        console.log('   content:', content);
+        console.log('   fileInfo:', fileInfo);
+        console.log('   hasFileInfo:', !!fileInfo);
+        console.log('   fileInfo 类型:', typeof fileInfo);
+        if (!conversationId || (!content.trim() && !fileInfo)) {
             return;
         }
 
@@ -119,8 +127,38 @@ export function useGroupMessages(conversationId: number | null) {
         setError(null);
 
         try {
-            console.log('发送群聊消息:', content);
-            chatWebSocket.sendMessage(conversationId.toString(), content.trim());
+            console.log('发送群聊消息:', content, fileInfo ? `[文件: ${fileInfo.fileName}]` : '');
+
+            if (fileInfo) {
+                // 使用新的文件消息方法
+                console.log('✅✅✅ fileInfo 存在！准备发送文件消息');
+                console.log('fileInfo 详情:', JSON.stringify(fileInfo, null, 2));
+                const fileMessageInfo: FileMessageInfo = {
+                    fileId: fileInfo.fileId,
+                    fileName: fileInfo.fileName,
+                    fileSize: fileInfo.fileSize,
+                    fileType: fileInfo.fileType,
+                    fileExt: fileInfo.fileExt,
+                    accessUrl: fileInfo.accessUrl,
+                    thumbnailUrl: fileInfo.thumbnailUrl,
+                };
+                console.log('📎 构建的 fileMessageInfo:', fileMessageInfo);
+                console.log('👉 即将调用 chatWebSocket.sendMessageWithFile');
+
+                chatWebSocket.sendMessageWithFile(
+                    conversationId.toString(),
+                    content.trim() || `[文件] ${fileInfo.fileName}`,
+                    fileMessageInfo
+                );
+                console.log('✅ chatWebSocket.sendMessageWithFile 调用完成');
+            } else {
+                console.log('❌❌❌ fileInfo 不存在或为空！发送纯文本消息');
+                console.log('fileInfo 值:', fileInfo);
+                console.log('fileInfo 类型:', typeof fileInfo);
+                // 普通文本消息
+                chatWebSocket.sendMessage(conversationId.toString(), content.trim());
+            }
+
             console.log('消息已发送');
         } catch (err) {
             const errorMsg = '发送消息失败，请检查网络连接';
@@ -142,8 +180,8 @@ export function useGroupMessages(conversationId: number | null) {
         messages,
         loading,
         sending,
-        error,  // 暴露错误状态
+        error,
         sendMessage,
-        retry,  // 暴露重试方法
+        retry,
     };
 }

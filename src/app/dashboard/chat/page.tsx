@@ -27,6 +27,7 @@ import AddMembersModal from '@/components/friend/AddMembersModal';
 
 import { FriendConversation, Conversation, GroupChat } from '@/types/chat';
 import { chatApi } from "@/lib/api/chat";
+import type { FileUploadResponse } from '@/lib/api/file';
 
 const { Header, Content } = Layout;
 
@@ -141,11 +142,20 @@ export default function ChatPage() {
     );
 
     // 修改发送消息处理
-    const handleSendMessage = async (content: string) => {
+    const handleSendMessage = async (content: string, fileInfo?: FileUploadResponse) => {
+        console.log('🔵 ChatPage.handleSendMessage 被调用:', {
+            content,
+            hasFileInfo: !!fileInfo,
+            fileInfo,
+            conversationType: selectedConversation?.type
+        });
+
         if (selectedConversation?.type === 'group') {
-            await sendGroupMessage(content);
+            console.log('✅ 发送群聊消息，传递 fileInfo:', fileInfo);
+            await sendGroupMessage(content, fileInfo);  // ✅ 传递 fileInfo
         } else if (selectedConversation?.type === 'private') {
-            await sendPrivateMessage(content);
+            console.log('✅ 发送私聊消息，传递 fileInfo:', fileInfo);
+            await sendPrivateMessage(content, fileInfo);  // ✅ 传递 fileInfo
         }
     };
 

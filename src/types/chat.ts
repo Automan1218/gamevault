@@ -58,6 +58,7 @@ export interface ChatMessage {
     chatType?: 'group' | 'private';
     createdAt: string;
     timestamp?: string;
+    attachment?: MessageAttachment;
 }
 
 /**
@@ -70,6 +71,18 @@ export interface GroupMember {
     role: 'owner' | 'member';
     nickname?: string;
     joinedAt?: string;
+}
+
+// 文件附件类型
+export interface MessageAttachment {
+    fileId: string;
+    fileName: string;
+    fileSize: number;
+    fileType: 'image' | 'video' | 'audio' | 'document';
+    fileExt: string;
+    accessUrl?: string;
+    thumbnailUrl?: string;
+    downloadUrl?: string;
 }
 
 /**
