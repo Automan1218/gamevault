@@ -164,7 +164,8 @@ export interface ForumReply {
     createdDate: string;
     updatedDate?: string;
     likeCount: number;
-
+    children?: ForumReply[];
+    isLiked?: boolean;
     // 前端扩展字段（用于回复的回复）
     replyTo?: number;
     replyToName?: string;

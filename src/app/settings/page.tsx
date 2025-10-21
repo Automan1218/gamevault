@@ -1,51 +1,89 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { App, Card, Tabs, Form, Button, Avatar, Upload, Alert, Row, Col, Divider, Typography, Space, Badge, Tooltip } from "antd";
 import { UserOutlined, LockOutlined, MailOutlined, CameraOutlined, ArrowLeftOutlined, ExclamationCircleOutlined, SafetyOutlined, SecurityScanOutlined, KeyOutlined, EditOutlined, CheckCircleOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { PageContainer, Menubar } from '@/components/layout';
 import { CustomButton, CustomInput, CustomPasswordInput } from '@/components/ui';
-import AvatarUpload from '@/components/forms/AvatarUpload';
-import { useSettings } from '@/app/features/settings/hooks/useSettings';
+import { AuthApi } from '@/lib/api/auth';
 import { navigationRoutes } from '@/lib/navigation';
-import { avatarEvents, getAvatarUrl } from '@/lib/api/avatar';
+import { useRouter } from 'next/navigation';
 import '@/components/common/animations.css';
 
 const { Title, Text, Paragraph } = Typography;
 
+interface UserInfo {
+  username: string;
+  email: string;
+  uid: number;
+}
+
 export default function SettingsPage() {
   const { message: messageApi } = App.useApp();
-  const { userInfo, loading, changePassword, changeEmail, updateAvatar } = useSettings();
+  const router = useRouter();
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [loading, setLoading] = useState(false);
   const [changePasswordForm] = Form.useForm();
   const [changeEmailForm] = Form.useForm();
 
+  // 获取用户信息
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const user = await AuthApi.getCurrentUser();
+        setUserInfo({
+          username: user.username,
+          email: user.email || '',
+          uid: user.userId
+        });
+      } catch (error) {
+        messageApi.error('获取用户信息失败');
+        router.push('/auth/login');
+      }
+    };
+
+    fetchUserInfo();
+  }, [messageApi, router]);
+
   // 修改密码
   const handleChangePassword = async (values: { oldPassword: string; newPassword: string; confirmPassword: string }) => {
-    const result = await changePassword(values.oldPassword, values.newPassword);
-    if (result.success) {
-      messageApi.success(result.message);
+    try {
+      setLoading(true);
+      await AuthApi.changePassword(values.oldPassword, values.newPassword);
+      messageApi.success('密码修改成功，请重新登录');
       changePasswordForm.resetFields();
-    } else {
-      messageApi.error(result.message);
+      
+      // 自动登出并跳转到登录页
+      await AuthApi.logout();
+      router.push('/auth/login?message=password_changed');
+      } catch (error: unknown) {
+        messageApi.error(error instanceof Error ? error.message : '密码修改失败');
+    } finally {
+      setLoading(false);
     }
   };
 
   // 更改邮箱
   const handleChangeEmail = async (values: { password: string; newEmail: string }) => {
-    const result = await changeEmail(values.password, values.newEmail);
-    if (result.success) {
-      messageApi.success(result.message);
+    try {
+      setLoading(true);
+      await AuthApi.changeEmail(values.password, values.newEmail);
+      messageApi.success('邮箱修改成功，请重新登录');
       changeEmailForm.resetFields();
-    } else {
-      messageApi.error(result.message);
+      
+      // 自动登出并跳转到登录页
+      await AuthApi.logout();
+      router.push('/auth/login?message=email_changed');
+      } catch (error: unknown) {
+        messageApi.error(error instanceof Error ? error.message : '邮箱修改失败');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // 头像更新处理
-  const handleAvatarChange = (avatarUrl: string | null) => {
-    updateAvatar(avatarUrl);
-    // 发送头像更新事件，通知其他组件（如UserMenu）刷新
-    avatarEvents.emit(avatarUrl);
+  // 头像上传（暂不实现）
+  const handleAvatarUpload = () => {
+    messageApi.info('头像上传功能开发中...');
   };
 
   const tabItems = [
@@ -54,7 +92,7 @@ export default function SettingsPage() {
       label: (
         <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 500 }}>
           <UserOutlined style={{ fontSize: '16px' }} />
-          Profile
+          个人资料
         </span>
       ),
       children: (
@@ -74,15 +112,29 @@ export default function SettingsPage() {
               }}
             >
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                {/* 头像显示和编辑 */}
-                <AvatarUpload
-                  currentAvatar={userInfo?.avatarUrl}
-                  onAvatarChange={handleAvatarChange}
-                  size={120}
-                  showEditButton={false}
-                />
+                <div 
+                  style={{ 
+                    position: 'relative', 
+                    display: 'inline-block',
+                    animation: 'pulse 2s infinite',
+                  }}
+                >
+                  <div className="avatar-container">
+                    <Avatar
+                      size={100}
+                      icon={<UserOutlined />}
+                      style={{
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                        border: '4px solid rgba(99, 102, 241, 0.3)',
+                        boxShadow: '0 8px 24px rgba(99, 102, 241, 0.3)',
+                        transition: 'all 0.3s ease',
+                        cursor: 'pointer',
+                      }}
+                    />
+                  </div>
+                </div>
                 
-                <div style={{ marginTop: 16 }}>
+                <div style={{ marginTop: 24 }}>
                   <Title level={3} style={{ color: '#f9fafb', margin: '0 0 8px 0', fontSize: '24px' }}>
                     {userInfo?.username || 'Unknown'}
                   </Title>
@@ -92,14 +144,30 @@ export default function SettingsPage() {
                 </div>
 
                 <Divider style={{ borderColor: 'rgba(99, 102, 241, 0.2)', margin: '24px 0' }} />
-                
-                {/* 编辑头像按钮 */}
-                <AvatarUpload
-                  currentAvatar={userInfo?.avatarUrl}
-                  onAvatarChange={handleAvatarChange}
-                  size={0}
-                  showEditButton={true}
-                />
+
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  <Tooltip title="点击更换头像">
+                    <Upload
+                      showUploadList={false}
+                      beforeUpload={() => false}
+                      onChange={handleAvatarUpload}
+                    >
+                      <CustomButton
+                        variant="ghost"
+                        size="large"
+                        icon={<CameraOutlined />}
+                        style={{ 
+                          width: '100%',
+                          height: 48,
+                          fontSize: '16px',
+                          fontWeight: 500,
+                        }}
+                      >
+                        更换头像
+                      </CustomButton>
+                    </Upload>
+                  </Tooltip>
+                </Space>
               </div>
             </Card>
           </Col>
@@ -121,10 +189,10 @@ export default function SettingsPage() {
                 >
                   <SecurityScanOutlined style={{ fontSize: '32px', color: '#10b981', marginBottom: 12 }} />
                   <Title level={4} style={{ color: '#f9fafb', margin: '0 0 8px 0' }}>
-                    Account Security
+                    账户安全
                   </Title>
                   <Text style={{ color: '#9ca3af' }}>
-                    Password Set
+                    密码已设置
                   </Text>
                 </Card>
               </Col>
@@ -143,10 +211,10 @@ export default function SettingsPage() {
                 >
                   <MailOutlined style={{ fontSize: '32px', color: '#6366f1', marginBottom: 12 }} />
                   <Title level={4} style={{ color: '#f9fafb', margin: '0 0 8px 0' }}>
-                    Email Verified
+                    邮箱验证
                   </Title>
                   <Text style={{ color: '#9ca3af' }}>
-                    Verified
+                    已验证
                   </Text>
                 </Card>
               </Col>
@@ -164,7 +232,7 @@ export default function SettingsPage() {
               }}
             >
               <Title level={4} style={{ color: '#f9fafb', marginBottom: 16 }}>
-                Quick Actions
+                快速操作
               </Title>
               <Row gutter={[12, 12]}>
                 <Col xs={24} sm={8}>
@@ -179,7 +247,7 @@ export default function SettingsPage() {
                       passwordTab?.click();
                     }}
                   >
-                    Change Password
+                    修改密码
                   </CustomButton>
                 </Col>
                 <Col xs={24} sm={8}>
@@ -194,7 +262,7 @@ export default function SettingsPage() {
                       emailTab?.click();
                     }}
                   >
-                    Change Email
+                    更改邮箱
                   </CustomButton>
                 </Col>
                 <Col xs={24} sm={8}>
@@ -204,9 +272,9 @@ export default function SettingsPage() {
                     icon={<SafetyOutlined />}
                     className="animate-bounce"
                     style={{ width: '100%', height: 48 }}
-                    onClick={() => messageApi.info('Security settings feature is under development...')}
+                    onClick={() => messageApi.info('安全设置功能开发中...')}
                   >
-                    Security Settings
+                    安全设置
                   </CustomButton>
                 </Col>
               </Row>
@@ -220,7 +288,7 @@ export default function SettingsPage() {
       label: (
         <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 500 }}>
           <LockOutlined style={{ fontSize: '16px' }} />
-          Change Password
+          修改密码
         </span>
       ),
       children: (
@@ -240,16 +308,16 @@ export default function SettingsPage() {
               <div style={{ marginBottom: 24 }}>
                 <Title level={3} style={{ color: '#f9fafb', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
                   <KeyOutlined style={{ color: '#6366f1' }} />
-                  Change Password
+                  修改密码
                 </Title>
                 <Paragraph style={{ color: '#9ca3af', margin: 0 }}>
-                  For your account security, you will need to log in again after changing your password
+                  为了您的账户安全，修改密码后需要重新登录
                 </Paragraph>
               </div>
 
               <Alert
-                message="Security Notice"
-                description="You will need to log in again after changing your password to ensure account security"
+                message="安全提示"
+                description="修改密码后需要重新登录以确保账户安全"
                 type="warning"
                 icon={<ExclamationCircleOutlined />}
                 style={{
@@ -271,27 +339,27 @@ export default function SettingsPage() {
                   <Col xs={24} sm={12}>
                     <Form.Item
                       name="oldPassword"
-                      label={<span style={{ color: '#f9fafb', fontWeight: 500 }}>Current Password</span>}
-                      rules={[{ required: true, message: 'Please enter current password' }]}
+                      label={<span style={{ color: '#f9fafb', fontWeight: 500 }}>当前密码</span>}
+                      rules={[{ required: true, message: '请输入当前密码' }]}
                     >
                       <CustomPasswordInput
                         prefix={<LockOutlined />}
-                        placeholder="Please enter current password"
+                        placeholder="请输入当前密码"
                       />
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={12}>
                     <Form.Item
                       name="newPassword"
-                      label={<span style={{ color: '#f9fafb', fontWeight: 500 }}>New Password</span>}
+                      label={<span style={{ color: '#f9fafb', fontWeight: 500 }}>新密码</span>}
                       rules={[
-                        { required: true, message: 'Please enter new password' },
-                        { min: 6, message: 'Password must be at least 6 characters' }
+                        { required: true, message: '请输入新密码' },
+                        { min: 6, message: '密码至少6个字符' }
                       ]}
                     >
                       <CustomPasswordInput
                         prefix={<LockOutlined />}
-                        placeholder="Please enter new password"
+                        placeholder="请输入新密码"
                       />
                     </Form.Item>
                   </Col>
@@ -299,23 +367,23 @@ export default function SettingsPage() {
 
                 <Form.Item
                   name="confirmPassword"
-                  label={<span style={{ color: '#f9fafb', fontWeight: 500 }}>Confirm New Password</span>}
+                  label={<span style={{ color: '#f9fafb', fontWeight: 500 }}>确认新密码</span>}
                   dependencies={['newPassword']}
                   rules={[
-                    { required: true, message: 'Please confirm new password' },
+                    { required: true, message: '请确认新密码' },
                     ({ getFieldValue }) => ({
                       validator(_, value) {
                         if (!value || getFieldValue('newPassword') === value) {
                           return Promise.resolve();
                         }
-                        return Promise.reject(new Error('The two passwords that you entered do not match'));
+                        return Promise.reject(new Error('两次输入的密码不一致'));
                       },
                     }),
                   ]}
                 >
                   <CustomPasswordInput
                     prefix={<LockOutlined />}
-                    placeholder="Please confirm new password"
+                    placeholder="请确认新密码"
                   />
                 </Form.Item>
 
@@ -328,7 +396,7 @@ export default function SettingsPage() {
                     size="large"
                     style={{ height: 56, fontSize: '16px', fontWeight: 600 }}
                   >
-                    Change Password
+                    修改密码
                   </CustomButton>
                 </Form.Item>
               </Form>
@@ -348,25 +416,25 @@ export default function SettingsPage() {
             >
               <Title level={4} style={{ color: '#f9fafb', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <InfoCircleOutlined style={{ color: '#6366f1' }} />
-                Password Security Tips
+                密码安全提示
               </Title>
               
               <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <CheckCircleOutlined style={{ color: '#10b981', fontSize: '16px' }} />
-                  <Text style={{ color: '#9ca3af' }}>Use strong passwords with letters, numbers and symbols</Text>
+                  <Text style={{ color: '#9ca3af' }}>使用强密码，包含字母、数字和符号</Text>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <CheckCircleOutlined style={{ color: '#10b981', fontSize: '16px' }} />
-                  <Text style={{ color: '#9ca3af' }}>Avoid using personal information as passwords</Text>
+                  <Text style={{ color: '#9ca3af' }}>避免使用个人信息作为密码</Text>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <CheckCircleOutlined style={{ color: '#10b981', fontSize: '16px' }} />
-                  <Text style={{ color: '#9ca3af' }}>Change passwords regularly to improve security</Text>
+                  <Text style={{ color: '#9ca3af' }}>定期更换密码，提高安全性</Text>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <CheckCircleOutlined style={{ color: '#10b981', fontSize: '16px' }} />
-                  <Text style={{ color: '#9ca3af' }}>Don't use the same password for multiple accounts</Text>
+                  <Text style={{ color: '#9ca3af' }}>不要在多个账户使用相同密码</Text>
                 </div>
               </Space>
             </Card>
@@ -379,7 +447,7 @@ export default function SettingsPage() {
       label: (
         <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 500 }}>
           <MailOutlined style={{ fontSize: '16px' }} />
-          Change Email
+          更改邮箱
         </span>
       ),
       children: (
@@ -399,16 +467,16 @@ export default function SettingsPage() {
               <div style={{ marginBottom: 24 }}>
                 <Title level={3} style={{ color: '#f9fafb', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
                   <MailOutlined style={{ color: '#6366f1' }} />
-                  Change Email
+                  更改邮箱
                 </Title>
                 <Paragraph style={{ color: '#9ca3af', margin: 0 }}>
-                  You will need to log in again after changing your email address to verify the new email
+                  更改邮箱地址后需要重新登录以验证新邮箱
                 </Paragraph>
               </div>
 
               <Alert
-                message="Security Notice"
-                description="You will need to log in again after changing your email to ensure account security"
+                message="安全提示"
+                description="修改邮箱后需要重新登录以确保账户安全"
                 type="warning"
                 icon={<ExclamationCircleOutlined />}
                 style={{
@@ -430,27 +498,27 @@ export default function SettingsPage() {
                   <Col xs={24} sm={12}>
                     <Form.Item
                       name="password"
-                      label={<span style={{ color: '#f9fafb', fontWeight: 500 }}>Current Password</span>}
-                      rules={[{ required: true, message: 'Please enter current password' }]}
+                      label={<span style={{ color: '#f9fafb', fontWeight: 500 }}>当前密码</span>}
+                      rules={[{ required: true, message: '请输入当前密码' }]}
                     >
                       <CustomPasswordInput
                         prefix={<LockOutlined />}
-                        placeholder="Please enter current password"
+                        placeholder="请输入当前密码"
                       />
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={12}>
                     <Form.Item
                       name="newEmail"
-                      label={<span style={{ color: '#f9fafb', fontWeight: 500 }}>New Email</span>}
+                      label={<span style={{ color: '#f9fafb', fontWeight: 500 }}>新邮箱</span>}
                       rules={[
-                        { required: true, message: 'Please enter new email' },
-                        { type: 'email', message: 'Please enter a valid email address' }
+                        { required: true, message: '请输入新邮箱' },
+                        { type: 'email', message: '请输入有效的邮箱地址' }
                       ]}
                     >
                       <CustomInput
                         prefix={<MailOutlined />}
-                        placeholder="Please enter new email"
+                        placeholder="请输入新邮箱"
                       />
                     </Form.Item>
                   </Col>
@@ -465,7 +533,7 @@ export default function SettingsPage() {
                     size="large"
                     style={{ height: 56, fontSize: '16px', fontWeight: 600 }}
                   >
-                    Change Email
+                    更改邮箱
                   </CustomButton>
                 </Form.Item>
               </Form>
@@ -485,25 +553,25 @@ export default function SettingsPage() {
             >
               <Title level={4} style={{ color: '#f9fafb', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <InfoCircleOutlined style={{ color: '#6366f1' }} />
-                Email Security Tips
+                邮箱安全提示
               </Title>
               
               <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <CheckCircleOutlined style={{ color: '#10b981', fontSize: '16px' }} />
-                  <Text style={{ color: '#9ca3af' }}>Use a commonly used email address to ensure timely notifications</Text>
+                  <Text style={{ color: '#9ca3af' }}>使用常用邮箱地址，确保能及时接收通知</Text>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <CheckCircleOutlined style={{ color: '#10b981', fontSize: '16px' }} />
-                  <Text style={{ color: '#9ca3af' }}>Avoid using temporary or disposable email addresses</Text>
+                  <Text style={{ color: '#9ca3af' }}>避免使用临时邮箱或一次性邮箱</Text>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <CheckCircleOutlined style={{ color: '#10b981', fontSize: '16px' }} />
-                  <Text style={{ color: '#9ca3af' }}>Make sure the email address is spelled correctly</Text>
+                  <Text style={{ color: '#9ca3af' }}>确保邮箱地址拼写正确</Text>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <CheckCircleOutlined style={{ color: '#10b981', fontSize: '16px' }} />
-                  <Text style={{ color: '#9ca3af' }}>Please verify the new email promptly after changing</Text>
+                  <Text style={{ color: '#9ca3af' }}>更改后请及时验证新邮箱</Text>
                 </div>
               </Space>
 
@@ -511,7 +579,7 @@ export default function SettingsPage() {
 
               <div style={{ textAlign: 'center' }}>
                 <Text style={{ color: '#9ca3af', fontSize: '14px' }}>
-                  Current Email: <Text style={{ color: '#f9fafb', fontWeight: 500 }}>{userInfo?.email || 'Unknown'}</Text>
+                  当前邮箱: <Text style={{ color: '#f9fafb', fontWeight: 500 }}>{userInfo?.email || 'Unknown'}</Text>
                 </Text>
               </div>
             </Card>
@@ -524,11 +592,11 @@ export default function SettingsPage() {
   return (
     <>
       {/* 顶部导航栏 */}
-      <Menubar currentPath="/dashboard/settings" />
+      <Menubar currentPath="/settings" />
 
       <PageContainer
-        title="Account Settings"
-        subtitle="Manage your personal information and security settings"
+        title="账户设置"
+        subtitle="管理您的个人信息和安全设置"
         showBackground={true}
         showDecorations={true}
       >
