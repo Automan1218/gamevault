@@ -1,18 +1,17 @@
 // src/app/features/chat/hooks/usePrivateMessages.ts
-
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { chatWebSocket } from '@/lib/websocket/chatWebSocket';
+import { chatWebSocket, FileMessageInfo } from '@/lib/websocket/chatWebSocket'; // 添加 FileMessageInfo
 import { MessageApi } from '@/lib/api/message';
 import type { ChatMessage } from '@/types/chat';
+import type { FileUploadResponse } from '@/lib/api/file';
 
 export function usePrivateMessages(friendId: number | null, currentUserId: number) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [loading, setLoading] = useState(false);
     const [sending, setSending] = useState(false);
 
-    const subscriptionRef = useRef<>(null);
+    const subscriptionRef = useRef<any>(null);
     const hasSubscribedRef = useRef(false);
-
     const friendIdRef = useRef(friendId);
 
     useEffect(() => {
@@ -68,7 +67,6 @@ export function usePrivateMessages(friendId: number | null, currentUserId: numbe
                 const subscription = chatWebSocket.subscribeToPrivateMessages(
                     currentUserId,
                     (newMessage) => {
-                        // 使用 ref 获取最新的 friendId
                         const currentFriendId = friendIdRef.current;
 
                         const chatMessage: ChatMessage = {
@@ -80,6 +78,8 @@ export function usePrivateMessages(friendId: number | null, currentUserId: numbe
                             content: newMessage.content,
                             messageType: newMessage.messageType || 'text',
                             createdAt: newMessage.timestamp || newMessage.createdAt,
+                            // 添加文件附件支持
+                            attachment: newMessage.attachment,
                         };
 
                         const isMyMessage = newMessage.senderId === currentUserId && newMessage.receiverId === currentFriendId;
@@ -93,7 +93,6 @@ export function usePrivateMessages(friendId: number | null, currentUserId: numbe
                                 }
                                 return [...prev, chatMessage];
                             });
-                        } else {
                         }
                     }
                 );
@@ -114,14 +113,34 @@ export function usePrivateMessages(friendId: number | null, currentUserId: numbe
         };
     }, [currentUserId]);
 
-    const sendMessage = useCallback(async (content: string) => {
-        if (!friendId || !content.trim()) {
+    // 发送消息（支持文件）
+    const sendMessage = useCallback(async (content: string, fileInfo?: FileUploadResponse) => {
+        if (!friendId || (!content.trim() && !fileInfo)) {
             return;
         }
 
         setSending(true);
         try {
-            chatWebSocket.sendPrivateMessage(friendId, content.trim());
+            if (fileInfo) {
+                // 使用新的文件消息方法
+                const fileMessageInfo: FileMessageInfo = {
+                    fileId: fileInfo.fileId,
+                    fileName: fileInfo.fileName,
+                    fileSize: fileInfo.fileSize,
+                    fileType: fileInfo.fileType,
+                    fileExt: fileInfo.fileExt,
+                    accessUrl: fileInfo.accessUrl,
+                    thumbnailUrl: fileInfo.thumbnailUrl,
+                };
+
+                chatWebSocket.sendPrivateMessageWithFile(
+                    friendId,
+                    content.trim() || `[文件] ${fileInfo.fileName}`,
+                    fileMessageInfo
+                );
+            } else {
+                chatWebSocket.sendPrivateMessage(friendId, content.trim());
+            }
         } catch (error) {
             console.error('发送失败:', error);
             throw error;
@@ -129,7 +148,6 @@ export function usePrivateMessages(friendId: number | null, currentUserId: numbe
             setSending(false);
         }
     }, [friendId]);
-
     return {
         messages,
         loading,

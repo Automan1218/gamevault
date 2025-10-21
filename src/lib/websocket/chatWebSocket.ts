@@ -1,20 +1,29 @@
-// src/lib/websocket/chatWebSocket.ts
-
 import { Client, StompSubscription } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { ENV } from '@/config/env';
 
 export type MessageCallback = (message: any) => void;
 
+// 文件信息接口
+export interface FileMessageInfo {
+    fileId: string;
+    fileName: string;
+    fileSize: number;
+    fileType: string;
+    fileExt: string;
+    accessUrl?: string;
+    thumbnailUrl?: string;
+}
+
 class ChatWebSocketClient {
     private client: Client | null = null;
     private subscribers: Map<string, MessageCallback> = new Map();
     private reconnectAttempts = 0;
-    private maxReconnectAttempts = 10;  // 增加到 10 次
-    private reconnectDelay = 3000;  // 重连延迟 3 秒
-    private isManualDisconnect = false;  // 是否手动断开
-    private subscriptionQueue: Array<{ destination: string; callback: MessageCallback }> = [];  // 订阅队列
-    private activeSubscriptions: Map<string, StompSubscription> = new Map();  // 活跃订阅
+    private maxReconnectAttempts = 10;
+    private reconnectDelay = 3000;
+    private isManualDisconnect = false;
+    private subscriptionQueue: Array<{ destination: string; callback: MessageCallback }> = [];
+    private activeSubscriptions: Map<string, StompSubscription> = new Map();
 
     /**
      * 连接 WebSocket
@@ -26,22 +35,17 @@ class ChatWebSocketClient {
             this.isManualDisconnect = false;
 
             this.client = new Client({
-                // 使用 SockJS - 连接到聊天室微服务
                 webSocketFactory: () => new SockJS(`${ENV.WS_URL}/ws`),
 
-                // 连接头部（带 JWT Token）
                 connectHeaders: {
                     Authorization: `Bearer ${token}`,
                 },
 
-                // 心跳配置 - 保持连接活跃
-                heartbeatIncoming: 10000,  // 10秒
-                heartbeatOutgoing: 10000,  // 10秒
+                heartbeatIncoming: 10000,
+                heartbeatOutgoing: 10000,
 
-                // 自动重连配置
                 reconnectDelay: this.reconnectDelay,
 
-                // 调试
                 debug: (str) => {
                     if (str.includes('ERROR') || str.includes('CLOSE')) {
                         console.error('[STOMP Debug]', str);
@@ -50,45 +54,35 @@ class ChatWebSocketClient {
                     }
                 },
 
-                // 连接成功回调
                 onConnect: () => {
                     console.log('WebSocket 连接成功');
                     this.reconnectAttempts = 0;
-
-                    // 恢复之前的订阅
                     this.restoreSubscriptions();
-
                     resolve();
                 },
 
-                // STOMP 错误回调
                 onStompError: (frame) => {
                     console.error('STOMP 错误:', frame);
                     console.error('   - 错误信息:', frame.headers.message);
                     console.error('   - 错误详情:', frame.body);
 
-                    // 不立即 reject，让重连机制处理
                     if (this.reconnectAttempts === 0) {
                         reject(new Error(frame.headers.message || 'WebSocket 连接失败'));
                     }
                 },
 
-                // WebSocket 错误回调
                 onWebSocketError: (error) => {
                     console.error('WebSocket 错误:', error);
                 },
 
-                // 断开连接回调
                 onDisconnect: () => {
                     console.log('WebSocket 已断开');
 
-                    // 如果不是手动断开，尝试重连
                     if (!this.isManualDisconnect) {
                         this.attemptReconnect(token);
                     }
                 },
 
-                // WebSocket 关闭回调
                 onWebSocketClose: (event) => {
                     console.log('WebSocket 连接关闭');
                     console.log('   - Code:', event.code);
@@ -111,7 +105,7 @@ class ChatWebSocketClient {
         }
 
         this.reconnectAttempts++;
-        const delay = this.reconnectDelay * this.reconnectAttempts;  // 递增延迟
+        const delay = this.reconnectDelay * this.reconnectAttempts;
 
         console.log(`尝试重连 (${this.reconnectAttempts}/${this.maxReconnectAttempts})，${delay / 1000}秒后重试...`);
 
@@ -172,7 +166,6 @@ class ChatWebSocketClient {
 
         const destination = `/topic/private/${userId}`;
 
-        // 添加到订阅队列，支持重连后恢复
         this.subscriptionQueue.push({ destination, callback });
 
         console.log('订阅私聊消息:', destination);
@@ -200,7 +193,6 @@ class ChatWebSocketClient {
                     subscription.unsubscribe();
                     this.activeSubscriptions.delete(destination);
 
-                    // 从队列中移除
                     this.subscriptionQueue = this.subscriptionQueue.filter(
                         sub => sub.destination !== destination
                     );
@@ -234,7 +226,6 @@ class ChatWebSocketClient {
 
         const destination = `/topic/chat/${conversationId}`;
 
-        // 添加到订阅队列
         this.subscriptionQueue.push({ destination, callback });
 
         console.log('订阅群聊消息:', destination);
@@ -244,6 +235,14 @@ class ChatWebSocketClient {
                 try {
                     const payload = JSON.parse(message.body);
                     console.log('收到群聊消息:', payload.content);
+                    console.log('🔔 收到群聊消息:', {
+                        id: payload.id,
+                        messageType: payload.messageType,
+                        content: payload.content,
+                        hasAttachment: !!payload.attachment,
+                        attachment: payload.attachment,
+                        timestamp: payload.timestamp
+                    });
                     callback(payload);
                 } catch (error) {
                     console.error('解析消息失败:', error);
@@ -262,7 +261,6 @@ class ChatWebSocketClient {
                     this.activeSubscriptions.delete(destination);
                     this.subscribers.delete(conversationId);
 
-                    // 从队列中移除
                     this.subscriptionQueue = this.subscriptionQueue.filter(
                         sub => sub.destination !== destination
                     );
@@ -306,6 +304,50 @@ class ChatWebSocketClient {
     }
 
     /**
+     * 发送群聊文件消息
+     */
+    sendMessageWithFile(conversationId: string, content: string, fileInfo: FileMessageInfo) {
+        console.log('🟣 chatWebSocket.sendMessageWithFile 被调用');
+        console.log('   conversationId:', conversationId);
+        console.log('   content:', content);
+        console.log('   fileInfo:', fileInfo);
+
+        if (!this.client || !this.client.connected) {
+            console.error('WebSocket 未连接，无法发送消息');
+            throw new Error('WebSocket 未连接');
+        }
+
+        const message = {
+            conversationId: parseInt(conversationId),
+            content,
+            messageType: 'file',
+            // 文件相关字段
+            fileId: fileInfo.fileId,
+            fileName: fileInfo.fileName,
+            fileSize: fileInfo.fileSize,
+            fileType: fileInfo.fileType,
+            fileExt: fileInfo.fileExt,
+            accessUrl: fileInfo.accessUrl,
+            thumbnailUrl: fileInfo.thumbnailUrl,
+        };
+
+        console.log('📤 即将发送的消息对象:');
+        console.log(JSON.stringify(message, null, 2));
+
+        try {
+            this.client.publish({
+                destination: '/app/chat.sendMessage',
+                body: JSON.stringify(message),
+            });
+
+            console.log('群聊文件消息已发送:', message);
+        } catch (error) {
+            console.error('发送文件消息失败:', error);
+            throw error;
+        }
+    }
+
+    /**
      * 发送私聊消息（带重试）
      */
     sendPrivateMessage(receiverId: number, content: string, messageType: string = 'text') {
@@ -329,6 +371,42 @@ class ChatWebSocketClient {
             console.log('私聊消息已发送:', message);
         } catch (error) {
             console.error('发送消息失败:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * 发送私聊文件消息
+     */
+    sendPrivateMessageWithFile(receiverId: number, content: string, fileInfo: FileMessageInfo) {
+        if (!this.client || !this.client.connected) {
+            console.error('WebSocket 未连接，无法发送消息');
+            throw new Error('WebSocket 未连接');
+        }
+
+        const message = {
+            receiverId,
+            content,
+            messageType: 'file',
+            // 🆕 文件相关字段
+            fileId: fileInfo.fileId,
+            fileName: fileInfo.fileName,
+            fileSize: fileInfo.fileSize,
+            fileType: fileInfo.fileType,
+            fileExt: fileInfo.fileExt,
+            accessUrl: fileInfo.accessUrl,
+            thumbnailUrl: fileInfo.thumbnailUrl,
+        };
+
+        try {
+            this.client.publish({
+                destination: '/app/chat.sendPrivateMessage',
+                body: JSON.stringify(message),
+            });
+
+            console.log('私聊文件消息已发送:', message);
+        } catch (error) {
+            console.error('发送文件消息失败:', error);
             throw error;
         }
     }

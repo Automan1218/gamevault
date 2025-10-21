@@ -241,5 +241,8 @@ export const forumApiClient = new ApiClient(ENV.FORUM_API_URL);
 // 聊天室服务客户端 - 用于群聊、好友、消息等
 export const chatroomApiClient = new ApiClient(ENV.CHATROOM_API_URL);
 
+// 文件服务客户端 - 用于文件上传、下载、管理等
+export const fileApiClient = new ApiClient(ENV.FILE_API_URL);
+
 // 默认API客户端（保持向后兼容，使用认证服务）
 export const apiClient = authApiClient;
