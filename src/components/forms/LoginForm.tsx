@@ -49,7 +49,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const tabItems = [
     {
       key: 'login',
-      label: '登录',
+      label: 'Login',
       children: (
         <Form
           form={loginForm}
@@ -61,21 +61,21 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         >
           <Form.Item
             name="username"
-            rules={[{ required: true, message: '请输入用户名或邮箱' }]}
+            rules={[{ required: true, message: 'Please enter username or email' }]}
           >
             <CustomInput
               prefix={<UserOutlined style={iconStyle} />}
-              placeholder="用户名或邮箱"
+              placeholder="Username or email"
             />
           </Form.Item>
 
           <Form.Item
             name="password"
-            rules={[{ required: true, message: '请输入密码' }]}
+            rules={[{ required: true, message: 'Please enter password' }]}
           >
             <CustomPasswordInput
               prefix={<LockOutlined style={iconStyle} />}
-              placeholder="密码"
+              placeholder="Password"
             />
           </Form.Item>
 
@@ -85,7 +85,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               onClick={onForgotPassword} 
               style={{ color: '#9ca3af' }}
             >
-              忘记密码？
+              Forgot password?
             </Button>
           </div>
 
@@ -96,7 +96,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               loading={loading}
               block
             >
-              登录
+              Login
             </CustomButton>
           </Form.Item>
         </Form>
@@ -104,7 +104,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     },
     {
       key: 'register',
-      label: '注册',
+      label: 'Register',
       children: (
         <Form
           form={registerForm}
@@ -117,43 +117,43 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           <Form.Item
             name="username"
             rules={[
-              { required: true, message: '请输入用户名' },
-              { min: 3, message: '用户名至少3个字符' },
+              { required: true, message: 'Please enter username' },
+              { min: 3, message: 'Username must be at least 3 characters' },
               ...(validateUsername ? [{ validator: validateUsername }] : [])
             ]}
             validateTrigger={['onBlur']}
           >
             <CustomInput
               prefix={<UserOutlined style={iconStyle} />}
-              placeholder="用户名"
+              placeholder="Username"
             />
           </Form.Item>
 
           <Form.Item
             name="email"
             rules={[
-              { required: true, message: '请输入邮箱' },
-              { type: 'email', message: '请输入有效的邮箱地址' },
+              { required: true, message: 'Please enter email' },
+              { type: 'email', message: 'Please enter a valid email address' },
               ...(validateEmail ? [{ validator: validateEmail }] : [])
             ]}
             validateTrigger={['onBlur']}
           >
             <CustomInput
               prefix={<MailOutlined style={iconStyle} />}
-              placeholder="邮箱"
+              placeholder="Email"
             />
           </Form.Item>
 
           <Form.Item
             name="password"
             rules={[
-              { required: true, message: '请输入密码' },
-              { min: 6, message: '密码至少6个字符' }
+              { required: true, message: 'Please enter password' },
+              { min: 6, message: 'Password must be at least 6 characters' }
             ]}
           >
             <CustomPasswordInput
               prefix={<LockOutlined style={iconStyle} />}
-              placeholder="密码"
+              placeholder="Password"
             />
           </Form.Item>
 
@@ -161,20 +161,20 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             name="confirmPassword"
             dependencies={['password']}
             rules={[
-              { required: true, message: '请确认密码' },
+              { required: true, message: '请确认Password' },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (!value || getFieldValue('password') === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('两次输入的密码不一致'));
+                  return Promise.reject(new Error('两次输入的Password不一致'));
                 },
               }),
             ]}
           >
             <CustomPasswordInput
               prefix={<LockOutlined style={iconStyle} />}
-              placeholder="确认密码"
+              placeholder="Confirm Password"
             />
           </Form.Item>
 
@@ -185,7 +185,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               loading={loading}
               block
             >
-              注册
+              Register
             </CustomButton>
           </Form.Item>
         </Form>

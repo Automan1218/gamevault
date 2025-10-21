@@ -100,11 +100,11 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
 
   // 导航菜单项
   const navItems: NavItem[] = [
-    { key: 'home', label: '首页', path: navigationRoutes.home, icon: <HomeOutlined />, requireAuth: false },
-    { key: 'store', label: '商城', path: navigationRoutes.shopping, icon: <ShoppingCartOutlined />, requireAuth: false },
+    { key: 'home', label: 'Home', path: navigationRoutes.home, icon: <HomeOutlined />, requireAuth: false },
+    { key: 'store', label: 'Store', path: navigationRoutes.shopping, icon: <ShoppingCartOutlined />, requireAuth: false },
     {
       key: 'forum', 
-      label: '论坛', 
+      label: 'Forum', 
       path: navigationRoutes.forum,
       icon: <TeamOutlined />,
       requireAuth: false,
@@ -112,22 +112,22 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
       dropdownItems: [
         { 
           key: 'forum-home', 
-          label: '论坛首页', 
+          label: 'Forum Home', 
           path: navigationRoutes.forum,
           icon: <CommentOutlined />,
           requireAuth: false 
         },
         { 
           key: 'my-posts', 
-          label: '我的发帖', 
+          label: 'My Posts', 
           path: navigationRoutes.myPosts, 
           icon: <FileTextOutlined />,
           requireAuth: true 
         },
       ]
     },
-    { key: 'chat', label: '聊天室', path: '/dashboard/chat', icon: <MessageOutlined />, requireAuth: true },
-    { key: 'developer', label: '开发者', path: '/developer', icon: <CodeOutlined />, requireAuth: true },
+    { key: 'chat', label: 'Chat', path: '/dashboard/chat', icon: <MessageOutlined />, requireAuth: true },
+    { key: 'developer', label: 'Developer', path: '/developer', icon: <CodeOutlined />, requireAuth: true },
   ];
 
   // 处理导航点击
@@ -377,7 +377,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {/* 搜索框 */}
           <Input
-            placeholder="搜索游戏..."
+            placeholder="Search games..."
             prefix={<SearchOutlined style={{ color: '#9ca3af' }} />}
             style={{
               width: '280px',
@@ -496,7 +496,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
                 e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)';
               }}
             >
-              登录
+              Login
             </Button>
           )}
         </div>

@@ -44,7 +44,7 @@ export default function OrdersPage() {
   );
   
 
-  // 获取订单状态配置
+  // Get order status configuration
   const getStatusConfig = (status: string) => {
     const configs: Record<
       string,
@@ -53,31 +53,31 @@ export default function OrdersPage() {
       PENDING: {
         color: "gold",
         icon: <ClockCircleOutlined />,
-        text: "待支付",
+        text: "Pending",
         bgColor: "rgba(250, 173, 20, 0.1)",
       },
       COMPLETED: {
         color: "green",
         icon: <CheckCircleOutlined />,
-        text: "已完成",
+        text: "Completed",
         bgColor: "rgba(52, 211, 153, 0.1)",
       },
       CANCELLED: {
         color: "red",
         icon: <CloseCircleOutlined />,
-        text: "已取消",
+        text: "Cancelled",
         bgColor: "rgba(239, 68, 68, 0.1)",
       },
     };
     return configs[status] || configs.PENDING;
   };
 
-  // 真实沙盘模拟：打开支付表单
+  // Real sandbox simulation: open payment form
   const handlePay = (order: OrderDTO) => {
     setPayModalOpen({ open: true, order });
   };
 
-  // 简单 RSA 加密（前端示例）。建议后端同时校验与解密。
+  // Simple RSA encryption (frontend example). Backend should also validate and decrypt.
   async function encryptWithPublicKey(plain: string, pemPublicKey: string): Promise<string> {
     const clean = pemPublicKey.replace(/-----BEGIN PUBLIC KEY-----|-----END PUBLIC KEY-----|\s+/g, "");
     const raw = Uint8Array.from(atob(clean), c => c.charCodeAt(0));
@@ -101,34 +101,34 @@ export default function OrdersPage() {
       const pubKey = (process.env.NEXT_PUBLIC_PAYMENT_PUB_KEY as string) || (ENV as any).PAYMENT_PUB_KEY;
       const payload = JSON.stringify(card);
       const encrypted = pubKey ? await encryptWithPublicKey(payload, pubKey) : payload;
-      // 这里按需调用后端支付创建/确认接口（如果已有则替换为真实接口）
-      // 暂用原有 payOrder(orderId) 执行模拟确认
+      // Call backend payment creation/confirmation API as needed (replace with real API if available)
+      // Temporarily use existing payOrder(orderId) for simulation confirmation
       await payOrder(order.orderId);
-      message.success("支付成功！游戏已添加到您的库中");
+      message.success("Payment successful! Game has been added to your library");
       setPayModalOpen({ open: false, order: null });
     } catch (e) {
-      message.error("支付失败，请重试");
+      message.error("Payment failed, please try again");
     } finally {
       setPayLoading(null);
     }
   };
 
-  // 处理取消订单
+  // Handle cancel order
   const handleCancelOrder = (orderId: number) => {
     modal.confirm({
-      title: "取消订单",
+      title: "Cancel Order",
       icon: <ExclamationCircleOutlined style={{ color: "#ef4444" }} />,
-      content: "确认取消此订单吗？取消后无法恢复。",
-      okText: "确认取消",
-      cancelText: "不取消",
+      content: "Are you sure you want to cancel this order? This action cannot be undone.",
+      okText: "Confirm Cancel",
+      cancelText: "Don't Cancel",
       okType: "danger",
       onOk: async () => {
         setPayLoading(orderId);
         try {
           await failOrder(orderId);
-          message.success("订单已取消");
+          message.success("Order cancelled");
         } catch (error) {
-          message.error("取消订单失败，请重试");
+          message.error("Failed to cancel order, please try again");
         } finally {
           setPayLoading(null);
         }
@@ -137,7 +137,7 @@ export default function OrdersPage() {
   };
 
 
-  // 渲染订单卡片
+  // Render order card
   const renderOrderCard = (order: OrderDTO, index: number) => {
     const statusConfig = getStatusConfig(order.status);
     const isPending = order.status === "PENDING";
@@ -155,12 +155,12 @@ export default function OrdersPage() {
         }}
         styles={{ body: { padding: 24 } }}
       >
-        {/* 订单头部 */}
+        {/* Order header */}
         <Row justify="space-between" align="middle" style={{ marginBottom: 20 }}>
           <Col>
             <Space size={16}>
               <div style={{ fontSize: 18, fontWeight: 600, color: "#fff" }}>
-                订单 #{order.orderId}
+                Order #{order.orderId}
               </div>
               <Tag
                 icon={statusConfig.icon}
@@ -176,7 +176,7 @@ export default function OrdersPage() {
               </Tag>
             </Space>
             <div style={{ color: "#9ca3af", fontSize: 13, marginTop: 6 }}>
-              下单时间：{new Date(order.orderDate).toLocaleString("zh-CN")}
+              Order Time: {new Date(order.orderDate).toLocaleString("en-US")}
             </div>
           </Col>
           <Col>
@@ -191,7 +191,7 @@ export default function OrdersPage() {
               ￥{order.finalAmount.toFixed(2)}
             </div>
             <div style={{ color: "#9ca3af", fontSize: 13, textAlign: "right" }}>
-              支付方式：{order.paymentMethod || "未选择"}
+              Payment Method: {order.paymentMethod || "Not Selected"}
             </div>
           </Col>
         </Row>
@@ -201,7 +201,7 @@ export default function OrdersPage() {
         {/* 订单商品列表 */}
         <div style={{ marginBottom: 16 }}>
           <div style={{ color: "#9ca3af", fontSize: 13, marginBottom: 12 }}>
-            商品清单：
+            Item List:
           </div>
           <Space direction="vertical" size={8} style={{ width: "100%" }}>
             {order.orderItems.map((item: OrderItemDTO) => (
@@ -218,11 +218,11 @@ export default function OrdersPage() {
                 <Col>
                   <Space>
                     <div style={{ color: "#fff", fontSize: 15 }}>
-                      {item.gameTitle || `游戏 #${item.gameId}`}
+                      {item.gameTitle || `Game #${item.gameId}`}
                     </div>
                     {item.discountPrice && item.discountPrice < item.unitPrice && (
                       <Tag color="red" style={{ fontSize: 12 }}>
-                        折扣
+                        Discount
                       </Tag>
                     )}
                   </Space>
@@ -269,7 +269,7 @@ export default function OrdersPage() {
                     minWidth: 140,
                   }}
                 >
-                  去支付
+                  Pay Now
                 </Button>
               </Col>
               <Col>
@@ -285,7 +285,7 @@ export default function OrdersPage() {
                     minWidth: 140,
                   }}
                 >
-                  取消订单
+                  Cancel Order
                 </Button>
               </Col>
             </>
@@ -301,7 +301,7 @@ export default function OrdersPage() {
   // 处理支付弹窗关闭
   const handlePaymentModalClose = () => {
     if (payModalOpen.order) {
-      message.warning("支付未完成，请重新点击'去支付'按钮完成支付");
+      message.warning("Payment not completed. Please click 'Pay Now' again to finish.");
     }
     setPayModalOpen({ open: false, order: null });
   };
@@ -470,10 +470,10 @@ export default function OrdersPage() {
               }}
             >
               <ShoppingOutlined style={{ marginRight: 12 }} />
-              我的订单
+              My Orders
             </div>
             <div style={{ color: "#9ca3af", fontSize: 16 }}>
-              查看和管理您的购买记录
+              View and manage your purchase history
             </div>
           </div>
 
@@ -490,7 +490,7 @@ export default function OrdersPage() {
                   styles={{ body: { padding: 20 } }}
                 >
                   <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 8 }}>
-                    总订单数
+                    Total Orders
                   </div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: "#6366f1" }}>
                     {stats.total}
@@ -507,7 +507,7 @@ export default function OrdersPage() {
                   styles={{ body: { padding: 20 } }}
                 >
                   <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 8 }}>
-                    待支付
+                    Pending
                   </div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: "#f59e0b" }}>
                     <Badge count={stats.pending} showZero color="#f59e0b">
@@ -526,7 +526,7 @@ export default function OrdersPage() {
                   styles={{ body: { padding: 20 } }}
                 >
                   <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 8 }}>
-                    已完成
+                    Completed
                   </div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: "#22c55e" }}>
                     {stats.completed}
@@ -543,7 +543,7 @@ export default function OrdersPage() {
                   styles={{ body: { padding: 20 } }}
                 >
                   <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 8 }}>
-                    总消费
+                    Total Spent
                   </div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: "#22c55e" }}>
                     ￥{stats.totalAmount.toFixed(0)}
@@ -579,7 +579,7 @@ export default function OrdersPage() {
                 description={
                   <div>
                     <div style={{ color: "#9ca3af", fontSize: 18, marginBottom: 16 }}>
-                      暂无订单记录
+                      No orders yet
                     </div>
                     <Button
                       type="primary"
@@ -592,7 +592,7 @@ export default function OrdersPage() {
                         borderRadius: 12,
                       }}
                     >
-                      去商店购物
+                      Go to Store
                     </Button>
                   </div>
                 }

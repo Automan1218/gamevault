@@ -43,90 +43,90 @@ export default function CartPage() {
   const [paymentMethod, setPaymentMethod] = useState("CREDIT_CARD");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  // 处理数量变更
+  // Handle quantity change
   const handleQuantityChange = async (gameId: number, newQuantity: number | null) => {
     if (!newQuantity || newQuantity < 1) return;
 
     try {
       await updateQuantity(gameId, newQuantity);
-      message.success("数量已更新");
+      message.success("Quantity updated");
     } catch (error: any) {
-      message.error(error?.message || "更新失败");
+      message.error(error?.message || "Update failed");
     }
   };
 
-  // 处理移除商品
+  // Handle item removal
   const handleRemoveItem = (gameId: number, gameTitle: string) => {
     modal.confirm({
-      title: "确认移除",
+      title: "Confirm Removal",
       icon: <ExclamationCircleOutlined />,
-      content: `确定要将 "${gameTitle}" 从购物车中移除吗？`,
-      okText: "确认",
-      cancelText: "取消",
+      content: `Are you sure you want to remove "${gameTitle}" from your cart?`,
+      okText: "Confirm",
+      cancelText: "Cancel",
       onOk: async () => {
         try {
           await removeFromCart(gameId);
-          message.success("已移除");
+          message.success("Removed");
         } catch (error) {
-          message.error("移除失败");
+          message.error("Removal failed");
         }
       },
     });
   };
 
-  // 处理清空购物车
+  // Handle clear cart
   const handleClearCart = () => {
     modal.confirm({
-      title: "确认清空购物车",
+      title: "Confirm Clear Cart",
       icon: <ExclamationCircleOutlined />,
-      content: "确定要清空购物车吗？此操作不可恢复。",
-      okText: "确认清空",
+      content: "Are you sure you want to clear your cart? This action cannot be undone.",
+      okText: "Confirm Clear",
       okType: "danger",
-      cancelText: "取消",
+      cancelText: "Cancel",
       onOk: async () => {
         try {
           await clearCart();
-          message.success("购物车已清空");
+          message.success("Cart cleared");
         } catch (error) {
-          message.error("清空失败");
+          message.error("Clear failed");
         }
       },
     });
   };
 
-  // 处理结账
+  // Handle checkout
   const handleCheckout = async () => {
     setCheckoutLoading(true);
     try {
       await checkout(paymentMethod);
-      message.success("订单已创建，请前往订单页面完成支付！");
+      message.success("Order created, please go to orders page to complete payment!");
       setCheckoutModalOpen(false);
       
-      // 跳转到订单页面
+      // Navigate to orders page
       setTimeout(() => {
         router.push("/dashboard/orders");
       }, 1000);
     } catch (error) {
-      message.error("创建订单失败，请重试");
+      message.error("Failed to create order, please try again");
     } finally {
       setCheckoutLoading(false);
     }
   };
 
-  // 计算总价
+  // Calculate total price
   const calculateTotal = () => {
     if (!cart?.cartItems) return 0;
     return cart.cartItems.reduce((sum, item) => sum + item.subtotal, 0);
   };
 
-  // 对购物车商品进行排序（按添加时间或游戏ID保持稳定顺序）
+  // Sort cart items (by add time or game ID to maintain stable order)
   const sortedCartItems = React.useMemo(() => {
     if (!cart?.cartItems) return [];
-    // 按 cartItemId 排序，确保顺序稳定
+    // Sort by cartItemId to ensure stable order
     return [...cart.cartItems].sort((a, b) => a.cartItemId - b.cartItemId);
   }, [cart?.cartItems]);
 
-  // 渲染购物车商品卡片
+  // Render cart item card
   const renderCartItem = (item: CartItemDTO, index: number) => (
     <Card
       key={item.cartItemId}
@@ -142,7 +142,7 @@ export default function CartPage() {
       hoverable
     >
       <Row gutter={24} align="middle">
-        {/* 游戏封面 */}
+        {/* Game cover */}
         <Col xs={24} sm={6} md={4}>
           <Image
             src={getFullImageUrl(item.game.imageUrl)}
@@ -157,7 +157,7 @@ export default function CartPage() {
           />
         </Col>
 
-        {/* 游戏信息 */}
+        {/* Game info */}
         <Col xs={24} sm={12} md={10}>
           <div>
             <div
@@ -171,19 +171,19 @@ export default function CartPage() {
               {item.game.title}
             </div>
             <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 4 }}>
-              开发商：{item.game.developer}
+              Developer:{item.game.developer}
             </div>
             <div style={{ color: "#6366f1", fontSize: 16, fontWeight: 600 }}>
-              单价：￥{item.unitPrice.toFixed(2)}
+              Unit Price: ¥{item.unitPrice.toFixed(2)}
             </div>
           </div>
         </Col>
 
-        {/* 数量控制 */}
+        {/* Quantity control */}
         <Col xs={12} sm={6} md={4}>
           <div style={{ textAlign: "center" }}>
             <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 8 }}>
-              数量
+              Quantity
             </div>
             <InputNumber
               min={1}
@@ -196,7 +196,7 @@ export default function CartPage() {
           </div>
         </Col>
 
-        {/* 小计和操作 */}
+        {/* Subtotal and actions */}
         <Col xs={12} sm={6} md={6}>
           <div style={{ textAlign: "right" }}>
             <div
@@ -215,7 +215,7 @@ export default function CartPage() {
               icon={<DeleteOutlined />}
               onClick={() => handleRemoveItem(item.game.gameId, item.game.title)}
             >
-              移除
+              Remove
             </Button>
           </div>
         </Col>
@@ -223,7 +223,7 @@ export default function CartPage() {
     </Card>
   );
 
-  // 渲染结算摘要
+  // Render checkout summary
   const renderSummary = () => {
     const total = calculateTotal();
     const itemCount = cart?.cartItems.reduce((sum, item) => sum + item.quantity, 0) || 0;
@@ -239,23 +239,23 @@ export default function CartPage() {
         styles={{ body: { padding: 24 } }}
       >
         <div style={{ fontSize: 20, fontWeight: 600, color: "#fff", marginBottom: 20 }}>
-          订单摘要
+          Order Summary
         </div>
 
         <Divider style={{ borderColor: "rgba(75, 85, 99, 0.3)", margin: "16px 0" }} />
 
         <div style={{ marginBottom: 16 }}>
           <Row justify="space-between" style={{ marginBottom: 12 }}>
-            <Col style={{ color: "#9ca3af" }}>商品数量</Col>
-            <Col style={{ color: "#fff", fontWeight: 600 }}>{itemCount} 件</Col>
+            <Col style={{ color: "#9ca3af" }}>Item Count</Col>
+            <Col style={{ color: "#fff", fontWeight: 600 }}>{itemCount} items</Col>
           </Row>
           <Row justify="space-between" style={{ marginBottom: 12 }}>
-            <Col style={{ color: "#9ca3af" }}>商品总价</Col>
+            <Col style={{ color: "#9ca3af" }}>Total Price</Col>
             <Col style={{ color: "#fff", fontWeight: 600 }}>￥{total.toFixed(2)}</Col>
           </Row>
           {cart?.discountAmount && cart.discountAmount > 0 && (
             <Row justify="space-between" style={{ marginBottom: 12 }}>
-              <Col style={{ color: "#ef4444" }}>折扣优惠</Col>
+              <Col style={{ color: "#ef4444" }}>Discount</Col>
               <Col style={{ color: "#ef4444", fontWeight: 600 }}>
                 -￥{cart.discountAmount.toFixed(2)}
               </Col>
@@ -266,7 +266,7 @@ export default function CartPage() {
         <Divider style={{ borderColor: "rgba(75, 85, 99, 0.3)", margin: "16px 0" }} />
 
         <Row justify="space-between" style={{ marginBottom: 24 }}>
-          <Col style={{ fontSize: 18, color: "#fff", fontWeight: 600 }}>应付总额</Col>
+          <Col style={{ fontSize: 18, color: "#fff", fontWeight: 600 }}>Total Amount Due</Col>
           <Col style={{ fontSize: 24, color: "#22c55e", fontWeight: 700 }}>
             ￥{(cart?.finalAmount || total).toFixed(2)}
           </Col>
@@ -284,7 +284,7 @@ export default function CartPage() {
             marginBottom: 12,
           }}
         >
-          立即下单
+          Place Order Now
         </Button>
 
         <Button
@@ -300,13 +300,13 @@ export default function CartPage() {
             borderRadius: 12,
           }}
         >
-          清空购物车
+          Clear Cart
         </Button>
       </Card>
     );
   };
 
-  // 骨架屏
+  // Skeleton screen
   const renderSkeleton = () => (
     <Card
       style={{
@@ -334,7 +334,7 @@ export default function CartPage() {
         overflow: "hidden",
       }}
     >
-      {/* 动态背景装饰 */}
+      {/* Dynamic background decoration */}
       <div
         style={{
           position: "fixed",
@@ -347,7 +347,7 @@ export default function CartPage() {
           overflow: "hidden",
         }}
       >
-        {/* 网格背景 */}
+        {/* Grid background */}
         <div
           style={{
             position: "absolute",
@@ -361,7 +361,7 @@ export default function CartPage() {
           }}
         />
 
-        {/* 浮动光球 */}
+        {/* Floating light balls */}
         <div
           style={{
             position: "absolute",
@@ -390,7 +390,7 @@ export default function CartPage() {
         />
       </div>
 
-      {/* CSS动画 */}
+      {/* CSS animations */}
       <style jsx>{`
         @keyframes float {
           0%, 100% { transform: translate(0, 0) scale(1); }
@@ -399,7 +399,7 @@ export default function CartPage() {
         }
       `}</style>
 
-      {/* 固定顶部导航栏 */}
+      {/* Fixed top navigation bar */}
       <Header
         style={{
           position: "fixed",
@@ -419,7 +419,7 @@ export default function CartPage() {
         <Menubar currentPath="/dashboard/cart" />
       </Header>
 
-      {/* 页面主体内容 */}
+      {/* Main page content */}
       <Content
         style={{
           marginTop: 64,
@@ -429,7 +429,7 @@ export default function CartPage() {
         }}
       >
         <div style={{ maxWidth: 1400, margin: "0 auto" }}>
-          {/* 页面标题 */}
+          {/* Page title */}
           <div
             className="fade-in-up"
             style={{
@@ -448,16 +448,16 @@ export default function CartPage() {
               }}
             >
               <ShoppingCartOutlined style={{ marginRight: 12 }} />
-              我的购物车
+              My Cart
             </div>
             <div style={{ color: "#9ca3af", fontSize: 16 }}>
-              购买您喜爱的游戏，开启精彩旅程
+              Buy your favorite games, start an exciting journey
             </div>
           </div>
 
-          {/* 内容区域 */}
+          {/* Content area */}
           {!cart ? (
-            // 加载中
+            // Loading
             <Row gutter={24}>
               <Col xs={24} lg={16}>
                 {[...Array(3)].map((_, i) => (
@@ -469,7 +469,7 @@ export default function CartPage() {
               </Col>
             </Row>
           ) : cart.cartItems.length === 0 ? (
-            // 空购物车
+            // Empty cart
             <div
               className="fade-in-up"
               style={{
@@ -486,7 +486,7 @@ export default function CartPage() {
                 description={
                   <div>
                     <div style={{ color: "#9ca3af", fontSize: 18, marginBottom: 16 }}>
-                      购物车是空的
+                      Cart is empty
                     </div>
                     <Button
                       type="primary"
@@ -496,23 +496,23 @@ export default function CartPage() {
                         ...primaryButtonStyle,
                       }}
                     >
-                      去商店逛逛
+                      Go to Store
                     </Button>
                   </div>
                 }
               />
             </div>
           ) : (
-            // 购物车内容
+            // Cart content
             <Row gutter={24}>
-              {/* 左侧：商品列表 */}
+              {/* Left: Item list */}
               <Col xs={24} lg={16}>
                 <Space direction="vertical" size={0} style={{ width: "100%" }}>
                   {sortedCartItems.map((item, index) => renderCartItem(item, index))}
                 </Space>
               </Col>
 
-              {/* 右侧：结算摘要 */}
+              {/* Right: Checkout summary */}
               <Col xs={24} lg={8}>
                 {renderSummary()}
               </Col>
@@ -521,19 +521,19 @@ export default function CartPage() {
         </div>
       </Content>
 
-      {/* 结账弹窗 */}
+      {/* Checkout modal */}
       <Modal
         title={
           <div style={{ fontSize: 20, fontWeight: 600 }}>
             <CheckCircleOutlined style={{ marginRight: 8, color: "#6366f1" }} />
-            确认下单
+            Confirm Order
           </div>
         }
         open={checkoutModalOpen}
         onCancel={() => setCheckoutModalOpen(false)}
         footer={[
           <Button key="cancel" onClick={() => setCheckoutModalOpen(false)} size="large">
-            取消
+            Cancel
           </Button>,
           <Button
             key="submit"
@@ -546,7 +546,7 @@ export default function CartPage() {
               border: "none",
             }}
           >
-            确认下单
+            Confirm Order
           </Button>,
         ]}
         width={500}
@@ -554,7 +554,7 @@ export default function CartPage() {
         <div style={{ padding: "20px 0" }}>
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontSize: 16, marginBottom: 12, fontWeight: 600 }}>
-              选择支付方式：
+              Select Payment Method:
             </div>
             <Radio.Group
               value={paymentMethod}
@@ -563,13 +563,13 @@ export default function CartPage() {
             >
               <Space direction="vertical" style={{ width: "100%" }}>
                 <Radio value="CREDIT_CARD" style={{ fontSize: 15 }}>
-                  💳 信用卡支付
+                  💳 Credit Card Payment
                 </Radio>
                 <Radio value="ALIPAY" style={{ fontSize: 15 }}>
-                  💰 支付宝
+                  💰 Alipay
                 </Radio>
                 <Radio value="WECHAT_PAY" style={{ fontSize: 15 }}>
-                  💚 微信支付
+                  💚 WeChat Pay
                 </Radio>
                 <Radio value="PAYPAL" style={{ fontSize: 15 }}>
                   🌐 PayPal
@@ -582,19 +582,19 @@ export default function CartPage() {
 
           <div>
             <Row justify="space-between" style={{ fontSize: 16, marginBottom: 8 }}>
-              <Col>商品总额：</Col>
+              <Col>Total Items:</Col>
               <Col style={{ fontWeight: 600 }}>￥{calculateTotal().toFixed(2)}</Col>
             </Row>
             {cart?.discountAmount && cart.discountAmount > 0 && (
               <Row justify="space-between" style={{ fontSize: 16, marginBottom: 8 }}>
-                <Col style={{ color: "#ef4444" }}>优惠折扣：</Col>
+                <Col style={{ color: "#ef4444" }}>Discount:</Col>
                 <Col style={{ color: "#ef4444", fontWeight: 600 }}>
                   -￥{cart.discountAmount.toFixed(2)}
                 </Col>
               </Row>
             )}
             <Row justify="space-between" style={{ fontSize: 20, fontWeight: 700, marginTop: 16 }}>
-              <Col>应付总额：</Col>
+              <Col>Total Amount Due:</Col>
               <Col style={{ color: "#22c55e" }}>
                 ￥{(cart?.finalAmount || calculateTotal()).toFixed(2)}
               </Col>

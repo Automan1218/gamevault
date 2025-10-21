@@ -620,7 +620,7 @@
 //                                         <span>热门游戏板块</span>
 //                                     </Space>
 //                                 }
-//                                 extra={<a>查看全部</a>}
+//                                 extra={<a>View All</a>}
 //                                 style={{ marginBottom: 16 }}
 //                             >
 //                                 <Row gutter={[8, 8]}>
@@ -790,8 +790,8 @@ const HomePage = () => {
 
     return (
         <div>
-            <Button onClick={handleCommunityClick}>社区</Button>
-            <Button onClick={handleGamesClick}>游戏</Button>
+            <Button onClick={handleCommunityClick}>Community</Button>
+            <Button onClick={handleGamesClick}>Games</Button>
         </div>
     );
 };
@@ -799,29 +799,29 @@ const HomePage = () => {
 const featuredGames = [
     {
         id: 1,
-        title: '赛博朋克2077：往日之影',
+        title: 'Cyberpunk 2077: Phantom Liberty',
         image: 'https://via.placeholder.com/1920x600/1a1a2e/ffffff?text=Cyberpunk+2077',
         price: 298,
         discount: 35,
-        tags: ['RPG', '开放世界', '科幻'],
+        tags: ['RPG', 'Open World', 'Sci-Fi'],
         rating: 4.5,
     },
     {
         id: 2,
-        title: '艾尔登法环',
+        title: 'Elden Ring',
         image: 'https://via.placeholder.com/1920x600/0f3460/ffffff?text=Elden+Ring',
         price: 398,
         discount: 25,
-        tags: ['动作', '魂系', 'RPG'],
+        tags: ['Action', 'Souls-like', 'RPG'],
         rating: 4.8,
     },
     {
         id: 3,
-        title: '博德之门3',
+        title: 'Baldur\'s Gate 3',
         image: 'https://via.placeholder.com/1920x600/16213e/ffffff?text=Baldur+Gate+3',
         price: 298,
         discount: 20,
-        tags: ['RPG', '策略', '回合制'],
+        tags: ['RPG', 'Strategy', 'Turn-based'],
         rating: 4.9,
     },
 ];
@@ -829,64 +829,64 @@ const featuredGames = [
 const hotGames = [
     {
         id: 1,
-        title: '黑神话：悟空',
+        title: 'Black Myth: Wukong',
         cover: 'https://via.placeholder.com/460x215/e94560/ffffff?text=Black+Myth',
         price: 268,
         originalPrice: 268,
         discount: 0,
         rating: 4.9,
-        players: '100万+',
-        tags: ['动作', 'RPG', '国产'],
+        players: '1M+',
+        tags: ['Action', 'RPG', 'Chinese'],
         isNew: true,
         isHot: true,
     },
     {
         id: 2,
-        title: '霍格沃茨之遗',
+        title: 'Hogwarts Legacy',
         cover: 'https://via.placeholder.com/460x215/0f3460/ffffff?text=Hogwarts+Legacy',
         price: 188,
         originalPrice: 298,
         discount: 37,
         rating: 4.5,
-        players: '50万+',
-        tags: ['RPG', '开放世界', '魔法'],
+        players: '500K+',
+        tags: ['RPG', 'Open World', 'Magic'],
         isHot: true,
     },
     {
         id: 3,
-        title: '星空',
+        title: 'Starfield',
         cover: 'https://via.placeholder.com/460x215/533483/ffffff?text=Starfield',
         price: 238,
         originalPrice: 298,
         discount: 20,
         rating: 4.2,
-        players: '30万+',
-        tags: ['RPG', '太空', '探索'],
+        players: '300K+',
+        tags: ['RPG', 'Space', 'Exploration'],
     },
     {
         id: 4,
-        title: '暗黑破坏神4',
+        title: 'Diablo 4',
         cover: 'https://via.placeholder.com/460x215/1a1a2e/ffffff?text=Diablo+4',
         price: 298,
         originalPrice: 398,
         discount: 25,
         rating: 4.3,
-        players: '80万+',
-        tags: ['ARPG', '暗黑', '刷宝'],
+        players: '800K+',
+        tags: ['ARPG', 'Dark', 'Loot'],
     },
 ];
 
 const specialOffers = [
     {
         id: 1,
-        title: '巫师3：狂猎 年度版',
+        title: 'The Witcher 3: Wild Hunt - Game of the Year Edition',
         cover: 'https://via.placeholder.com/460x215/8b0000/ffffff?text=The+Witcher+3',
         price: 29,
         originalPrice: 127,
         discount: 77,
-        endTime: '48小时',
+        endTime: '48h',
         rating: 4.9,
-        tags: ['RPG', '开放世界'],
+        tags: ['RPG', 'Open World'],
     },
     {
         id: 2,
@@ -895,40 +895,40 @@ const specialOffers = [
         price: 59,
         originalPrice: 189,
         discount: 69,
-        endTime: '24小时',
+        endTime: '24h',
         rating: 4.7,
-        tags: ['动作', '开放世界'],
+        tags: ['Action', 'Open World'],
     },
     {
         id: 3,
-        title: '文明6',
+        title: 'Civilization 6',
         cover: 'https://via.placeholder.com/460x215/004643/ffffff?text=Civilization+6',
         price: 39,
         originalPrice: 199,
         discount: 80,
-        endTime: '36小时',
+        endTime: '36h',
         rating: 4.6,
-        tags: ['策略', '回合制'],
+        tags: ['Strategy', 'Turn-based'],
     },
 ];
 
 const upcomingGames = [
     {
         id: 1,
-        title: '地平线：西部禁域',
+        title: 'Horizon: Forbidden West',
         cover: 'https://via.placeholder.com/460x215/f25287/ffffff?text=Horizon',
-        releaseDate: '2025年3月21日',
+        releaseDate: 'March 21, 2025',
         preOrderPrice: 268,
-        tags: ['动作', 'RPG', '开放世界'],
+        tags: ['Action', 'RPG', 'Open World'],
         wishlist: 125000,
     },
     {
         id: 2,
-        title: '刺客信条：幻景',
+        title: 'Assassin\'s Creed: Mirage',
         cover: 'https://via.placeholder.com/460x215/441151/ffffff?text=Assassins+Creed',
-        releaseDate: '2025年4月15日',
+        releaseDate: 'April 15, 2025',
         preOrderPrice: 298,
-        tags: ['动作', '潜行', '历史'],
+        tags: ['Action', 'Stealth', 'Historical'],
         wishlist: 89000,
     },
 ];
@@ -936,23 +936,23 @@ const upcomingGames = [
 const communityPosts = [
     {
         id: 1,
-        author: '游戏达人',
+        author: 'GameMaster',
         avatar: 'https://via.placeholder.com/50x50/f77f00/ffffff?text=User',
-        content: '黑神话悟空真的太震撼了！国产游戏之光！',
-        game: '黑神话：悟空',
+        content: 'Black Myth: Wukong is absolutely stunning! A masterpiece of Chinese gaming!',
+        game: 'Black Myth: Wukong',
         likes: 2890,
         comments: 156,
-        time: '2小时前',
+        time: '2h ago',
     },
     {
         id: 2,
-        author: '资深玩家',
+        author: 'ProGamer',
         avatar: 'https://via.placeholder.com/50x50/d62828/ffffff?text=Pro',
-        content: '博德之门3的剧情设计真的绝了，每个选择都有意义',
-        game: '博德之门3',
+        content: 'Baldur\'s Gate 3\'s story design is absolutely brilliant, every choice matters',
+        game: 'Baldur\'s Gate 3',
         likes: 1560,
         comments: 89,
-        time: '5小时前',
+        time: '5h ago',
     },
 ];
 
@@ -1006,14 +1006,14 @@ const GameVaultHomepage = () => {
     };
 
     const userMenuItems: MenuProps['items'] = [
-        { key: 'profile', icon: <UserOutlined />, label: '个人资料' },
-        { key: 'library', icon: <AppstoreOutlined />, label: '游戏库', onClick: () => router.push(navigationRoutes.library) },
-        { key: 'wishlist', icon: <HeartOutlined />, label: '愿望单' },
-        { key: 'friends', icon: <TeamOutlined />, label: '好友' },
+        { key: 'profile', icon: <UserOutlined />, label: 'Profile' },
+        { key: 'library', icon: <AppstoreOutlined />, label: 'Game Library', onClick: () => router.push(navigationRoutes.library) },
+        { key: 'wishlist', icon: <HeartOutlined />, label: 'Wishlist' },
+        { key: 'friends', icon: <TeamOutlined />, label: 'Friends' },
         { type: 'divider' },
-        { key: 'settings', icon: <SettingOutlined />, label: '设置' },
+        { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
         { type: 'divider' },
-        { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', onClick: handleLogout },
+        { key: 'logout', icon: <LogoutOutlined />, label: 'Logout', onClick: handleLogout },
     ];
     // 避免SSR hydration问题
     if (!mounted) {
@@ -1098,42 +1098,42 @@ const GameVaultHomepage = () => {
                                 icon={<AppstoreOutlined />}
                                 onClick={() => setSelectedCategory('all')}
                             >
-                                全部游戏
+                                All Games
                             </Button>
                             <Button
                                 type={selectedCategory === 'hot' ? 'primary' : 'default'}
                                 icon={<FireOutlined />}
                                 onClick={() => setSelectedCategory('hot')}
                             >
-                                热门推荐
+                                Hot Recommendations
                             </Button>
                             <Button
                                 type={selectedCategory === 'new' ? 'primary' : 'default'}
                                 icon={<ThunderboltOutlined />}
                                 onClick={() => setSelectedCategory('new')}
                             >
-                                新品上架
+                                New Releases
                             </Button>
                             <Button
                                 type={selectedCategory === 'sale' ? 'primary' : 'default'}
                                 icon={<GiftOutlined />}
                                 onClick={() => setSelectedCategory('sale')}
                             >
-                                限时特惠
+                                Limited Time Offers
                             </Button>
                             <Button
                                 type={selectedCategory === 'free' ? 'primary' : 'default'}
                                 icon={<CrownOutlined />}
                                 onClick={() => setSelectedCategory('free')}
                             >
-                                免费游戏
+                                Free Games
                             </Button>
                             <Button
                                 type={selectedCategory === 'upcoming' ? 'primary' : 'default'}
                                 icon={<RocketOutlined />}
                                 onClick={() => setSelectedCategory('upcoming')}
                             >
-                                即将推出
+                                Coming Soon
                             </Button>
                         </Space>
                     </ProCard>
@@ -1146,10 +1146,10 @@ const GameVaultHomepage = () => {
                                 title={
                                     <Space>
                                         <FireOutlined style={{ color: '#ff4d4f' }} />
-                                        热门游戏
+                                        Hot Games
                                     </Space>
                                 }
-                                extra={<Button type="link">查看全部</Button>}
+                                extra={<Button type="link">View All</Button>}
                                 style={{ marginBottom: 24 }}
                             >
                                 <Row gutter={[16, 16]}>
@@ -1248,7 +1248,7 @@ const GameVaultHomepage = () => {
                                         限时特惠
                                     </Space>
                                 }
-                                extra={<Button type="link">查看全部</Button>}
+                                extra={<Button type="link">View All</Button>}
                                 style={{ marginBottom: 24 }}
                             >
                                 <List
@@ -1260,7 +1260,7 @@ const GameVaultHomepage = () => {
                                                 title={
                                                     <Space>
                                                         <Text strong>{item.title}</Text>
-                                                        <Tag color="orange">剩余 {item.endTime}</Tag>
+                                                        <Tag color="orange">Remaining {item.endTime}</Tag>
                                                     </Space>
                                                 }
                                                 description={
@@ -1277,7 +1277,7 @@ const GameVaultHomepage = () => {
                                                 <Tag color="green" style={{ fontSize: 18 }}>-{item.discount}%</Tag>
                                                 <Text delete>¥{item.originalPrice}</Text>
                                                 <Text strong style={{ fontSize: 20, color: '#52c41a' }}>¥{item.price}</Text>
-                                                <Button type="primary" icon={<ShoppingCartOutlined />}>立即抢购</Button>
+                                                <Button type="primary" icon={<ShoppingCartOutlined />}>Buy Now</Button>
                                             </Space>
                                         </List.Item>
                                     )}
@@ -1289,10 +1289,10 @@ const GameVaultHomepage = () => {
                                 title={
                                     <Space>
                                         <RocketOutlined style={{ color: '#1890ff' }} />
-                                        即将推出
+                                        Coming Soon
                                     </Space>
                                 }
-                                extra={<Button type="link">查看全部</Button>}
+                                extra={<Button type="link">View All</Button>}
                             >
                                 <Row gutter={16}>
                                     {upcomingGames.map(game => (
@@ -1311,25 +1311,25 @@ const GameVaultHomepage = () => {
                                                                 ))}
                                                             </Space>
                                                             <Paragraph>
-                                                                <CalendarOutlined /> 发售日期：{game.releaseDate}
+                                                                <CalendarOutlined /> Release Date: {game.releaseDate}
                                                             </Paragraph>
                                                             <Row justify="space-between" align="middle">
                                                                 <Col>
                                                                     <Statistic
                                                                         value={game.wishlist}
                                                                         prefix={<HeartOutlined />}
-                                                                        suffix="人想要"
+                                                                        suffix=" want"
                                                                         valueStyle={{ fontSize: 14 }}
                                                                     />
                                                                 </Col>
                                                                 <Col>
                                                                     <Text strong style={{ fontSize: 18 }}>
-                                                                        预购 ¥{game.preOrderPrice}
+                                                                        Pre-order ¥{game.preOrderPrice}
                                                                     </Text>
                                                                 </Col>
                                                             </Row>
                                                             <Button type="primary" block icon={<HeartOutlined />} style={{ marginTop: 8 }}>
-                                                                加入愿望单
+                                                                Add to Wishlist
                                                             </Button>
                                                         </>
                                                     }
@@ -1349,19 +1349,19 @@ const GameVaultHomepage = () => {
                                     <Space>
                                         <Avatar size={64} icon={<UserOutlined />} />
                                         <Space direction="vertical">
-                                            <Text strong>游戏玩家</Text>
-                                            <Text type="secondary">等级 42</Text>
+                                            <Text strong>Gamer</Text>
+                                            <Text type="secondary">Level 42</Text>
                                         </Space>
                                     </Space>
                                     <Progress percent={75} showInfo={false} />
-                                    <Text type="secondary">距离下一级还需 250 经验</Text>
+                                    <Text type="secondary">250 XP to next level</Text>
                                     <Divider />
                                     <Row gutter={16}>
                                         <Col span={12}>
-                                            <Statistic title="游戏数" value={168} prefix={<AppstoreOutlined />} />
+                                            <Statistic title="Games" value={168} prefix={<AppstoreOutlined />} />
                                         </Col>
                                         <Col span={12}>
-                                            <Statistic title="成就" value={892} prefix={<TrophyOutlined />} />
+                                            <Statistic title="Achievements" value={892} prefix={<TrophyOutlined />} />
                                         </Col>
                                     </Row>
                                 </Space>
@@ -1372,7 +1372,7 @@ const GameVaultHomepage = () => {
                                 title={
                                     <Space>
                                         <CommentOutlined />
-                                        社区动态
+                                        Community Activity
                                     </Space>
                                 }
                                 style={{ marginBottom: 24 }}
@@ -1417,21 +1417,21 @@ const GameVaultHomepage = () => {
                                 title={
                                     <Space>
                                         <TeamOutlined />
-                                        好友在玩
+                                        Friends Playing
                                     </Space>
                                 }
                             >
                                 <List
                                     dataSource={[
-                                        { name: '小明', game: '艾尔登法环', status: '在线', time: '2小时' },
-                                        { name: '小红', game: '赛博朋克2077', status: '游戏中', time: '30分钟' },
-                                        { name: '小李', game: '博德之门3', status: '在线', time: '1小时' },
+                                        { name: 'XiaoMing', game: 'Elden Ring', status: 'Online', time: '2h' },
+                                        { name: 'XiaoHong', game: 'Cyberpunk 2077', status: 'In Game', time: '30m' },
+                                        { name: 'XiaoLi', game: 'Baldur\'s Gate 3', status: 'Online', time: '1h' },
                                     ]}
                                     renderItem={item => (
                                         <List.Item>
                                             <List.Item.Meta
                                                 avatar={
-                                                    <Badge dot status={item.status === '在线' ? 'success' : 'processing'}>
+                                                    <Badge dot status={item.status === 'Online' ? 'success' : 'processing'}>
                                                         <Avatar icon={<UserOutlined />} />
                                                     </Badge>
                                                 }
@@ -1440,13 +1440,13 @@ const GameVaultHomepage = () => {
                                                     <Space direction="vertical">
                                                         <Text type="secondary">{item.game}</Text>
                                                         <Text type="secondary" style={{ fontSize: 12 }}>
-                                                            已玩 {item.time}
+                                                            Played {item.time}
                                                         </Text>
                                                     </Space>
                                                 }
                                             />
                                             <Button size="small" icon={<PlayCircleOutlined />}>
-                                                加入
+                                                Join
                                             </Button>
                                         </List.Item>
                                     )}
