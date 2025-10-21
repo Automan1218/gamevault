@@ -1,6 +1,6 @@
 // src/lib/api/message.ts
 
-import { apiClient } from './client';
+import { chatroomApiClient } from './client';
 
 interface MessageResponse {
     id: number;
@@ -31,7 +31,7 @@ export class MessageApi {
             try {
                 console.log(`尝试加载群聊消息 (${attempt + 1}/${retries}) - conversationId:`, conversationId);
 
-                const response = await apiClient.get<MessageResponse[]>(
+                const response = await chatroomApiClient.get<MessageResponse[]>(
                     `/message/${conversationId}`,
                     { page, size }
                 );
@@ -73,7 +73,7 @@ export class MessageApi {
             try {
                 console.log(`尝试加载私聊消息 (${attempt + 1}/${retries}) - friendId:`, friendId);
 
-                const response = await apiClient.get<MessageResponse[]>(
+                const response = await chatroomApiClient.get<MessageResponse[]>(
                     `/message/private/${friendId}`,
                     { page, size }
                 );
@@ -105,7 +105,7 @@ export class MessageApi {
         content: string,
         messageType: string = 'text'
     ): Promise<MessageResponse> {
-        return apiClient.post<MessageResponse>('/message/private/send', {
+        return chatroomApiClient.post<MessageResponse>('/message/private/send', {
             receiverId,
             content,
             messageType,
