@@ -1,35 +1,54 @@
 "use client";
 import { useState, useEffect } from "react";
-import { storeApi } from "../sevices/storeApi";
+import { gameApi } from "../services/gameApi";
 import type { GameDTO } from "@/lib/api/StoreTypes";
 
-export function useStore() {
+export function useStore(initialQuery?: string) {
   const [games, setGames] = useState<GameDTO[]>([]);
-  const [filteredGames, setFilteredGames] = useState<GameDTO[]>([]);
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialQuery ?? "");
 
-  const fetchGames = async () => {
+  const fetchAll = async () => {
     setLoading(true);
     try {
-      const data = await storeApi.getAllGames();
+      const data = await gameApi.getGames();
       setGames(data);
-      setFilteredGames(data);
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchByQuery = async (q: string) => {
+    setLoading(true);
+    try {
+      const data = await gameApi.searchGames(q);
+      setGames(data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 初始加载
   useEffect(() => {
-    fetchGames();
+    const q = (initialQuery ?? "").trim();
+    if (q) {
+      fetchByQuery(q);
+    } else {
+      fetchAll();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 查询变化时，调用后端搜索或加载全部
   useEffect(() => {
-    const q = searchQuery.trim().toLowerCase();
-    setFilteredGames(
-      games.filter((g) => g.title.toLowerCase().includes(q))
-    );
-  }, [searchQuery, games]);
+    const q = searchQuery.trim();
+    if (q) {
+      fetchByQuery(q);
+    } else {
+      fetchAll();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
 
-  return { games, filteredGames, loading, searchQuery, setSearchQuery };
+  return { games, loading, searchQuery, setSearchQuery };
 }

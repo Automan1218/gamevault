@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Dropdown, Avatar, Button, Spin } from 'antd';
-import { UserOutlined, PlaySquareOutlined, HeartOutlined, TeamOutlined, SettingOutlined, DownOutlined, LogoutOutlined } from '@ant-design/icons';
+import { UserOutlined, PlaySquareOutlined, HeartOutlined, TeamOutlined, SettingOutlined, DownOutlined, LogoutOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { useRouter } from 'next/navigation';
 import { navigationRoutes } from '@/lib/navigation';
@@ -47,12 +47,12 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           const profile = await ProfileApi.getProfile();
           setAvatarUrl(profile.avatarUrl);
         } catch (profileErr) {
-          console.warn('获取用户资料失败，使用默认头像:', profileErr);
+          console.warn('Failed to fetch user profile, using default avatar:', profileErr);
           setAvatarUrl(undefined);
         }
       } catch (err) {
-        console.error('获取用户信息失败:', err);
-        setError(err instanceof Error ? err.message : '获取用户信息失败');
+        console.error('Failed to fetch user info:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch user info');
         setUser(null);
         setAvatarUrl(undefined);
       } finally {
@@ -66,7 +66,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
   // 监听头像更新事件
   useEffect(() => {
     const unsubscribe = avatarEvents.subscribe((newAvatarUrl) => {
-      console.log('UserMenu收到头像更新事件:', newAvatarUrl);
+      console.log('UserMenu received avatar update event:', newAvatarUrl);
       setAvatarUrl(newAvatarUrl || undefined);
     });
 
@@ -76,8 +76,8 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
   }, []);
 
   // 使用获取到的用户数据或props
-  const displayUsername = user?.username || propUsername || "用户";
-  const displayEmail = user?.email || "未设置邮箱";
+  const displayUsername = user?.username || propUsername || "User";
+  const displayEmail = user?.email || "Email not set";
   const displayAvatar = avatarUrl || avatar;
 
   // 处理头像显示逻辑
@@ -94,7 +94,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
       // 跳转到登录页面
       router.push('/auth/login');
     } catch (err) {
-      console.error('退出登录失败:', err);
+      console.error('Logout failed:', err);
       // 即使API调用失败，也要清除本地状态
       setUser(null);
       router.push('/auth/login');
@@ -124,6 +124,9 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
         // 设置页面路由
         router.push(navigationRoutes.settings);
         break;
+      case 'orders':
+        router.push(navigationRoutes.orders);
+        break;
       case 'logout':
         // 退出登录
         handleLogout();
@@ -151,7 +154,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
               src={getAvatarSrc()}
               icon={<UserOutlined />}
               onError={() => {
-                handleAvatarError(new Error('头像加载失败'), true);
+                handleAvatarError(new Error('Avatar failed to load'), true);
                 return false;
               }}
               style={{
@@ -193,7 +196,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           transition: 'color 0.2s ease',
           fontWeight: 500,
         }}>
-          个人资料
+          Profile
         </span>
       ),
       className: 'user-menu-item',
@@ -216,7 +219,30 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           transition: 'color 0.2s ease',
           fontWeight: 500,
         }}>
-          游戏库
+          Game Library
+        </span>
+      ),
+      className: 'user-menu-item',
+      style: { 
+        padding: '12px 16px',
+        background: 'rgba(31, 41, 55, 0.8)',
+        transition: 'all 0.2s ease',
+        borderRadius: '8px',
+        margin: '2px 8px',
+        cursor: 'pointer',
+        borderLeft: '3px solid transparent',
+      },
+    },
+    {
+      key: 'orders',
+      icon: <ShoppingCartOutlined style={{ color: '#6366f1', transition: 'color 0.2s ease' }} />,
+      label: (
+        <span style={{ 
+          color: '#ffffff',
+          transition: 'color 0.2s ease',
+          fontWeight: 500,
+        }}>
+          My Orders
         </span>
       ),
       className: 'user-menu-item',
@@ -239,7 +265,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           transition: 'color 0.2s ease',
           fontWeight: 500,
         }}>
-          愿望单
+          Wishlist
         </span>
       ),
       className: 'user-menu-item',
@@ -262,7 +288,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           transition: 'color 0.2s ease',
           fontWeight: 500,
         }}>
-          好友
+          Friends
         </span>
       ),
       className: 'user-menu-item',
@@ -285,7 +311,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           transition: 'color 0.2s ease',
           fontWeight: 500,
         }}>
-          设置
+          Settings
         </span>
       ),
       className: 'user-menu-item',
@@ -315,7 +341,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           transition: 'color 0.2s ease',
           fontWeight: 500,
         }}>
-          退出登录
+          Logout
         </span>
       ),
       className: 'user-menu-item logout-item',
@@ -382,7 +408,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
           src={getAvatarSrc()}
           icon={<UserOutlined />}
           onError={() => {
-            handleAvatarError(new Error('头像加载失败'), true);
+            handleAvatarError(new Error('Avatar failed to load'), true);
             return false;
           }}
           style={getDefaultAvatarStyle(32)}
