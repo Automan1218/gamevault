@@ -127,7 +127,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
       ]
     },
     { key: 'chat', label: 'Chat', path: '/dashboard/chat', icon: <MessageOutlined />, requireAuth: true },
-    { key: 'developer', label: 'Developer', path: '/developer', icon: <CodeOutlined />, requireAuth: true },
+    { key: 'developer', label: 'Developer', path: '/dashboard/developer', icon: <CodeOutlined />, requireAuth: true },
   ];
 
   // 处理导航点击

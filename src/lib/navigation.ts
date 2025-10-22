@@ -30,9 +30,12 @@ export const navigationRoutes = {
 
     // Developer相关
     developer: '/dashboard/developer',
-    developerProfile: (userId: string) => `/dashboard/developer/${userId}`,
-    developerProjects: '/dashboard/developer/projects',
-    developerEditor: '/dashboard/developer/editor',
+    devcenterUpload: "/dashboard/developer/devcenter/upload",
+    devcenterUploadForm: '/dashboard/developer/devcenter/upload/form',
+
+    developerProfile: "/dashboard/developer/profile",
+    developerMyGames: "/dashboard/developer/mygames",
+    developerGameHub: "/dashboard/developer/gamehub",
 
     // Store & Shopping相关
     store: '/dashboard/store',

@@ -18,6 +18,8 @@ export const ENV = {
     // WebSocket URL - 实时消息推送 (端口8083)
     WS_URL: process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:8080',
 
+    DEVGAMES_API_URL: 'http://localhost:8080/api/developer',
+
 
     // Application Configuration
     APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'GameVault',
