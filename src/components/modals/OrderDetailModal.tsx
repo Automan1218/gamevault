@@ -27,7 +27,7 @@ interface OrderDetailModalProps {
   onClose: () => void;
   orderDetail: OrderDetail | null;
 }
-
+export const dynamic = 'force-dynamic';
 export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   open,
   onClose,

@@ -1,7 +1,7 @@
 // features/library/hooks/useLibrary.ts
 import { useState, useEffect, useCallback } from 'react';
 import { LibraryApi, OwnedGame } from '@/lib/api';
-
+export const dynamic = 'force-dynamic';
 export const useLibrary = () => {
     const [games, setGames] = useState<OwnedGame[]>([]);
     const [loading, setLoading] = useState(false);

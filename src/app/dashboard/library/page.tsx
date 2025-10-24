@@ -12,7 +12,7 @@ import { useLibrary } from '@/app/features/library/hooks/useLibrary';
 import { useOrders } from '@/app/features/orders/hooks/useOrders';
 import { OwnedGame } from '@/lib/api';
 import '@/components/common/animations.css';
-
+export const dynamic = 'force-dynamic';
 export default function LibraryPage() {
   const { message } = App.useApp();
   const [tab, setTab] = useState<string>("library");

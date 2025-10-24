@@ -11,7 +11,7 @@ export interface SearchFormProps {
   allowClear?: boolean;
   className?: string;
 }
-
+export const dynamic = 'force-dynamic';
 export default function SearchForm({
   placeholder = 'Search games',
   onSearch,

@@ -13,7 +13,7 @@ interface ActivationCodesModalProps {
   gameTitle?: string;
   activationCodes: ActivationCode[];
 }
-
+export const dynamic = 'force-dynamic';
 export const ActivationCodesModal: React.FC<ActivationCodesModalProps> = ({
   open,
   onClose,

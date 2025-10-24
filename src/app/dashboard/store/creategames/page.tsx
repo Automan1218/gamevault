@@ -49,7 +49,7 @@ interface CreateGameFormData {
   imageUrl?: string;
   isActive: boolean;
 }
-
+export const dynamic = 'force-dynamic';
 export default function CreateGamePage() {
   const { message: antdMessage } = App.useApp();
   const router = useRouter();
