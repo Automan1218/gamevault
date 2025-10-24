@@ -29,6 +29,7 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.CLOUD_EC2_HOST }}
+
           username: ${{ secrets.CLOUD_EC2_USER }}
           key: ${{ secrets.CLOUD_EC2_SSH_KEY }}
           script: |
@@ -36,6 +37,6 @@ jobs:
             docker stop frontend || true
             docker rm frontend || true
             docker run -d --name frontend -p 3000:3000 \
-              -e NEXT_PUBLIC_API_URL=http://${{ secrets.CLOUD_EC2_HOST }}:8080 \
+              -e NEXT_PUBLIC_API_URL=http://${{ secrets.CLOUD_EC2_HOST }}:30187 \
               ${{ secrets.DOCKER_USERNAME }}/frontend:latest
 
