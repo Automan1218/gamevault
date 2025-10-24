@@ -11,7 +11,10 @@ import { avatarEvents} from '@/lib/api/avatar';
 import '@/components/common/animations.css';
 
 const { Title, Text, Paragraph } = Typography;
+
 export const dynamic = 'force-dynamic';
+
+
 export default function SettingsPage() {
   const { message: messageApi } = App.useApp();
   const { userInfo, loading, changePassword, changeEmail, updateAvatar } = useSettings();

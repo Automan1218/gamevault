@@ -6,7 +6,6 @@ import { UserOutlined, LockOutlined, MailOutlined, CameraOutlined, ExclamationCi
 import { PageContainer, Menubar } from '@/components/layout';
 import { CustomButton, CustomInput, CustomPasswordInput } from '@/components/ui';
 import { AuthApi } from '@/lib/api/auth';
-import { navigationRoutes } from '@/lib/navigation';
 import { useRouter } from 'next/navigation';
 import '@/components/common/animations.css';
 
@@ -17,7 +16,10 @@ interface UserInfo {
   email: string;
   uid: number;
 }
-export const dynamic = 'force-dynamic'
+
+export const dynamic = 'force-dynamic';
+
+
 export default function SettingsPage() {
   const { message: messageApi } = App.useApp();
   const router = useRouter();
