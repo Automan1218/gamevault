@@ -11,7 +11,7 @@ import React from "react";
 import { cardStyle } from "@/components/common/theme";
 
 const { Sider, Content } = Layout;
-
+export const dynamic = 'force-dynamic';
 export default function DevCenterLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();

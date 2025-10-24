@@ -69,7 +69,7 @@ interface PostStats {
     totalLikes: number;
     totalReplies: number;
 }
-
+export const dynamic = 'force-dynamic';
 export default function MyPostsPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);

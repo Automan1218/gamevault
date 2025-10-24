@@ -1,5 +1,5 @@
 import { theme } from 'antd';
-
+export const dynamic = 'force-dynamic';
 // 统一的深色主题配置
 export const darkTheme = {
   algorithm: theme.darkAlgorithm,

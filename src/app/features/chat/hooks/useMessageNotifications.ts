@@ -18,7 +18,7 @@ export interface UnreadGroupMessage {
     unreadCount: number;
     senderName: string;
 }
-
+export const dynamic = 'force-dynamic';
 export function useMessageNotifications(
     currentUserId: number,
     currentChatFriendId: number | null,

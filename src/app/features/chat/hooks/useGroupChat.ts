@@ -7,6 +7,7 @@ import { message } from 'antd';
 /**
  * 群聊管理 Hook
  */
+export const dynamic = 'force-dynamic';
 export function useGroupChat() {
     const { user } = useAuth();
     const [groups, setGroups] = useState<GroupChat[]>([]);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { PublicGame } from "../types/publicGameTypes";
 import { publicGamesApi } from "../services/publicGamesApi";
-
+export const dynamic = 'force-dynamic';
 export function usePublicGameDetail(gameId: string | undefined) {
     const [game, setGame] = useState<PublicGame | null>(null);
     const [loading, setLoading] = useState(true);

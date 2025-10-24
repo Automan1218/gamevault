@@ -17,7 +17,7 @@ type OrderItemRow = {
   orderDate: string;   // order_date
   orderStatus: "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "COMPLETED";
 };
-
+export const dynamic = 'force-dynamic';
 export default function OrdersPage() {
   const { message } = App.useApp();
   const [data, setData] = useState<OrderItemRow[]>([]);

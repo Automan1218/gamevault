@@ -4,7 +4,7 @@ import { PublicGame, PublicGameListResponse } from "../types/publicGameTypes";
 import { AuthApi } from "@/lib/api"; // 你的获取 token 的工具
 
 const BASE_URL = `${ENV.DEVGAMES_API_URL}/devgame/public`;
-
+export const dynamic = 'force-dynamic';
 function authHeaders() {
     const token = AuthApi.getToken();
     const headers: Record<string, string> = { "Content-Type": "application/json" };

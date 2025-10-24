@@ -30,7 +30,7 @@ import { chatApi } from "@/lib/api/chat";
 import type { FileUploadResponse } from '@/lib/api/file';
 
 const { Header, Content } = Layout;
-
+export const dynamic = 'force-dynamic';
 export default function ChatPage() {
     const { user } = useAuth();
     const [darkMode, setDarkMode] = useState(true);

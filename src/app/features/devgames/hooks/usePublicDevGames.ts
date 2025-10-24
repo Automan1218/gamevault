@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { devgamesApi } from "../services/devgamesApi";
 import { DevGame, DevGameListResponse } from "../types/devGameTypes";
-
+export const dynamic = 'force-dynamic';
 export function usePublicDevGames() {
     const [games, setGames] = useState<DevGame[]>([]);
     const [loading, setLoading] = useState<boolean>(false);

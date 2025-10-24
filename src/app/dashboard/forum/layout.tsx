@@ -12,7 +12,7 @@ import '@/app/globals.css';
 import React from "react";
 
 const inter = Inter({ subsets: ['latin'] });
-
+export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
     title: 'GameVault - Game Forum',
     description: 'Community for game players',

@@ -5,7 +5,7 @@ import React from "react";
 import Menubar from "@/components/layout/Menubar";
 import { darkTheme, gradientBackground } from "@/components/common/theme";
 import "@/components/common/animations.css";
-
+export const dynamic = 'force-dynamic';
 export default function DeveloperLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 

@@ -73,7 +73,7 @@ import {
 
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
-
+export const dynamic = 'force-dynamic';
 const GameVaultHomepage = () => {
     const [mounted, setMounted] = useState(false);
     const [loading, setLoading] = useState(true);

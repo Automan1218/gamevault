@@ -18,7 +18,7 @@ import {
 import { cardStyle, titleStyle, primaryButtonStyle } from "@/components/common/theme";
 
 const { Title, Text, Paragraph } = Typography;
-
+export const dynamic = 'force-dynamic';
 export default function PublicGameDetailPage() {
     const { id } = useParams();
     const router = useRouter();

@@ -33,7 +33,7 @@ import { getFullImageUrl } from "@/lib/utils/imageUtils";
 import "@/components/common/animations.css";
 
 const { Header, Content } = Layout;
-
+export const dynamic = 'force-dynamic';
 export default function CartPage() {
   const { message, modal } = App.useApp();
   const router = useRouter();

@@ -8,7 +8,7 @@ import { useDevGames, UploadFormValues } from "@/app/features/devgames/hooks/use
 import { cardStyle, titleStyle } from "@/components/common/theme";
 
 const { Title, Text } = Typography;
-
+export const dynamic = 'force-dynamic';
 export default function UploadGamePage() {
     const [form] = Form.useForm<UploadFormValues>();
     const { uploadGame } = useDevGames();

@@ -12,7 +12,7 @@ interface GameCardProps {
     onDelete: (id: string) => void;
     onEdit?: (id: string) => void;
 }
-
+export const dynamic = 'force-dynamic';
 export const GameCard: React.FC<GameCardProps> = ({ game, onDelete, onEdit }) => {
     const { modal } = App.useApp();
 

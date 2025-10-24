@@ -7,7 +7,7 @@ import {
     ForumSearchForm,
     ForumPostListResponse
 } from '../types/forumTypes';
-
+export const dynamic = 'force-dynamic';
 export const useForumSearch = () => {
     const [searchResults, setSearchResults] = useState<ForumPost[]>([]);
     const [loading, setLoading] = useState(false);

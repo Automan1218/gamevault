@@ -8,6 +8,7 @@ import { DevDashboardDetailedResponse } from "@/app/features/devgames/types/devG
  * ✅ 只负责发请求（自动附带 JWT）
  * 不判断登录状态，不做前端鉴权逻辑
  */
+export const dynamic = 'force-dynamic';
 export function useDeveloperDashboard() {
     const [data, setData] = useState<DevDashboardDetailedResponse | null>(null);
     const [loading, setLoading] = useState(false);

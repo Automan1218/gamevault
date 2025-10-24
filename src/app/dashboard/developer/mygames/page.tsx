@@ -8,7 +8,7 @@ import { GameCard } from "./components/GameCard";
 import { cardStyle, titleStyle } from "@/components/common/theme";
 
 const { Title, Text } = Typography;
-
+export const dynamic = 'force-dynamic';
 export default function DeveloperMyGamesPage() {
     const router = useRouter();
     const { games, loading, error, deleteGame } = useDevGames();

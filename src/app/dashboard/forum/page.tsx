@@ -47,7 +47,7 @@ import { PostStateManager } from '@/lib/api/PostStateManager';
 import { getAvatarUrl, handleAvatarError, getDefaultAvatarStyle } from '@/lib/api/avatar';
 
 const { Title, Text, Paragraph } = Typography;
-
+export const dynamic = 'force-dynamic';
 export default function ForumPage() {
     const {
         posts,

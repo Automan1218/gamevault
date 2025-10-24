@@ -2,7 +2,7 @@
 // src/lib/navigation.ts
 // Navigation route configuration
 // ========================================
-
+export const dynamic = 'force-dynamic';
 export const navigationRoutes = {
     // Main pages
     home: '/',

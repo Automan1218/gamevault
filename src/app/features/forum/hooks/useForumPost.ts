@@ -8,7 +8,7 @@ import {
     ForumReply,
     CreateForumReplyRequest
 } from '../types/forumTypes';
-
+export const dynamic = 'force-dynamic';
 // Hook for single post
 export const useForumPost = (contentId: number) => {
     const [post, setPost] = useState<ForumPost | null>(null);

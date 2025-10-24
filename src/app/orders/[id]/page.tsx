@@ -18,7 +18,7 @@ type OrderDetail = {
   // Extension: Backend can join tables to get activation codes
   activationCodes?: string[];
 };
-
+export const dynamic = 'force-dynamic';
 export default function OrderDetailPage() {
   const params = useParams<{ id: string }>();
   const { message } = App.useApp();

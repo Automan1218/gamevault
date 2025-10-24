@@ -5,7 +5,7 @@ import { ConfigProvider, theme, Typography } from "antd";
 import "./login/animations.css";
 
 const { Title, Text } = Typography;
-
+export const dynamic = 'force-dynamic';
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const darkTheme = {
     algorithm: theme.darkAlgorithm,

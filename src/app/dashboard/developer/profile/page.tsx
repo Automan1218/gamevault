@@ -25,7 +25,7 @@ import { useDeveloperDashboard } from "@/app/features/devgames/hooks/useDevelope
 import { cardStyle, titleStyle } from "@/components/common/theme";
 
 const { Title, Text } = Typography;
-
+export const dynamic = 'force-dynamic';
 export default function DeveloperProfilePage() {
     const router = useRouter();
     const { message } = App.useApp();
