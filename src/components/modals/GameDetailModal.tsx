@@ -33,7 +33,7 @@ interface GameDetailModalProps {
   open: boolean;
   onClose: () => void;
 }
-export const dynamic = 'force-dynamic';
+
 export const GameDetailModal: React.FC<GameDetailModalProps> = ({
   game,
   open,

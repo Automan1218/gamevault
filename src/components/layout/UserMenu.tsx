@@ -15,7 +15,6 @@ interface UserMenuProps {
   username?: string;
   avatar?: string;
 }
-export const dynamic = 'force-dynamic';
 function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);

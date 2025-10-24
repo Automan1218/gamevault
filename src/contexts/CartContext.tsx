@@ -14,7 +14,6 @@ interface CartContextType {
   clearCart: () => Promise<void>;
   checkout: (method: string) => Promise<void>;
 }
-export const dynamic = 'force-dynamic';
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {

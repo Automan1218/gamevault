@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { chatWebSocket } from '@/lib/websocket/chatWebSocket';
 import { message } from 'antd';
-export const dynamic = 'force-dynamic';
+
 export function useWebSocket() {
     const [isConnected, setIsConnected] = useState(false);
     const [connecting, setConnecting] = useState(false);

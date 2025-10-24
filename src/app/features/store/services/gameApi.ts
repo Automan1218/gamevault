@@ -1,6 +1,5 @@
 import { shopApiClient } from "@/lib/api/client";
 import type { GameDTO } from "@/lib/api/StoreTypes";
-export const dynamic = 'force-dynamic';
 // Game API - using shop service client (port 8081)
 export const gameApi = {
   /**

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { cartApi } from "../services/cartApi";
 import type { CartDTO } from "@/lib/api/StoreTypes";
-export const dynamic = 'force-dynamic';
 export function useCart() {
   const [cart, setCart] = useState<CartDTO | null>(null);
 

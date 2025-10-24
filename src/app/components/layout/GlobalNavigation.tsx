@@ -9,7 +9,6 @@ interface GlobalNavigationProps {
     style?: React.CSSProperties;
     className?: string;
 }
-export const dynamic = 'force-dynamic';
 export default function GlobalNavigation({ style, className }: GlobalNavigationProps) {
     const router = useRouter();
     const pathname = usePathname();

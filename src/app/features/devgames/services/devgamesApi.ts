@@ -8,7 +8,6 @@ import { ENV } from "@/config/env";
 import { AuthApi } from "@/lib/api";
 
 const BASE_URL = ENV.DEVGAMES_API_URL;
-export const dynamic = 'force-dynamic';
 /**
  * 🔧 Generic request wrapper — Auto include Token + error handling
  */

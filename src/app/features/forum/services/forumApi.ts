@@ -12,7 +12,6 @@ import {
     GameBoard,
     UpdateForumPostRequest
 } from '../types/forumTypes';
-export const dynamic = 'force-dynamic';
 export class ForumApi {
     // Get forum posts list (includes Forum-specific logic)
     static async getForumPosts(

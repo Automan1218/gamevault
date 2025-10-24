@@ -16,7 +16,6 @@ const RADIUS = 20;
 const CARD_BG = "rgba(17, 24, 39, 0.86)"; // slate-900 ~ with alpha
 const CARD_BORDER = "1px solid rgba(99, 102, 241, 0.18)"; // indigo accent
 const CARD_SHADOW = "0 24px 48px rgba(0,0,0,0.45), 0 0 0 1px rgba(99,102,241,0.08)";
-export const dynamic = 'force-dynamic';
 export const PageContainer: React.FC<PageContainerProps> = ({
   title,
   subtitle,

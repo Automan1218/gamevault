@@ -4,7 +4,7 @@ import { chatWebSocket, FileMessageInfo } from '@/lib/websocket/chatWebSocket'; 
 import { MessageApi } from '@/lib/api/message';
 import type { ChatMessage } from '@/types/chat';
 import type { FileUploadResponse } from '@/lib/api/file';
-export const dynamic = 'force-dynamic';
+
 export function usePrivateMessages(friendId: number | null, currentUserId: number) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [loading, setLoading] = useState(false);

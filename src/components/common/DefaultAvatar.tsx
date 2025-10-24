@@ -10,7 +10,6 @@ interface DefaultAvatarProps {
     className?: string;
     onClick?: () => void;
 }
-export const dynamic = 'force-dynamic';
 /**
  * Default avatar component
  * Used when user has no avatar set or avatar loading fails

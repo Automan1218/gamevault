@@ -9,7 +9,7 @@ interface PaymentModalProps {
   amount?: number;
   onConfirm: (method: string, card: { cardHolder: string; cardNumber: string; expiry: string; cvc: string }) => Promise<void>;
 }
-export const dynamic = 'force-dynamic';
+
 export function PaymentModal({ open, onClose, amount, onConfirm }: PaymentModalProps) {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();

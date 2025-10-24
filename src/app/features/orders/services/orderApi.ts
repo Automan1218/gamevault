@@ -8,7 +8,6 @@ export interface OrderSummary {
   status: string;
   total: number;
 }
-export const dynamic = 'force-dynamic';
 // Order list response type
 export interface OrdersResponse {
   items: OrderSummary[];

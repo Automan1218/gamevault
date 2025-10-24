@@ -8,7 +8,6 @@ import {
     ForumStats,
     ForumCategory
 } from '../types/forumTypes'; // 修复导入路径
-export const dynamic = 'force-dynamic';
 export const useForum = (initialFilter?: ForumPostFilter) => {
     const [state, setState] = useState<UseForumState>({
         posts: [],

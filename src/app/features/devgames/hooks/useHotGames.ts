@@ -10,7 +10,6 @@ export interface HotGame {
     coverImageUrl?: string;
     score: number;
 }
-export const dynamic = 'force-dynamic';
 export function useHotGames(limit: number = 6) {
     const [hotGames, setHotGames] = useState<HotGame[]>([]);
     const [loading, setLoading] = useState(true);

@@ -5,7 +5,7 @@ import { MessageApi } from '@/lib/api/message';
 import type { ChatMessage } from '@/types/chat';
 import type { FileUploadResponse } from '@/lib/api/file';
 import { message as antMessage } from 'antd';
-export const dynamic = 'force-dynamic';
+
 export function useGroupMessages(conversationId: number | null) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [loading, setLoading] = useState(false);

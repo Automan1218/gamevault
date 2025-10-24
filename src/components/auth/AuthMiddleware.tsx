@@ -25,7 +25,7 @@ const PUBLIC_ROUTES = [
   '/auth/register',
   '/',
 ];
-export const dynamic = 'force-dynamic';
+
 export function AuthMiddleware({ children }: AuthMiddlewareProps) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();

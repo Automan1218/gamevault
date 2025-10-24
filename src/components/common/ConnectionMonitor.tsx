@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, Button } from 'antd';
 import { chatWebSocket } from '@/lib/websocket/chatWebSocket';
-export const dynamic = 'force-dynamic';
+
 export const ConnectionMonitor: React.FC = () => {
     const [isOffline, setIsOffline] = useState(false);
     const [reconnecting, setReconnecting] = useState(false);

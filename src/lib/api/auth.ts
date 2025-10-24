@@ -17,7 +17,7 @@ interface ChangeEmailRequest {
     password: string;
     newEmail: string;
 }
-export const dynamic = 'force-dynamic';
+
 export class AuthApi {
     // User login
     static async login(credentials: LoginRequest): Promise<LoginResponse> {

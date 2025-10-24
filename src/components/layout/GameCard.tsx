@@ -14,7 +14,6 @@ interface GameCardProps {
   onViewCodes: () => void;
   index: number;
 }
-export const dynamic = 'force-dynamic';
 const CARD_RADIUS = 20;
 const CARD_HOVER = {
   transform: "translateY(-6px)",

@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { gameApi } from "../services/gameApi";
 import type { GameDTO } from "@/lib/api/StoreTypes";
-export const dynamic = 'force-dynamic';
 export function useStore(initialQuery?: string) {
   const [games, setGames] = useState<GameDTO[]>([]);
   const [loading, setLoading] = useState(false);

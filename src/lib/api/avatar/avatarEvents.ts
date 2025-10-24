@@ -4,7 +4,6 @@
  */
 
 type AvatarUpdateListener = (avatarUrl: string | null) => void;
-export const dynamic = 'force-dynamic';
 class AvatarEventEmitter {
     private listeners: AvatarUpdateListener[] = [];
 

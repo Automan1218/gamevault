@@ -42,7 +42,6 @@ type NavItem = DropdownNavItem & {
   hasDropdown?: boolean;
   dropdownItems?: DropdownNavItem[];
 };
-export const dynamic = 'force-dynamic';
 function Menubar({ currentPath = '/' }: MenubarProps) {
   const router = useRouter();
   const pathname = usePathname();

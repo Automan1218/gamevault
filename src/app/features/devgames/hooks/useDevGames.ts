@@ -14,7 +14,6 @@ export interface UploadFormValues {
     video?: { originFileObj: File }[];
     zip?: { originFileObj: File }[];
 }
-export const dynamic = 'force-dynamic';
 export function useDevGames() {
     const { message } = App.useApp();
     const [games, setGames] = useState<DevGame[]>([]);

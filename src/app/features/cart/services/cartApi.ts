@@ -1,7 +1,6 @@
 import { shopApiClient } from "@/lib/api/client";
 import type { CartDTO } from "@/lib/api/StoreTypes";
 import type { OrderDTO } from "@/lib/api/StoreTypes";
-export const dynamic = 'force-dynamic';
 // Cart API - uses shop service client (port 8081)
 export const cartApi = {
   async getCart(): Promise<CartDTO> {

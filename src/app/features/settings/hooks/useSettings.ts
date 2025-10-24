@@ -13,7 +13,6 @@ export interface UserInfo {
     bio?: string;
     avatarUrl?: string;
 }
-export const dynamic = 'force-dynamic';
 export const useSettings = () => {
     const router = useRouter();
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);

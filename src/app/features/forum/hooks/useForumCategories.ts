@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ForumApi } from '../services/forumApi';
 import { ForumCategory, GameBoard } from '../types/forumTypes';
-export const dynamic = 'force-dynamic';
+
 // Hook for forum categories
 export const useForumCategories = () => {
     const [categories, setCategories] = useState<ForumCategory[]>([]);
