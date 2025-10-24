@@ -42,5 +42,63 @@ jobs:
               --restart unless-stopped \
               ${{ secrets.DOCKER_USERNAME }}/frontend:latest
             
+            
+             sudo tee /etc/nginx/sites-available/gamevault > /dev/null <<'EOF'
+            server {
+                listen 80;
+                server_name _;
+            
+                client_max_body_size 50M;
+            
+                location /games/ {
+                    alias /gamevault/uploads/games/;
+                    expires 30d;
+                    add_header Cache-Control "public, immutable";
+                    add_header Access-Control-Allow-Origin *;
+                    try_files $uri =404;
+                }
+            
+                location /avatars/ {
+                    alias /gamevault/uploads/avatars/;
+                    expires 30d;
+                    add_header Cache-Control "public, immutable";
+                    add_header Access-Control-Allow-Origin *;
+                    try_files $uri =404;
+                }
+            
+                location /api/ {
+                    proxy_pass http://localhost:30187;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade \$http_upgrade;
+                    proxy_set_header Connection 'upgrade';
+                    proxy_set_header Host \$host;
+                    proxy_set_header X-Real-IP \$remote_addr;
+                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto \$scheme;
+                    proxy_cache_bypass \$http_upgrade;
+                }
+            
+                location / {
+                    proxy_pass http://localhost:3000;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade \$http_upgrade;
+                    proxy_set_header Connection 'upgrade';
+                    proxy_set_header Host \$host;
+                    proxy_set_header X-Real-IP \$remote_addr;
+                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto \$scheme;
+                    proxy_cache_bypass \$http_upgrade;
+                }
+            }
+            EOF
+            
+            # 启用Nginx配置
+            sudo ln -sf /etc/nginx/sites-available/gamevault /etc/nginx/sites-enabled/gamevault
+            sudo rm -f /etc/nginx/sites-enabled/default
+            sudo chmod -R 755 /gamevault/uploads/ || true
+            sudo nginx -t && sudo systemctl reload nginx
+            
+            echo "✅ Cloud EC2 部署完成!"
+            echo "访问地址: http://${{ secrets.CLOUD_EC2_HOST }}"
             sudo docker ps | grep frontend
 
