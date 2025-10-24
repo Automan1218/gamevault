@@ -40,3 +40,4 @@ jobs:
             docker run -d --name frontend -p 3000:3000 \
               -e NEXT_PUBLIC_API_URL=http://${{ secrets.EC2_HOST }}:8080 \
               ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+
