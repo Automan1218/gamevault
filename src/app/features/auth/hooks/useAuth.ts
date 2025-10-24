@@ -12,20 +12,20 @@ export const useAuth = () => {
     const [error, setError] = useState<string | null>(null);
     const { login: contextLogin } = useAuthContext();
 
-    // 登录
+    // Login
     const login = async (credentials: LoginRequest, redirect: string = '/dashboard/library') => {
         try {
             setLoading(true);
             setError(null);
 
-            // 清除旧用户的缓存
+            // Clear old user cache
             UsersApi.clearUserCache();
 
             const response = await AuthApi.login(credentials);
             if (response.token) {
                 localStorage.setItem('auth_token', response.token);
 
-                // 添加这部分 - 更新 AuthContext
+                // Add this part - update AuthContext
                 const userData = {
                     userId: response.userId,
                     username: response.username,
@@ -38,12 +38,12 @@ export const useAuth = () => {
                 contextLogin(response.token, userData);
 
                 router.push(redirect);
-                return { success: true, message: '登录成功！' };
+                return { success: true, message: 'Login successful!' };
             } else {
-                throw new Error('登录失败，请检查用户名和密码');
+                throw new Error('Login failed, please check username and password');
             }
         } catch (err: any) {
-            const errorMessage = err.message || '登录失败';
+            const errorMessage = err.message || 'Login failed';
             setError(errorMessage);
             return { success: false, message: errorMessage };
         } finally {
@@ -56,15 +56,15 @@ export const useAuth = () => {
             setLoading(true);
             setError(null);
 
-            // 清除旧用户的缓存
+            // Clear old user cache
             UsersApi.clearUserCache();
 
             const response = await AuthApi.register(userData);
             if (response.token) {
-                // 注册成功后自动登录
+                // Auto login after successful registration
                 localStorage.setItem('auth_token', response.token);
 
-                // 更新 AuthContext 状态
+                // Update AuthContext state
                 const userInfo = {
                     userId: response.userId,
                     username: response.username,
@@ -77,12 +77,12 @@ export const useAuth = () => {
                 contextLogin(response.token, userInfo);
 
                 router.push(redirect);
-                return { success: true, message: '注册成功！' };
+                return { success: true, message: 'Registration successful!' };
             } else {
-                return { success: true, message: '注册成功！请登录' };
+                return { success: true, message: 'Registration successful! Please login' };
             }
         } catch (err: any) {
-            const errorMessage = err.message || '注册失败';
+            const errorMessage = err.message || 'Registration failed';
             setError(errorMessage);
             return { success: false, message: errorMessage };
         } finally {
@@ -92,7 +92,7 @@ export const useAuth = () => {
 
     const logout = async () => {
         try {
-            // 清除用户缓存
+            // Clear user cache
             UsersApi.clearUserCache();
             await AuthApi.logout();
             router.push('/auth/login');
@@ -101,7 +101,7 @@ export const useAuth = () => {
         }
     };
 
-    // 检查邮箱是否存在
+    // Check if email exists
     const checkEmailExists = async (email: string): Promise<boolean> => {
         try {
             const result = await AuthApi.checkEmail(email);
@@ -112,7 +112,7 @@ export const useAuth = () => {
         }
     };
 
-    // 检查用户名是否存在
+    // Check if username exists
     const checkUsernameExists = async (username: string): Promise<boolean> => {
         try {
             const result = await AuthApi.checkUsername(username);
@@ -123,12 +123,12 @@ export const useAuth = () => {
         }
     };
 
-    // 检查是否已认证
+    // Check if authenticated
     const isAuthenticated = (): boolean => {
         return AuthApi.isAuthenticated();
     };
 
-    // 获取当前用户信息
+    // Get current user information
     const getCurrentUser = async () => {
         try {
             return await AuthApi.getCurrentUser();

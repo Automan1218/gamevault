@@ -1,7 +1,7 @@
 import { fileApiClient } from './client';
 import { ENV } from '@/config/env';
 
-// ============= 类型定义 =============
+// ============= Type Definitions =============
 export interface FileUploadResponse {
     fileId: string;
     fileName: string;
@@ -70,7 +70,7 @@ export interface CompleteChunkUploadResponse {
 // ============= File API Class =============
 export class FileApi {
     /**
-     * 小文件直接上传（后端中转）
+     * Simple file upload (backend relay)
      */
     async uploadSimple(
         file: File,
@@ -89,7 +89,7 @@ export class FileApi {
         if (options.bizType) formData.append('bizType', options.bizType);
         if (options.bizId) formData.append('bizId', options.bizId);
 
-        // 使用 XMLHttpRequest 来支持上传进度
+        // Use XMLHttpRequest to support upload progress
         if (options.onProgress) {
             return new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
@@ -109,18 +109,18 @@ export class FileApi {
                             if (response.code === 0) {
                                 resolve(response.data);
                             } else {
-                                reject(new Error(response.message || '上传失败'));
+                                reject(new Error(response.message || 'Upload failed'));
                             }
                         } catch (error) {
-                            reject(new Error('解析响应失败'));
+                            reject(new Error('Failed to parse response'));
                         }
                     } else {
-                        reject(new Error(`上传失败: ${xhr.status}`));
+                        reject(new Error(`Upload failed: ${xhr.status}`));
                     }
                 });
 
-                xhr.addEventListener('error', () => reject(new Error('网络错误')));
-                xhr.addEventListener('abort', () => reject(new Error('上传已取消')));
+                xhr.addEventListener('error', () => reject(new Error('Network error')));
+                xhr.addEventListener('abort', () => reject(new Error('Upload cancelled')));
 
                 xhr.open('POST', `${ENV.FILE_API_URL}/file/upload/simple`);
                 if (token) {
@@ -130,7 +130,7 @@ export class FileApi {
             });
         }
 
-        // 没有进度回调时使用普通方式
+        // Use normal method when no progress callback
         return fileApiClient.post<FileUploadResponse>(
             '/file/upload/simple',
             formData
@@ -138,7 +138,7 @@ export class FileApi {
     }
 
     /**
-     * 获取预签名上传URL（前端直传MinIO）
+     * Get presigned upload URL (frontend direct upload to MinIO)
      */
     async getPresignedUploadUrl(params: {
         fileName: string;
@@ -156,7 +156,7 @@ export class FileApi {
     }
 
     /**
-     * 初始化分片上传
+     * Initialize chunked upload
      */
     async initChunkUpload(params: {
         fileName: string;
@@ -176,7 +176,7 @@ export class FileApi {
     }
 
     /**
-     * 完成分片上传
+     * Complete chunked upload
      */
     async completeChunkUpload(params: {
         taskId: string;
@@ -193,14 +193,14 @@ export class FileApi {
     }
 
     /**
-     * 获取文件详情
+     * Get file details
      */
     async getFileInfo(fileId: string): Promise<FileInfoResponse> {
         return fileApiClient.get<FileInfoResponse>(`/file/${fileId}`);
     }
 
     /**
-     * 查询文件列表
+     * Query file list
      */
     async listFiles(params: {
         bizType?: string;
@@ -218,7 +218,7 @@ export class FileApi {
     }
 
     /**
-     * 删除文件
+     * Delete file
      */
     async deleteFile(fileId: string, physicalDelete: boolean = false): Promise<void> {
         return fileApiClient.post('/file/delete', {

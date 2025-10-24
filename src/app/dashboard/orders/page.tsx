@@ -198,7 +198,7 @@ export default function OrdersPage() {
 
         <Divider style={{ borderColor: "rgba(75, 85, 99, 0.3)", margin: "16px 0" }} />
 
-        {/* 订单商品列表 */}
+        {/* Order items list */}
         <div style={{ marginBottom: 16 }}>
           <div style={{ color: "#9ca3af", fontSize: 13, marginBottom: 12 }}>
             Item List:
@@ -250,7 +250,7 @@ export default function OrdersPage() {
           </Space>
         </div>
 
-        {/* 操作按钮（仅支付相关） */}
+        {/* Action buttons (payment related only) */}
         <Row gutter={12}>
           {isPending && (
             <>
@@ -295,10 +295,10 @@ export default function OrdersPage() {
     );
   };
 
-  // 支付表单弹窗
+  // Payment form modal
   const payAmount = payModalOpen.order?.finalAmount;
 
-  // 处理支付弹窗关闭
+  // Handle payment modal close
   const handlePaymentModalClose = () => {
     if (payModalOpen.order) {
       message.warning("Payment not completed. Please click 'Pay Now' again to finish.");
@@ -315,7 +315,7 @@ export default function OrdersPage() {
     />
   );
 
-  // 骨架屏
+  // Skeleton screen
   const renderSkeleton = () => (
     <Card
       style={{
@@ -328,7 +328,7 @@ export default function OrdersPage() {
     </Card>
   );
 
-  // 统计信息
+  // Statistics
   const getStats = () => {
     const total = orders.length;
     const pending = orders.filter((o) => o.status === "PENDING").length;
@@ -355,7 +355,7 @@ export default function OrdersPage() {
         overflow: "hidden",
       }}
     >
-      {/* 动态背景装饰 */}
+      {/* Dynamic background decoration */}
       <div
         style={{
           position: "fixed",
@@ -368,7 +368,7 @@ export default function OrdersPage() {
           overflow: "hidden",
         }}
       >
-        {/* 网格背景 */}
+        {/* Grid background */}
         <div
           style={{
             position: "absolute",
@@ -382,7 +382,7 @@ export default function OrdersPage() {
           }}
         />
 
-        {/* 浮动光球 */}
+        {/* Floating light balls */}
         <div
           style={{
             position: "absolute",
@@ -411,7 +411,7 @@ export default function OrdersPage() {
         />
       </div>
 
-      {/* CSS动画 */}
+      {/* CSS animations */}
       <style jsx>{`
         @keyframes float {
           0%, 100% { transform: translate(0, 0) scale(1); }
@@ -420,7 +420,7 @@ export default function OrdersPage() {
         }
       `}</style>
 
-      {/* 固定顶部导航栏 */}
+      {/* Fixed top navigation bar */}
       <Header
         style={{
           position: "fixed",
@@ -440,7 +440,7 @@ export default function OrdersPage() {
         <Menubar currentPath="/dashboard/orders" />
       </Header>
 
-      {/* 页面主体内容 */}
+      {/* Main page content */}
       <Content
         style={{
           marginTop: 64,
@@ -451,7 +451,7 @@ export default function OrdersPage() {
       >
         {renderPayModal()}
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          {/* 页面标题 */}
+          {/* Page title */}
           <div
             className="fade-in-up"
             style={{
@@ -477,7 +477,7 @@ export default function OrdersPage() {
             </div>
           </div>
 
-          {/* 统计卡片 */}
+          {/* Statistics cards */}
           {!loading && orders.length > 0 && (
             <Row gutter={16} style={{ marginBottom: 32 }} className="fade-in-up">
               <Col xs={24} sm={12} md={6}>
@@ -553,16 +553,16 @@ export default function OrdersPage() {
             </Row>
           )}
 
-          {/* 订单列表 */}
+          {/* Order list */}
           {loading ? (
-            // 加载中
+            // Loading
             <div>
               {[...Array(3)].map((_, i) => (
                 <div key={i}>{renderSkeleton()}</div>
               ))}
             </div>
           ) : orders.length === 0 ? (
-            // 空状态
+            // Empty state
             <div
               className="fade-in-up"
               style={{
@@ -599,7 +599,7 @@ export default function OrdersPage() {
               />
             </div>
           ) : (
-            // 订单卡片列表
+            // Order cards list
             <div>{orders.map((order, index) => renderOrderCard(order, index))}</div>
           )}
         </div>

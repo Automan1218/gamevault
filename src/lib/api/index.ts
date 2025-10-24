@@ -7,6 +7,8 @@ import { PostsApi } from './posts';
 import { UsersApi } from './users';
 import { LibraryApi } from './library';
 import { OrdersApi } from './orders';
+import { GamesApi } from './games';
+import { HomepageApi } from './homepage';
 
 // API Clients
 export { apiClient, authApiClient, shopApiClient, forumApiClient } from './client';
@@ -15,6 +17,8 @@ export { PostsApi } from './posts';
 export { UsersApi } from './users';
 export { LibraryApi } from './library';
 export { OrdersApi } from './orders';
+export { GamesApi } from './games';
+export { HomepageApi } from './homepage';
 
 // Types
 export * from './auth';
@@ -22,6 +26,8 @@ export * from './posts';
 export * from './users';
 export * from './library';
 export * from './orders';
+export * from './games';
+export * from './homepage';
 
 // Configuration
 export { ENV } from '../../config/env';
@@ -70,5 +76,27 @@ export const api = {
         cancelOrder: OrdersApi.cancelOrder,
         getOrderStats: OrdersApi.getOrderStats,
         searchOrders: OrdersApi.searchOrders,
+    },
+
+    // Games - game catalog
+    games: {
+        getAll: GamesApi.getGames,
+        getById: GamesApi.getGameById,
+        getByGenre: GamesApi.getGamesByGenre,
+        getByPlatform: GamesApi.getGamesByPlatform,
+        search: GamesApi.searchGames,
+    },
+
+    // Homepage - homepage data
+    homepage: {
+        getStats: HomepageApi.getPlatformStats,
+        getFeatured: HomepageApi.getFeaturedGames,
+        getHot: HomepageApi.getHotGames,
+        getOffers: HomepageApi.getSpecialOffers,
+        getUpcoming: HomepageApi.getUpcomingGames,
+        getCommunity: HomepageApi.getCommunityPosts,
+        getDevelopers: HomepageApi.getFeaturedDevelopers,
+        getFriends: HomepageApi.getFriendActivities,
+        getUserStats: HomepageApi.getUserGameStats,
     },
 };

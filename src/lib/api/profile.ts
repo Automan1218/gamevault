@@ -27,7 +27,7 @@ export interface AvatarUploadResponse {
 
 export class ProfileApi {
     /**
-     * 获取当前用户资料
+     * Get current user profile
      */
     static async getProfile(): Promise<Profile> {
         try {
@@ -39,9 +39,9 @@ export class ProfileApi {
             });
 
             if (!response.ok) {
-                // 如果是404错误，可能是用户资料不存在，返回默认资料
+                // If 404 error, user profile may not exist, return default profile
                 if (response.status === 404) {
-                    console.warn('用户资料不存在，返回默认资料');
+                    console.warn('User profile does not exist, returning default profile');
                     const basicUser = await AuthApi.getCurrentUser();
                     return {
                         userId: basicUser.userId,
@@ -55,19 +55,19 @@ export class ProfileApi {
                     };
                 }
                 
-                const errorData = await response.json().catch(() => ({ error: '服务器响应格式错误' }));
-                throw new Error(errorData.error || '获取用户资料失败');
+                const errorData = await response.json().catch(() => ({ error: 'Server response format error' }));
+                throw new Error(errorData.error || 'Failed to get user profile');
             }
 
             return await response.json();
         } catch (error) {
-            console.error('获取用户资料失败:', error);
+            console.error('Failed to get user profile:', error);
             throw error;
         }
     }
 
     /**
-     * 更新用户资料
+     * Update user profile
      */
     static async updateProfile(data: UpdateProfileRequest): Promise<Profile> {
         try {
@@ -82,18 +82,18 @@ export class ProfileApi {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || '更新用户资料失败');
+                throw new Error(errorData.error || 'Failed to update user profile');
             }
 
             return await response.json();
         } catch (error) {
-            console.error('更新用户资料失败:', error);
+            console.error('Failed to update user profile:', error);
             throw error;
         }
     }
 
     /**
-     * 上传头像
+     * Upload avatar
      */
     static async uploadAvatar(file: File): Promise<AvatarUploadResponse> {
         try {
@@ -110,18 +110,18 @@ export class ProfileApi {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || '头像上传失败');
+                throw new Error(errorData.error || 'Avatar upload failed');
             }
 
             return await response.json();
         } catch (error) {
-            console.error('头像上传失败:', error);
+            console.error('Avatar upload failed:', error);
             throw error;
         }
     }
 
     /**
-     * 删除头像
+     * Delete avatar
      */
     static async deleteAvatar(): Promise<{ message: string }> {
         try {
@@ -135,12 +135,12 @@ export class ProfileApi {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || '头像删除失败');
+                throw new Error(errorData.error || 'Avatar deletion failed');
             }
 
             return await response.json();
         } catch (error) {
-            console.error('头像删除失败:', error);
+            console.error('Avatar deletion failed:', error);
             throw error;
         }
     }

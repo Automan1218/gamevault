@@ -1,15 +1,15 @@
 // features/forum/types/forumTypes.ts
 
-// 基础帖子类型（基于你现有的Post接口扩展）
+// Basic post type (extended based on your existing Post interface)
 export interface ForumPost {
-    //postId: number;       // 匹配后端的postId
-    contentId: number;  // 匹配后端的contentId
+    //postId: number;       // Match backend postId
+    contentId: number;  // Match backend contentId
     title: string;
     body: string;
     bodyPlain?: string;
     authorId: number;
-    authorUsername?: string;  // 匹配后端的authorUsername
-    authorEmail?: string;     // 匹配后端的authorEmail
+    authorUsername?: string;  // Match backend authorUsername
+    authorEmail?: string;     // Match backend authorEmail
     authorName?: string;
     authorNickname?: string;
     authorAvatar?: string;
@@ -18,9 +18,9 @@ export interface ForumPost {
     replyCount?: number;
     createdDate: string;
     updatedDate: string;
-    status: string;           // 匹配后端的status字段
+    status: string;           // Match backend status field
     isLiked: boolean;
-    // Forum特有字段
+    // Forum-specific fields
     category?: string;
     tags?: string[];
     isPinned?: boolean;
@@ -30,7 +30,7 @@ export interface ForumPost {
     hotScore?: number;
 }
 
-// 帖子分类
+// Post categories
 export interface ForumCategory {
     id: string;
     name: string;
@@ -43,7 +43,7 @@ export interface ForumCategory {
     children?: ForumCategory[];
 }
 
-// 帖子列表响应
+// Post list response
 export interface ForumPostListResponse {
     posts: ForumPost[];
     currentPage: number;
@@ -53,7 +53,7 @@ export interface ForumPostListResponse {
     categories?: ForumCategory[];
 }
 
-// 帖子创建请求
+// Post creation request
 export interface CreateForumPostRequest {
     title: string;
     body: string;
@@ -62,12 +62,12 @@ export interface CreateForumPostRequest {
     isPinned?: boolean;
 }
 
-// 帖子更新请求
+// Post update request
 export interface UpdateForumPostRequest extends Partial<CreateForumPostRequest> {
     isLocked?: boolean;
 }
 
-// 论坛统计
+// Forum statistics
 export interface ForumStats {
     todayPosts: number;
     onlineUsers: number;
@@ -76,7 +76,7 @@ export interface ForumStats {
     totalTopics: number;
 }
 
-// 游戏板块
+// Game board
 export interface GameBoard extends ForumCategory {
     gameInfo?: {
         developer?: string;
@@ -86,7 +86,7 @@ export interface GameBoard extends ForumCategory {
     };
 }
 
-// 帖子过滤器
+// Post filter
 export interface ForumPostFilter {
     category?: string;
     tags?: string[];
@@ -95,7 +95,7 @@ export interface ForumPostFilter {
     authorId?: number;
 }
 
-// Hook状态类型
+// Hook state type
 export interface UseForumState {
     posts: ForumPost[];
     categories: ForumCategory[];
@@ -105,7 +105,7 @@ export interface UseForumState {
     hasNextPage: boolean;
 }
 
-// 组件Props类型
+// Component Props type
 export interface ForumPostCardProps {
     post: ForumPost;
     showCategory?: boolean;
@@ -133,7 +133,7 @@ export interface ForumStatsCardProps {
     className?: string;
 }
 
-// 表单类型
+// Form type
 export interface ForumSearchForm {
     keyword: string;
     category?: string;
@@ -149,24 +149,24 @@ export interface ForumPostForm {
     isPinned: boolean;
 }
 
-// 论坛回复类型
+// Forum reply type
 // features/forum/types/forumTypes.ts
 
 export interface ForumReply {
     replyId: number;
-    parentId?: number;           // 父帖子ID
-    body: string;                // 回复内容（后端用 body）
-    bodyPlain?: string;          // 纯文本内容
+    parentId?: number;           // Parent post ID
+    body: string;                // Reply content (backend uses body)
+    bodyPlain?: string;          // Plain text content
     authorId: number;
-    authorName?: string;         // ⚠️ 改成可选
+    authorName?: string;         // ⚠️ Changed to optional
     authorNickname?: string;
-    authorAvatarUrl?: string;    // 后端返回的字段名
+    authorAvatarUrl?: string;    // Backend returned field name
     createdDate: string;
     updatedDate?: string;
     likeCount: number;
     children?: ForumReply[];
     isLiked?: boolean;
-    // 前端扩展字段（用于回复的回复）
+    // Frontend extended fields (for replies to replies)
     replyTo?: number;
     replyToName?: string;
 }
@@ -178,16 +178,16 @@ export interface ReplyListResponse {
     pageSize: number;
     totalPages: number;
 }
-// 论坛回复请求
+// Forum reply request
 export interface CreateForumReplyRequest {
     contentId: number;
     content: string;
     replyTo?: number;
 }
 export interface CreateReplyRequest {
-    body: string;  // 注意:后端用的是 body,不是 content
+    body: string;  // Note: backend uses body, not content
 }
-// 常量类型
+// Constant types
 export const FORUM_SORT_OPTIONS = {
     LATEST: 'latest',
     POPULAR: 'popular',
@@ -209,7 +209,7 @@ export const FORUM_POST_STATUS = {
     DELETED: 'deleted'
 } as const;
 
-// 工具类型
+// Utility types
 export type ForumSortType = typeof FORUM_SORT_OPTIONS[keyof typeof FORUM_SORT_OPTIONS];
 export type ForumTimeRangeType = typeof FORUM_TIME_RANGES[keyof typeof FORUM_TIME_RANGES];
 export type ForumPostStatus = typeof FORUM_POST_STATUS[keyof typeof FORUM_POST_STATUS];

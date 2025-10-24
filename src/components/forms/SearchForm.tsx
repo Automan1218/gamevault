@@ -13,7 +13,7 @@ export interface SearchFormProps {
 }
 
 export default function SearchForm({
-  placeholder = '搜索游戏',
+  placeholder = 'Search games',
   onSearch,
   onChange,
   value,

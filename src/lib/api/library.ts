@@ -3,7 +3,7 @@ import { apiClient } from './client';
 import { ENV } from '@/config/env';
 import { gameApi } from '@/app/features/store/services/gameApi';
 
-// Library 相关类型定义
+// Library related type definitions
 export interface OwnedGame {
     gameId: number;
     title: string;
@@ -31,21 +31,21 @@ export interface LibraryItem {
 }
 
 export class LibraryApi {
-    // 获取用户游戏库
+    // Get user game library
     static async getLibrary(): Promise<OwnedGame[]> {
         try {
             const response = await apiClient.authenticatedRequest<LibraryResponse>('/library', undefined, {
                 method: 'GET'
             });
             
-            // 将后端返回的数据按游戏ID去重，合并激活码
+            // Deduplicate backend data by game ID and merge activation codes
             const rawItems = response.items || [];
             const gameMap = new Map<number, OwnedGame>();
             
-            // 获取所有游戏ID
+            // Get all game IDs
             const gameIds = [...new Set(rawItems.map(item => item.gameId))];
             
-            // 从游戏API获取游戏详细信息（包括图片）
+            // Get game details from game API (including images)
             const gameDetails = new Map<number, any>();
             try {
                 const allGames = await gameApi.getGames();
@@ -59,16 +59,16 @@ export class LibraryApi {
             rawItems.forEach((item: LibraryItem) => {
                 const gameId = item.gameId;
                 if (gameMap.has(gameId)) {
-                    // 如果游戏已存在，添加激活码
+                    // If game already exists, add activation code
                     gameMap.get(gameId)!.activationCodes.push({
                         activationId: item.activationId,
                         code: item.activationCode
                     });
                 } else {
-                    // 获取游戏详细信息
+                    // Get game details
                     const gameDetail = gameDetails.get(gameId);
                     
-                    // 创建新游戏记录
+                    // Create new game record
                     gameMap.set(gameId, {
                         gameId: item.gameId,
                         title: item.title || gameDetail?.title || 'Unknown Game',
@@ -85,11 +85,11 @@ export class LibraryApi {
             return Array.from(gameMap.values());
         } catch (error) {
             console.error('Failed to fetch library:', error);
-            throw new Error('获取游戏库失败');
+            throw new Error('Failed to get game library');
         }
     }
 
-    // 搜索游戏库
+    // Search game library
     static async searchLibrary(keyword: string): Promise<OwnedGame[]> {
         try {
             const allGames = await this.getLibrary();
@@ -98,18 +98,18 @@ export class LibraryApi {
             );
         } catch (error) {
             console.error('Failed to search library:', error);
-            throw new Error('搜索游戏库失败');
+            throw new Error('Failed to search game library');
         }
     }
 
-    // 获取游戏详情
+    // Get game details
     static async getGameDetails(gameId: number): Promise<OwnedGame | null> {
         try {
             const library = await this.getLibrary();
             return library.find(game => game.gameId === gameId) || null;
         } catch (error) {
             console.error(`Failed to fetch game details for ${gameId}:`, error);
-            throw new Error('获取游戏详情失败');
+            throw new Error('Failed to get game details');
         }
     }
 }

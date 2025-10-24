@@ -2,7 +2,7 @@ import { shopApiClient } from "@/lib/api/client";
 import type { CartDTO } from "@/lib/api/StoreTypes";
 import type { OrderDTO } from "@/lib/api/StoreTypes";
 
-// 购物车API - 使用商城服务客户端（端口8081）
+// Cart API - uses shop service client (port 8081)
 export const cartApi = {
   async getCart(): Promise<CartDTO> {
     return shopApiClient.get<CartDTO>("/cart");

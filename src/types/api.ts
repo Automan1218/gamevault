@@ -24,18 +24,18 @@ export interface PaginatedResponse<T> {
     hasPrevious: boolean;
 }
 
-// Post related types - 匹配后端响应格式
+// Post related types - match backend response format
 export interface Post {
-    contentId: number;  // 匹配后端的contentId
+    contentId: number;  // Match backend contentId
     title: string;
     body: string;
     bodyPlain?: string;
     authorId: number;
-    authorUsername?: string;  // 匹配后端的authorUsername
-    authorEmail?: string;     // 匹配后端的authorEmail
+    authorUsername?: string;  // Match backend authorUsername
+    authorEmail?: string;     // Match backend authorEmail
     viewCount: number;
     likeCount: number;
-    replyCount?: number;      // 可选，因为后端可能没有实现
+    replyCount?: number;      // Optional, as backend may not implement
     createdDate: string;
     updatedDate: string;
     status: 'active' | 'deleted' | 'hidden';
@@ -46,7 +46,7 @@ export interface Post {
 export interface CreatePostRequest {
     title: string;
     body: string;
-    // authorId 不需要，因为从JWT token中获取
+    // authorId not needed, as it's obtained from JWT token
 }
 
 export interface UpdatePostRequest {
@@ -144,5 +144,5 @@ export interface ApiError {
     timestamp: string;
 }
 
-// 这些类型已经在上面定义了，删除重复定义
+// These types are already defined above, removing duplicate definitions
   

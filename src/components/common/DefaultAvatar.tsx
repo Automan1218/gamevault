@@ -12,8 +12,8 @@ interface DefaultAvatarProps {
 }
 
 /**
- * 默认头像组件
- * 当用户没有设置头像或头像加载失败时使用
+ * Default avatar component
+ * Used when user has no avatar set or avatar loading fails
  */
 export default function DefaultAvatar({ 
     size = 32, 

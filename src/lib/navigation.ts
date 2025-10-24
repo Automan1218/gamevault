@@ -1,18 +1,18 @@
 // ========================================
 // src/lib/navigation.ts
-// 导航路由配置
+// Navigation route configuration
 // ========================================
 
 export const navigationRoutes = {
-    // 主要页面
+    // Main pages
     home: '/',
     login: '/auth/login',
-    register: '/auth/login', // 和登录同页面，通过 tab 切换
+    register: '/auth/login', // Same page as login, switch via tab
 
-    // Dashboard - 新增的主要功能区域
+    // Dashboard - New main functional area
     dashboard: '/dashboard',
 
-    // Forum相关 - 更新为新的路由结构
+    // Forum related - Updated to new route structure
     forum: '/dashboard/forum',
     forumDetail: `/dashboard/forum/detail`,
     forumEdit: (id: number) => `/dashboard/forum/${id}/edit`,
@@ -28,7 +28,7 @@ export const navigationRoutes = {
     chatRoom: (roomId: string) => `/dashboard/chat/${roomId}`,
     chatCreate: '/dashboard/chat/create',
 
-    // Developer相关
+    // Developer related
     developer: '/dashboard/developer',
     devcenterUpload: "/dashboard/developer/devcenter/upload",
     devcenterUploadForm: '/dashboard/developer/devcenter/upload/form',
@@ -37,135 +37,135 @@ export const navigationRoutes = {
     developerMyGames: "/dashboard/developer/mygames",
     developerGameHub: "/dashboard/developer/gamehub",
 
-    // Store & Shopping相关
+    // Store & Shopping related
     store: '/dashboard/store',
     shopping: '/dashboard/store',
     storeProduct: (productId: string) => `/dashboard/store/${productId}`,
     cart: '/dashboard/cart',
     checkout: '/dashboard/checkout',
 
-    // 帖子相关 - 保留旧版兼容
+    // Post related - Keep old version compatibility
     postCreate: '/dashboard/forum/create',
     postDetail: (id: number) => `/post/${id}`,
     postEdit: (id: number) => `/post/edit/${id}`,
 
-    // 用户相关
+    // User related
     profile: (id: number) => `/profile/${id}`,
     myPosts: '/dashboard/forum/profile',
     favorites: '/favorites',
     settings: '/dashboard/settings',
     notifications: '/notifications',
-    library: '/dashboard/library', // 游戏库路由
-    orders: '/dashboard/orders', // 订单路由
+    library: '/dashboard/library', // Game library route
+    orders: '/dashboard/orders', // Order route
 
-    // 板块相关 - 更新跳转目标
-    games: '/dashboard/forum/category/games',        // 游戏板块跳转到forum的游戏分类
-    shop: '/dashboard/forum/category/games',        // 游戏板块跳转到forum的游戏分类
+    // Section related - Updated redirect targets
+    games: '/dashboard/forum/category/games',        // Game section redirects to forum's game category
+    shop: '/dashboard/forum/category/games',        // Game section redirects to forum's game category
 
-    // 搜索
+    // Search
     search: (keyword: string) => `/search?q=${encodeURIComponent(keyword)}`,
     forumSearchResults: (keyword: string) => `/dashboard/forum/search?q=${encodeURIComponent(keyword)}`,
 };
 
-// 面包屑配置 - 扩展版本
+// Breadcrumb configuration - Extended version
 export const breadcrumbConfig = {
-    // 主要页面
-    '/': '首页',
-    '/login': '登录',
-    '/dashboard': '控制台',
+    // Main pages
+    '/': 'Home',
+    '/login': 'Login',
+    '/dashboard': 'Dashboard',
 
-    // Forum相关
-    '/dashboard/forum': '论坛',
-    '/dashboard/forum/create': '发布新帖',
-    '/dashboard/forum/hot': '热门帖子',
-    '/dashboard/forum/latest': '最新帖子',
-    '/dashboard/forum/my-posts': '我的发帖',
-    '/dashboard/forum/favorites': '我的收藏',
-    '/dashboard/forum/search': '搜索结果',
+    // Forum related
+    '/dashboard/forum': 'Forum',
+    '/dashboard/forum/create': 'Create Post',
+    '/dashboard/forum/hot': 'Hot Posts',
+    '/dashboard/forum/latest': 'Latest Posts',
+    '/dashboard/forum/my-posts': 'My Posts',
+    '/dashboard/forum/favorites': 'My Favorites',
+    '/dashboard/forum/search': 'Search Results',
 
-    // Chat相关
-    '/dashboard/chat': '聊天',
-    '/dashboard/chat/create': '创建聊天室',
+    // Chat related
+    '/dashboard/chat': 'Chat',
+    '/dashboard/chat/create': 'Create Chat Room',
 
-    // Developer相关
-    '/dashboard/developer': '开发者',
-    '/dashboard/developer/projects': '项目管理',
-    '/dashboard/developer/editor': '代码编辑器',
+    // Developer related
+    '/dashboard/developer': 'Developer',
+    '/dashboard/developer/projects': 'Project Management',
+    '/dashboard/developer/editor': 'Code Editor',
 
-    // Shopping相关
-    '/dashboard/shopping': '商城',
-    '/dashboard/cart': '购物车',
-    '/dashboard/checkout': '结算',
+    // Shopping related
+    '/dashboard/shopping': 'Store',
+    '/dashboard/cart': 'Shopping Cart',
+    '/dashboard/checkout': 'Checkout',
 
-    // 旧版兼容
-    '/my-posts': '我的发帖',
-    '/post/create': '发布新帖',
-    '/favorites': '我的收藏',
-    '/dashboard/settings': '设置',
-    '/dashboard/library': '游戏库',
-    '/dashboard/orders': '订单',
-    '/notifications': '通知',
+    // Legacy compatibility
+    '/my-posts': 'My Posts',
+    '/post/create': 'Create Post',
+    '/favorites': 'My Favorites',
+    '/dashboard/settings': 'Settings',
+    '/dashboard/library': 'Game Library',
+    '/dashboard/orders': 'Orders',
+    '/notifications': 'Notifications',
 
-    // 板块相关
-    '/games': '游戏板块',
-    '/community': '社区',
-    '/ranking': '排行榜',
-    '/news': '资讯',
+    // Section related
+    '/games': 'Game Section',
+    '/community': 'Community',
+    '/ranking': 'Rankings',
+    '/news': 'News',
 };
 
-// 导航菜单配置 - 新增
+// Navigation menu configuration - New
 
-// Dashboard子菜单配置
+// Dashboard submenu configuration
 export const dashboardMenuItems = [
     {
         key: 'forum',
-        label: '论坛',
+        label: 'Forum',
         path: navigationRoutes.forum,
         icon: '💬',
         children: [
             {
                 key: 'forum-latest',
-                label: '最新帖子',
+                label: 'Latest Posts',
                 path: navigationRoutes.forumLatest
             },
             {
                 key: 'forum-hot',
-                label: '热门帖子',
+                label: 'Hot Posts',
                 path: navigationRoutes.forumHot
             },
             {
                 key: 'forum-create',
-                label: '发布新帖',
+                label: 'Create Post',
                 path: navigationRoutes.postCreate
             },
             {
                 key: 'forum-my-posts',
-                label: '我的发帖',
+                label: 'My Posts',
                 path: navigationRoutes.forumMyPosts
             }
         ]
     },
     {
         key: 'chat',
-        label: '聊天',
+        label: 'Chat',
         path: navigationRoutes.chat,
         icon: '💬'
     },
     {
         key: 'developer',
-        label: '开发者',
+        label: 'Developer',
         path: navigationRoutes.developer,
         icon: '👨‍💻'
     },
     {
         key: 'shopping',
-        label: '商城',
+        label: 'Store',
         path: navigationRoutes.shopping,
         icon: '🛒'
     }
 ];
 
-// 工具函数
+// Utility functions
 export const getPageTitle = (path: string): string => {
     return breadcrumbConfig[path as keyof typeof breadcrumbConfig] || 'GameVault';
 };

@@ -12,89 +12,89 @@ export function useFriend() {
     const [sentRequests, setSentRequests] = useState<FriendRequest[]>([]);
     const [loading, setLoading] = useState(false);
 
-    // 加载好友列表
+    // Load friends list
     const loadFriends = useCallback(async () => {
         try {
             setLoading(true);
             const data = await friendApi.getFriends();
             setFriends(data);
         } catch (error) {
-            message.error(error.message || '加载好友列表失败');
+            message.error(error.message || 'Failed to load friends list');
         } finally {
             setLoading(false);
         }
     }, [message]);
 
-    // 加载收到的好友请求
+    // Load received friend requests
     const loadReceivedRequests = useCallback(async () => {
         try {
             const data = await friendApi.getReceivedRequests();
             setReceivedRequests(data);
         } catch (error) {
-            message.error(error.message || '加载好友请求失败');
+            message.error(error.message || 'Failed to load friend requests');
         }
     }, [message]);
 
-    // 加载发送的好友请求
+    // Load sent friend requests
     const loadSentRequests = useCallback(async () => {
         try {
             const data = await friendApi.getSentRequests();
             setSentRequests(data);
         } catch (error) {
-            message.error(error.message || '加载发送请求失败');
+            message.error(error.message || 'Failed to load sent requests');
         }
     }, [message]);
 
-    // 搜索用户
+    // Search users
     const searchUsers = useCallback(async (keyword: string): Promise<UserSearchResult[]> => {
         try {
             return await friendApi.searchUsers(keyword);
         } catch (error) {
-            message.error(error.message || '搜索用户失败');
+            message.error(error.message || 'Failed to search users');
             return [];
         }
     }, [message]);
 
-    // 发送好友请求
+    // Send friend request
     const sendFriendRequest = useCallback(async (toUserId: number, requestMessage?: string) => {
         try {
             await friendApi.sendFriendRequest(toUserId, requestMessage);
-            message.success('好友请求已发送');
+            message.success('Friend request sent');
             await loadSentRequests();
         } catch (error) {
-            message.error(error.message || '发送好友请求失败');
+            message.error(error.message || 'Failed to send friend request');
             throw error;
         }
     }, [loadSentRequests]);
 
-    // 处理好友请求
+    // Handle friend request
     const handleFriendRequest = useCallback(async (requestId: number, accept: boolean) => {
         try {
             await friendApi.handleFriendRequest(requestId, accept);
-            message.success(accept ? '已接受好友请求' : '已拒绝好友请求');
+            message.success(accept ? 'Friend request accepted' : 'Friend request rejected');
             await loadReceivedRequests();
             if (accept) {
                 await loadFriends();
             }
         } catch (error) {
-            message.error(error.message || '处理好友请求失败');
+            message.error(error.message || 'Failed to handle friend request');
             throw error;
         }
     }, [loadReceivedRequests, loadFriends]);
 
-    // 删除好友
+    // Delete friend
     const deleteFriend = useCallback(async (friendId: number) => {
         try {
             await friendApi.deleteFriend(friendId);
-            message.success('已删除好友');
+            message.success('Friend deleted');
             await loadFriends();
         } catch (error) {
-            message.error(error.message || '删除好友失败');
+            message.error(error.message || 'Failed to delete friend');
             throw error;
         }
     }, [loadFriends]);
 
-    // 初始化加载
+    // Initialize load
     useEffect(() => {
         loadFriends();
         loadReceivedRequests();

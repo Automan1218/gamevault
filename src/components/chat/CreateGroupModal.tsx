@@ -11,7 +11,7 @@ interface CreateGroupModalProps {
 }
 
 /**
- * 创建群聊弹窗
+ * Create group chat modal
  */
 export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
                                                                       open,
@@ -21,18 +21,18 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
                                                                   }) => {
     const [form] = Form.useForm();
 
-    // 提交表单
+    // Submit form
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
             onConfirm(values.title);
             form.resetFields();
         } catch (error) {
-            console.error('表单验证失败:', error);
+            console.error('Form validation failed:', error);
         }
     };
 
-    // 取消
+    // Cancel
     const handleCancel = () => {
         form.resetFields();
         onCancel();
@@ -40,13 +40,13 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
 
     return (
         <Modal
-            title="创建群聊"
+            title="Create Group Chat"
             open={open}
             onOk={handleOk}
             onCancel={handleCancel}
             confirmLoading={loading}
-            okText="创建"
-            cancelText="取消"
+            okText="Create"
+            cancelText="Cancel"
             destroyOnClose
         >
             <Form
@@ -56,23 +56,23 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
             >
                 <Form.Item
                     name="title"
-                    label="群聊名称"
+                    label="Group Name"
                     rules={[
-                        { required: true, message: '请输入群聊名称' },
-                        { min: 2, message: '群聊名称至少2个字符' },
-                        { max: 50, message: '群聊名称最多50个字符' },
+                        { required: true, message: 'Please enter group name' },
+                        { min: 2, message: 'Group name must be at least 2 characters' },
+                        { max: 50, message: 'Group name cannot exceed 50 characters' },
                     ]}
                 >
-                    <Input placeholder="输入群聊名称" maxLength={50} />
+                    <Input placeholder="Enter group name" maxLength={50} />
                 </Form.Item>
 
                 <Form.Item
                     name="description"
-                    label="群聊描述（可选）"
+                    label="Group Description (Optional)"
                 >
                     <TextArea
                         rows={3}
-                        placeholder="输入群聊描述"
+                        placeholder="Enter group description"
                         maxLength={200}
                         showCount
                     />

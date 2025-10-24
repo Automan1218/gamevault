@@ -24,25 +24,25 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 获取当前用户信息和头像
+  // Get current user information and avatar
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        // 检查是否有token
+        // Check if token exists
         if (!AuthApi.isAuthenticated()) {
           setUser(null);
           setAvatarUrl(undefined);
           return;
         }
 
-        // 获取基本用户信息
+        // Get basic user information
         const userData = await AuthApi.getCurrentUser();
         setUser(userData);
 
-        // 尝试获取完整的用户资料（包含头像）
+        // Try to get complete user profile (including avatar)
         try {
           const profile = await ProfileApi.getProfile();
           setAvatarUrl(profile.avatarUrl);
@@ -63,7 +63,7 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
     fetchCurrentUser();
   }, []);
 
-  // 监听头像更新事件
+  // Listen for avatar update events
   useEffect(() => {
     const unsubscribe = avatarEvents.subscribe((newAvatarUrl) => {
       console.log('UserMenu received avatar update event:', newAvatarUrl);
@@ -75,27 +75,27 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
     };
   }, []);
 
-  // 使用获取到的用户数据或props
+  // Use fetched user data or props
   const displayUsername = user?.username || propUsername || "User";
   const displayEmail = user?.email || "Email not set";
   const displayAvatar = avatarUrl || avatar;
 
-  // 处理头像显示逻辑
+  // Handle avatar display logic
   const getAvatarSrc = () => {
     if (!displayAvatar) return undefined;
     return getAvatarUrl(displayAvatar);
   };
 
-  // 处理退出登录
+  // Handle logout
   const handleLogout = async () => {
     try {
       await AuthApi.logout();
       setUser(null);
-      // 跳转到登录页面
+      // Navigate to login page
       router.push('/auth/login');
     } catch (err) {
       console.error('Logout failed:', err);
-      // 即使API调用失败，也要清除本地状态
+      // Clear local state even if API call fails
       setUser(null);
       router.push('/auth/login');
     }
@@ -106,29 +106,29 @@ function UserMenu({ username: propUsername, avatar }: UserMenuProps) {
     
     switch (key) {
       case 'profile':
-        // 个人资料页面路由（暂时跳转到首页）
+        // Profile page route (temporarily redirect to homepage)
         router.push('/');
         break;
       case 'library':
         router.push(navigationRoutes.library);
         break;
       case 'wishlist':
-        // 愿望单页面路由（暂时跳转到首页）
+        // Wishlist page route (temporarily redirect to homepage)
         router.push('/');
         break;
       case 'friends':
-        // 好友页面路由（暂时跳转到首页）
+        // Friends page route (temporarily redirect to homepage)
         router.push('/');
         break;
       case 'settings':
-        // 设置页面路由
+        // Settings page route
         router.push(navigationRoutes.settings);
         break;
       case 'orders':
         router.push(navigationRoutes.orders);
         break;
       case 'logout':
-        // 退出登录
+        // Logout
         handleLogout();
         break;
       default:

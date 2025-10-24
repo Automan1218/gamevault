@@ -8,6 +8,7 @@ import {
     BarChartOutlined,
 } from "@ant-design/icons";
 import React from "react";
+import { cardStyle } from "@/components/common/theme";
 
 const { Sider, Content } = Layout;
 
@@ -19,7 +20,6 @@ export default function DevCenterLayout({ children }: { children: React.ReactNod
         { key: "dashboard", icon: <BarChartOutlined />, label: "Dashboard" },
         { key: "upload", icon: <UploadOutlined />, label: "Upload Game" },
         { key: "manage", icon: <AppstoreOutlined />, label: "Game Management" },
-        // ⚡ 已去掉 Settings
     ];
 
     const selectedKey =
@@ -28,13 +28,23 @@ export default function DevCenterLayout({ children }: { children: React.ReactNod
                 "dashboard";
 
     return (
-        <Layout style={{ minHeight: "100vh" }}>
-            {/* 左侧竖直导航 */}
-            <Sider width={200} theme="light" style={{ borderRight: "1px solid #eee" }}>
+        <Layout style={{ minHeight: "calc(100vh - 200px)", background: "transparent" }}>
+            {/* Left vertical navigation */}
+            <Sider 
+                width={240} 
+                style={{ 
+                    ...cardStyle,
+                    margin: "0 24px 0 0",
+                }}
+            >
                 <Menu
                     mode="inline"
                     selectedKeys={[selectedKey]}
-                    style={{ height: "100%", borderRight: 0 }}
+                    style={{ 
+                        height: "100%", 
+                        borderRight: 0,
+                        background: "transparent",
+                    }}
                     items={menuItems}
                     onClick={({ key }) => {
                         router.push(`/dashboard/developer/devcenter/${key}`);
@@ -42,15 +52,13 @@ export default function DevCenterLayout({ children }: { children: React.ReactNod
                 />
             </Sider>
 
-            {/* 主内容区 */}
-            <Layout style={{ padding: "24px" }}>
+            {/* Main content area */}
+            <Layout style={{ background: "transparent" }}>
                 <Content
                     style={{
-                        padding: 24,
-                        margin: 0,
+                        ...cardStyle,
+                        padding: 32,
                         minHeight: 280,
-                        background: "#fff",
-                        borderRadius: 8,
                     }}
                 >
                     {children}

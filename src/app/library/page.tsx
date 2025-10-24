@@ -12,12 +12,12 @@ import { navigationRoutes } from '@/lib/navigation';
 import { useRouter } from 'next/navigation';
 import '@/components/common/animations.css';
 
-// 与数据库结构对齐的前端展示模型
+// Frontend display model aligned with database structure
 type OwnedGame = {
   gameId: number;       // games.game_id
   title: string;        // games.title
-  price?: number;       // games.price 可选
-  activationCodes: {    // 该游戏的所有激活码
+  price?: number;       // games.price optional
+  activationCodes: {    // All activation codes for this game
     activationId: number;
     code: string;
   }[];
@@ -33,7 +33,7 @@ export default function LibraryPage() {
   const [orderOpen, setOrderOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   
-  // 激活码模态框状态
+  // Activation codes modal state
   const [selectedGame, setSelectedGame] = useState<OwnedGame | null>(null);
   const [codesModalOpen, setCodesModalOpen] = useState(false);
 
@@ -44,22 +44,22 @@ export default function LibraryPage() {
         const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
         const res = await fetch(`/api/library`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
         const data = await res.json();
-        if (!res.ok) throw new Error(data?.message || "加载失败");
+        if (!res.ok) throw new Error(data?.message || "Loading failed");
         
-        // 将后端返回的数据按游戏ID去重，合并激活码
+        // Deduplicate backend data by game ID and merge activation codes
         const rawItems = data?.items || [];
         const gameMap = new Map<number, OwnedGame>();
         
         rawItems.forEach((item: any) => {
           const gameId = item.gameId;
           if (gameMap.has(gameId)) {
-            // 如果游戏已存在，添加激活码
+            // If game already exists, add activation code
             gameMap.get(gameId)!.activationCodes.push({
               activationId: item.activationId,
               code: item.activationCode
             });
           } else {
-            // 创建新游戏记录
+            // Create new game record
             gameMap.set(gameId, {
               gameId: item.gameId,
               title: item.title,
@@ -74,7 +74,7 @@ export default function LibraryPage() {
         
         setGames(Array.from(gameMap.values()));
       } catch (e: any) {
-        message.error(e?.message || "加载失败");
+        message.error(e?.message || "Loading failed");
       } finally {
         setLoading(false);
       }
@@ -84,11 +84,11 @@ export default function LibraryPage() {
   const filtered = games.filter(g => (g.title || "").toLowerCase().includes(q.toLowerCase()));
 
   const orderColumns: ProColumns<any>[] = [
-    { title: "订单ID", dataIndex: "orderId" },
-    { title: "创建时间", dataIndex: "createdAt", valueType: "dateTime" },
-    { title: "状态", dataIndex: "status", render: (_, r) => <Badge status={r.status === 'PAID' || r.status === 'COMPLETED' ? 'success' : r.status === 'PENDING' ? 'warning' : 'error'} text={r.status} /> },
-    { title: "总额", dataIndex: "total", valueType: "money" },
-    { title: "操作", valueType: 'option', render: (_, r) => [
+    { title: "Order ID", dataIndex: "orderId" },
+    { title: "Created Time", dataIndex: "createdAt", valueType: "dateTime" },
+    { title: "Status", dataIndex: "status", render: (_, r) => <Badge status={r.status === 'PAID' || r.status === 'COMPLETED' ? 'success' : r.status === 'PENDING' ? 'warning' : 'error'} text={r.status} /> },
+    { title: "Total", dataIndex: "total", valueType: "money" },
+    { title: "Actions", valueType: 'option', render: (_, r) => [
       <Button 
         key="detail" 
         type="link"
@@ -102,22 +102,22 @@ export default function LibraryPage() {
       const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
       const res = await fetch(`/api/orders/${r.orderId}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       const d = await res.json();
-      if (res.ok) { setOrderDetail(d); setOrderOpen(true); } else { message.error(d?.message || '获取详情失败'); }
+      if (res.ok) { setOrderDetail(d); setOrderOpen(true); } else { message.error(d?.message || 'Failed to get details'); }
         }}
       >
-        详情
+        Details
       </Button>
     ] },
   ];
 
   return (
     <>
-      {/* 顶部导航栏 */}
+      {/* Top navigation bar */}
       <Menubar currentPath="/library" />
 
       <PageContainer
-        title="我的游戏库"
-        subtitle="管理您的游戏收藏 • 探索无限可能"
+        title="My Game Library"
+        subtitle="Manage your game collection • Explore infinite possibilities"
         showBackground={true}
         showDecorations={true}
       >
@@ -133,12 +133,12 @@ export default function LibraryPage() {
         { key: 'library', label: (
           <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <PlaySquareOutlined />
-            已拥有的游戏
+            Owned Games
           </span>
         ), children: (
           <>
             <SearchForm
-              placeholder="搜索游戏"
+              placeholder="Search games"
               onSearch={setQ}
               onChange={setQ}
               value={q}
@@ -163,9 +163,9 @@ export default function LibraryPage() {
               </div>
             ) : filtered.length === 0 ? (
               <EmptyState
-                title="暂无游戏"
-                description="开始您的游戏之旅，探索精彩世界"
-                subDescription="购买游戏后，它们将出现在这里"
+                title="No Games Yet"
+                description="Start your gaming journey and explore amazing worlds"
+                subDescription="Your purchased games will appear here"
               />
             ) : (
               <div style={{ 
@@ -195,7 +195,7 @@ export default function LibraryPage() {
             { key: 'orders', label: (
               <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <ShoppingCartOutlined />
-                购买记录
+                Purchase History
               </span>
             ), children: (
           <ProTable
@@ -206,7 +206,7 @@ export default function LibraryPage() {
               pageSize: 10,
               showSizeChanger: false,
               showQuickJumper: true,
-              showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条记录`,
+              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} records`,
             }}
             request={async (params) => {
               const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
@@ -214,15 +214,15 @@ export default function LibraryPage() {
               const d = await res.json();
               if (!res.ok) return { success: false, data: [], total: 0 } as any;
               
-              // 对订单数据进行排序：按创建时间降序，时间相同时按订单ID降序
+              // Sort order data: by creation time descending, then by order ID descending when time is the same
               const sortedData = (d.items || []).sort((a: any, b: any) => {
                 const timeA = new Date(a.createdAt).getTime();
                 const timeB = new Date(b.createdAt).getTime();
                 
                 if (timeA !== timeB) {
-                  return timeB - timeA; // 时间降序
+                  return timeB - timeA; // Time descending
                 }
-                return b.orderId - a.orderId; // 订单ID降序
+                return b.orderId - a.orderId; // Order ID descending
               });
               
               return { 
@@ -239,7 +239,7 @@ export default function LibraryPage() {
         )}
       ]} />
 
-      {/* 激活码查看模态框 */}
+      {/* Activation codes view modal */}
       <ActivationCodesModal
         open={codesModalOpen}
         onClose={() => setCodesModalOpen(false)}
@@ -247,7 +247,7 @@ export default function LibraryPage() {
         activationCodes={selectedGame?.activationCodes || []}
       />
 
-      {/* 订单详情模态框 */}
+      {/* Order details modal */}
       <OrderDetailModal
         open={orderOpen}
         onClose={() => setOrderOpen(false)}

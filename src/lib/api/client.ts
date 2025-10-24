@@ -63,7 +63,7 @@ export class ApiClient {
             const method = requestConfig.method?.toUpperCase() || 'GET';
             const shouldHaveBody = !['GET', 'HEAD'].includes(method);
 
-            // 检查是否是FormData，如果是则不设置Content-Type
+            // Check if it's FormData, don't set Content-Type if so
             const isFormData = requestConfig.body instanceof FormData;
             const defaultHeaders: Record<string, string> = isFormData 
                 ? { 'Accept': 'application/json' }
@@ -100,14 +100,14 @@ export class ApiClient {
                 jsonData = text ? JSON.parse(text) : {};
             }
 
-            // 处理后端 BaseResponse 包装格式
-            // 如果响应包含 code 和 data 字段，提取 data
+            // Handle backend BaseResponse wrapper format
+            // If response contains code and data fields, extract data
             if (jsonData && typeof jsonData === 'object' && 'code' in jsonData && 'data' in jsonData) {
                 if (jsonData.code === 0) {
                     return jsonData.data as T;
                 } else {
-                    // 处理业务错误
-                    throw new Error(jsonData.message || '请求失败');
+                    // Handle business errors
+                    throw new Error(jsonData.message || 'Request failed');
                 }
             }
 
@@ -117,11 +117,11 @@ export class ApiClient {
 
             if (error instanceof Error) {
                 if (error.name === 'AbortError') {
-                    throw new Error('请求超时，请稍后重试');
+                    throw new Error('Request timeout, please try again later');
                 }
                 throw error;
             }
-            throw new Error('请求失败');
+            throw new Error('Request failed');
         }
     }
 
@@ -137,13 +137,13 @@ export class ApiClient {
 
         if (response.status === 401) {
             this.clearAuthToken();
-            throw new Error('登录已过期，请重新登录');
+            throw new Error('Login expired, please login again');
         } else if (response.status === 403) {
-            throw new Error('没有权限执行此操作');
+            throw new Error('No permission to perform this operation');
         } else if (response.status === 404) {
-            throw new Error('请求的资源不存在');
+            throw new Error('Requested resource does not exist');
         } else if (response.status >= 500) {
-            throw new Error('服务器错误，请稍后重试');
+            throw new Error('Server error, please try again later');
         }
 
         throw new Error(errorMessage);
@@ -161,7 +161,7 @@ export class ApiClient {
     async post<T>(endpoint: string, data?: unknown, options: RequestInit & { params?: Record<string, unknown> } = {}): Promise<T> {
         const { params, ...requestConfig } = options;
         
-        // 如果是FormData，不设置Content-Type，让浏览器自动设置
+        // If it's FormData, don't set Content-Type, let browser set it automatically
         const isFormData = data instanceof FormData;
         const headers = isFormData 
             ? { ...requestConfig.headers }
@@ -209,7 +209,7 @@ export class ApiClient {
     ): Promise<T> {
         const token = this.getAuthToken();
         if (!token) {
-            throw new Error('需要登录才能执行此操作');
+            throw new Error('Login required to perform this operation');
         }
 
         // Default to POST if data is provided and no method specified
@@ -229,20 +229,20 @@ export class ApiClient {
     }
 }
 
-// 认证服务客户端 - 用于用户认证、资料、订单查询、游戏库等
+// Authentication service client - for user authentication, profiles, order queries, game library, etc.
 export const authApiClient = new ApiClient(ENV.AUTH_API_URL);
 
-// 商城服务客户端 - 用于游戏商城、购物车、支付、激活码等
+// Shop service client - for game store, shopping cart, payment, activation codes, etc.
 export const shopApiClient = new ApiClient(ENV.SHOP_API_URL);
 
-// 论坛服务客户端 - 用于论坛帖子、回复、点赞等
+// Forum service client - for forum posts, replies, likes, etc.
 export const forumApiClient = new ApiClient(ENV.FORUM_API_URL);
 
-// 聊天室服务客户端 - 用于群聊、好友、消息等
+// Chatroom service client - for group chats, friends, messages, etc.
 export const chatroomApiClient = new ApiClient(ENV.CHATROOM_API_URL);
 
-// 文件服务客户端 - 用于文件上传、下载、管理等
+// File service client - for file upload, download, management, etc.
 export const fileApiClient = new ApiClient(ENV.FILE_API_URL);
 
-// 默认API客户端（保持向后兼容，使用认证服务）
+// Default API client (maintain backward compatibility, uses authentication service)
 export const apiClient = authApiClient;

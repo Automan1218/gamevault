@@ -54,7 +54,7 @@ import { darkTheme, cardStyle } from '@/components/common/theme';
 import { formatPostTime } from '@/app/features/forum/utils/forumUtils';
 import '@/components/common/animations.css';
 import { ForumReply } from '@/app/features/forum/types/forumTypes';
-// 导入状态管理器
+// Import state manager
 import { PostStateManager } from '@/lib/api/PostStateManager';
 import { ImprovedPostSessionManager } from '@/lib/api/PostSession';
 import { getAvatarUrl, handleAvatarError, getDefaultAvatarStyle } from '@/lib/api/avatar';
@@ -89,7 +89,7 @@ export default function PostDetailPage() {
     const router = useRouter();
     const [form] = Form.useForm();
 
-    // 安全获取帖子ID
+    // Safely get post ID
     const [contentId, setContentId] = useState<number | null>(null);
     const [sessionId, setSessionId] = useState<string | null>(null);
 
@@ -104,43 +104,43 @@ export default function PostDetailPage() {
     const [replyToReply, setReplyToReply] = useState<ForumReply | null>(null);
     const [viewHistory, setViewHistory] = useState<number[]>([]);
 
-    // 用户交互状态
+    // User interaction state
     const [isLiked, setIsLiked] = useState(false);
     const [isStarred, setIsStarred] = useState(false);
     const [likedReplies, setLikedReplies] = useState<Set<number>>(new Set());
 
-    // 当前用户信息
+    // Current user information
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
     const [currentUsername, setCurrentUsername] = useState<string | null>(null);
 
     useEffect(() => {
         setMounted(true);
 
-        // 清理过期会话
+        // Clean up expired sessions
         ImprovedPostSessionManager.cleanExpiredSessions();
 
-        // 获取帖子ID并初始化
+        // Get post ID and initialize
         const id = PostStateManager.getCurrentPost();
         if (!id) {
-            message.error('请从帖子列表进入查看详情');
+            message.error('Please enter from post list to view details');
             router.push(navigationRoutes.forum);
             return;
         }
 
         setContentId(id);
 
-        // 获取浏览历史
+        // Get browsing history
         const history = PostStateManager.getHistory();
-        setViewHistory(history.filter(h => h !== id).slice(0, 5)); // 排除当前帖子，取最近5个
+        setViewHistory(history.filter(h => h !== id).slice(0, 5)); // Exclude current post, take latest 5
 
-        // 创建或更新会话
+        // Create or update session
         const newSessionId = ImprovedPostSessionManager.createOrUpdateSession(id, document.referrer);
         setSessionId(newSessionId);
 
         initializeUserAndPost(id);
     }, []);
 
-    // 页面卸载时清理
+    // Clean up when page unmounts
     useEffect(() => {
         return () => {
             if (contentId) {
@@ -149,10 +149,10 @@ export default function PostDetailPage() {
         };
     }, [contentId]);
 
-    // 初始化用户信息和帖子数据
+    // Initialize user information and post data
     const initializeUserAndPost = async (id: number) => {
         try {
-            // 获取当前用户信息
+            // Get current user information
             const [userId, username] = await Promise.all([
                 UsersApi.getUserId(),
                 UsersApi.getUsername(),
@@ -163,67 +163,67 @@ export default function PostDetailPage() {
 
 
 
-            // 获取帖子详情
+            // Get post details
             await fetchPostDetail(id);
 
-            // 验证会话并增加浏览量
+            // Verify session and increase view count
             if (sessionId) {
                 const session = ImprovedPostSessionManager.validateAndUpdateSession(sessionId);
                 if (session && session.viewCount === 1) {
-                    // 只在第一次查看时增加浏览量
+                    // Only increase view count on first view
                     incrementViewCount(id);
                 }
             }
 
-            // 加载回复
+            // Load replies
             fetchReplies(id);
         } catch (error) {
-            console.error('初始化失败:', error);
+            console.error('Initialization failed:', error);
         }
     };
 
-    // 获取帖子详情
+    // Get post details
     const fetchPostDetail = async (id: number) => {
         try {
             setLoading(true);
             const data = await PostsApi.getPostById(id);
             setPost(data);
-            // 直接从后端数据设置点赞状态
+            // Set like status directly from backend data
             setIsLiked(data.isLiked || false);
         } catch (error) {
-            message.error('获取帖子详情失败');
+            message.error('Failed to get post details');
         } finally {
             setLoading(false);
         }
     };
 
-    // 增加浏览量
+    // Increase view count
     const incrementViewCount = (id: number) => {
-        // 使用sessionStorage记录已浏览
+        // Use sessionStorage to record viewed
         const viewedKey = `viewed_post_${id}_${new Date().toDateString()}`;
         if (!sessionStorage.getItem(viewedKey)) {
             sessionStorage.setItem(viewedKey, 'true');
 
-            // 更新本地显示的浏览量
+            // Update locally displayed view count
             if (post) {
                 setPost(prev => prev ? { ...prev, viewCount: prev.viewCount + 1 } : null);
             }
         }
     };
 
-    // 获取回复列表
+    // Get replies list
 
     const fetchReplies = async (postId: number) => {
         try {
             const response = await PostsApi.getReplies(postId);
 
-            // 🔥 添加调试日志
-            console.log('📦 后端返回的原始数据:', response);
-            console.log('📦 回复列表:', response.replies);
+            // 🔥 Add debug logs
+            console.log('📦 Raw data returned from backend:', response);
+            console.log('📦 Replies list:', response.replies);
 
             const repliesData = response.replies.map((reply: any) => {
-                // 🔥 打印每条回复的关键字段
-                console.log(`回复 ${reply.replyId}:`, {
+                // 🔥 Print key fields of each reply
+                console.log(`Reply ${reply.replyId}:`, {
                     replyId: reply.replyId,
                     parentId: reply.parentId,
                     replyTo: reply.replyTo,
@@ -244,100 +244,100 @@ export default function PostDetailPage() {
                     updatedDate: reply.updatedDate,
                     likeCount: reply.likeCount || 0,
                     isLiked: reply.isLiked || false,
-                    replyTo: reply.replyTo, // 回复的目标回复ID
-                    replyToName: reply.replyToName, // 回复的目标用户名
+                    replyTo: reply.replyTo, // Target reply ID
+                    replyToName: reply.replyToName, // Target username
                 };
             });
 
-            console.log('📊 处理后的回复数据:', repliesData);
+            console.log('📊 Processed replies data:', repliesData);
 
-            // 构建树形结构
+            // Build tree structure
             const repliesMap = new Map<number, ForumReply>();
             const rootReplies: ForumReply[] = [];
 
-            // 先将所有回复存入 Map，并初始化 children 数组
+            // First store all replies in Map and initialize children array
             repliesData.forEach((reply: ForumReply) => {
                 repliesMap.set(reply.replyId, { ...reply, children: [] });
             });
 
-            // 构建父子关系
+            // Build parent-child relationships
             repliesData.forEach((reply: ForumReply) => {
                 const replyWithChildren = repliesMap.get(reply.replyId);
-                console.log(`🔗 处理回复 ${reply.replyId}, replyTo: ${reply.replyTo}`);
+                console.log(`🔗 Processing reply ${reply.replyId}, replyTo: ${reply.replyTo}`);
 
                 if (reply.replyTo) {
-                    // 如果有 replyTo（回复的是某条回复），添加到对应回复的 children 中
+                    // If there's replyTo (replying to a reply), add to the corresponding reply's children
                     const parent = repliesMap.get(reply.replyTo);
                     if (parent && replyWithChildren) {
                         parent.children!.push(replyWithChildren);
-                        console.log(`✅ 成功将回复 ${reply.replyId} 添加到父回复 ${reply.replyTo} 的 children`);
+                        console.log(`✅ Successfully added reply ${reply.replyId} to parent reply ${reply.replyTo}'s children`);
                     } else {
-                        // 如果找不到父回复（可能被删除），作为根回复处理
+                        // If parent reply not found (may be deleted), treat as root reply
                         if (replyWithChildren) {
                             rootReplies.push(replyWithChildren);
-                            console.log(`⚠️ 找不到父回复 ${reply.replyTo}，将回复 ${reply.replyId} 作为根回复`);
+                            console.log(`⚠️ Parent reply ${reply.replyTo} not found, treating reply ${reply.replyId} as root reply`);
                         }
                     }
                 } else {
-                    // 没有 replyTo，是根回复（直接回复帖子）
+                    // No replyTo, it's a root reply (directly replying to post)
                     if (replyWithChildren) {
                         rootReplies.push(replyWithChildren);
-                        console.log(`✅ 回复 ${reply.replyId} 是根回复（直接回复帖子）`);
+                        console.log(`✅ Reply ${reply.replyId} is a root reply (directly replying to post)`);
                     }
                 }
             });
 
-            // 按时间排序（最早的在前）
+            // Sort by time (earliest first)
             rootReplies.sort((a, b) =>
                 new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime()
             );
 
-            console.log('🌲 最终的树形结构:', rootReplies);
-            console.log('📌 根回复数量:', rootReplies.length);
+            console.log('🌲 Final tree structure:', rootReplies);
+            console.log('📌 Root replies count:', rootReplies.length);
             rootReplies.forEach((reply, index) => {
-                console.log(`  ${index + 1}楼: 回复ID=${reply.replyId}, 子回复数=${reply.children?.length || 0}`);
+                console.log(`  Floor ${index + 1}: ReplyID=${reply.replyId}, Child replies=${reply.children?.length || 0}`);
                 if (reply.children && reply.children.length > 0) {
                     reply.children.forEach((child, childIndex) => {
-                        console.log(`    └─ 楼中楼 ${childIndex + 1}: 回复ID=${child.replyId}, 回复 @${child.replyToName}`);
+                        console.log(`    └─ Nested reply ${childIndex + 1}: ReplyID=${child.replyId}, Reply to @${child.replyToName}`);
                     });
                 }
             });
 
             setReplies(rootReplies);
         } catch (error: any) {
-            console.error('获取回复列表失败:', error);
-            message.error(error.response?.data?.message || '获取回复列表失败');
+            console.error('Failed to get replies list:', error);
+            message.error(error.response?.data?.message || 'Failed to get replies list');
         }
     };
 
-    // 点赞/取消点赞帖子
+    // Like/unlike post
     const handleLikePost = async () => {
         if (!currentUserId || !contentId) {
-            message.warning('请先登录');
+            message.warning('Please login first');
             router.push(navigationRoutes.login);
             return;
         }
 
         try {
-            // 调用后端 toggle API
+            // Call backend toggle API
             const response = await PostsApi.toggleLike(contentId);
 
-            // 更新本地状态（使用后端返回的真实值）
+            // Update local state (using real value returned from backend)
             setIsLiked(response.liked);
             if (post) {
                 setPost({ ...post, likeCount: response.likeCount });
             }
 
-            message.success(response.liked ? '点赞成功' : '已取消点赞');
+            message.success(response.liked ? 'Liked successfully' : 'Unliked');
         } catch (error) {
-            message.error('操作失败');
+            message.error('Operation failed');
         }
     };
 
-    // 收藏/取消收藏
+    // Star/unstar post
     const handleStarPost = () => {
         if (!currentUserId || !contentId) {
-            message.warning('请先登录');
+            message.warning('Please login first');
             router.push(navigationRoutes.login);
             return;
         }
@@ -348,22 +348,22 @@ export default function PostDetailPage() {
             const newStarredPosts = starredPosts.filter((id: number) => id !== contentId);
             localStorage.setItem(`starred_posts_${currentUserId}`, JSON.stringify(newStarredPosts));
             setIsStarred(false);
-            message.success('已取消收藏');
+            message.success('Unstarred');
         } else {
             starredPosts.push(contentId);
             localStorage.setItem(`starred_posts_${currentUserId}`, JSON.stringify(starredPosts));
             setIsStarred(true);
-            message.success('收藏成功');
+            message.success('Starred successfully');
         }
     };
 
-    // 分享帖子
+    // Share post
     const handleSharePost = () => {
         if (!post) return;
 
-        // 生成安全的分享链接（不包含直接的ID）
+        // Generate secure share link (without direct ID)
         const shareUrl = `${window.location.origin}/dashboard/forum`;
-        const shareText = `来看看这个帖子：${post.title}`;
+        const shareText = `Check out this post: ${post.title}`;
 
         if (navigator.share) {
             navigator.share({
@@ -371,90 +371,90 @@ export default function PostDetailPage() {
                 text: shareText,
                 url: shareUrl,
             }).catch(() => {
-                // 用户取消分享
+                // User cancelled sharing
             });
         } else {
-            // 复制分享文本到剪贴板
+            // Copy share text to clipboard
             navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
-            message.success('分享链接已复制');
+            message.success('Share link copied');
         }
     };
 
 
-    // 提交回复
-    // 修改函数签名
+    // Submit reply
+    // Modified function signature
     const handleSubmitReply = async (valuesOrContent?: any, customReplyTo?: ForumReply | null) => {
         if (!currentUserId || !contentId) {
-            message.warning('请先登录后再回复');
+            message.warning('Please login before replying');
             router.push(navigationRoutes.login);
             return;
         }
 
         let content: string;
         if (typeof valuesOrContent === 'string') {
-            // 直接传入字符串（内联回复）
+            // Direct string input (inline reply)
             content = valuesOrContent;
         } else if (valuesOrContent && valuesOrContent.content) {
-            // Form.onFinish 传入的对象 { content: '...' }
+            // Object passed from Form.onFinish { content: '...' }
             content = valuesOrContent.content;
         } else {
-            // 使用 state 中的值
+            // Use value from state
             content = replyContent;
         }
 
         const targetReply = customReplyTo !== undefined ? customReplyTo : replyToReply;
 
         if (!content || !content.trim()) {
-            message.warning('回复内容不能为空');
+            message.warning('Reply content cannot be empty');
             return;
         }
 
         try {
             setReplyLoading(true);
 
-            // 调用后端 API
+            // Call backend API
             await PostsApi.createReply(contentId, {
                 body: content.trim(),
                 replyTo: targetReply?.replyId,
             });
 
-            // 清空输入框
+            // Clear input field
             setReplyContent('');
             setReplyToReply(null);
             form.resetFields();
 
-            // 重新获取回复列表
+            // Reload replies list
             await fetchReplies(contentId);
 
-            // 更新帖子回复数
+            // Update post reply count
             if (post) {
                 setPost({ ...post, replyCount: (post.replyCount || 0) + 1 });
             }
 
-            message.success('回复成功');
+            message.success('Reply posted successfully');
         } catch (error) {
-            message.error('回复失败');
+            message.error('Reply failed');
         } finally {
             setReplyLoading(false);
         }
     };
 
-    // 删除回复（支持树形结构）
+    // Delete reply (supports tree structure)
     const handleDeleteReply = async (replyId: number) => {
-        if (!contentId) return; // contentId 就是 postId
+        if (!contentId) return; // contentId is postId
 
         try {
-            await PostsApi.deleteReply(contentId, replyId); // 传入 postId 和 replyId
-            message.success('删除成功');
+            await PostsApi.deleteReply(contentId, replyId); // Pass postId and replyId
+            message.success('Deleted successfully');
 
-            // 递归删除回复
+            // Recursively delete replies
             const removeReplyFromTree = (replies: ForumReply[]): ForumReply[] => {
                 return replies.filter(r => {
                     if (r.replyId === replyId) {
-                        return false; // 删除该回复
+                        return false; // Delete this reply
                     }
                     if (r.children && r.children.length > 0) {
-                        r.children = removeReplyFromTree(r.children); // 递归处理子回复
+                        r.children = removeReplyFromTree(r.children); // Recursively process child replies
                     }
                     return true;
                 });
@@ -462,19 +462,19 @@ export default function PostDetailPage() {
 
             setReplies(prev => removeReplyFromTree(prev));
 
-            // 更新帖子的回复数
+            // Update post reply count
             if (post) {
                 setPost({ ...post, replyCount: (post.replyCount || 0) - 1 });
             }
         } catch (error: any) {
-            console.error('删除回复失败:', error);
-            message.error(error.response?.data?.message || '删除失败');
+            console.error('Failed to delete reply:', error);
+            message.error(error.response?.data?.message || 'Delete failed');
         }
     };
-    // 点赞回复
+    // Like reply
     const handleLikeReply = async (reply: ForumReply) => {
         if (!currentUserId || !contentId) {
-            message.warning('请先登录');
+            message.warning('Please login first');
             router.push(navigationRoutes.login);
             return;
         }
@@ -482,14 +482,14 @@ export default function PostDetailPage() {
         try {
             const isCurrentlyLiked = reply.isLiked;
 
-            // 调用真实的 API（不使用 localStorage）
+            // Call real API (not using localStorage)
             if (isCurrentlyLiked) {
                 await PostsApi.unlikeReply(contentId, reply.replyId);
             } else {
                 await PostsApi.likeReply(contentId, reply.replyId);
             }
 
-            // 递归更新回复状态
+            // Recursively update reply status
             const updateReplyInTree = (replies: ForumReply[]): ForumReply[] => {
                 return replies.map(r => {
                     if (r.replyId === reply.replyId) {
@@ -510,34 +510,34 @@ export default function PostDetailPage() {
             };
 
             setReplies(prev => updateReplyInTree(prev));
-            message.success(isCurrentlyLiked ? '已取消点赞' : '点赞成功');
+            message.success(isCurrentlyLiked ? 'Unliked' : 'Liked successfully');
         } catch (error: any) {
-            console.error('点赞回复失败:', error);
-            message.error(error.response?.data?.message || '操作失败');
+            console.error('Failed to like reply:', error);
+            message.error(error.response?.data?.message || 'Operation failed');
         }
     };
-    // 删除帖子
+    // Delete post
     const handleDeletePost = async () => {
         if (!contentId) return;
 
         try {
             await PostsApi.deletePost(contentId);
-            message.success('删除成功');
+            message.success('Deleted successfully');
 
-            // 清理状态
+            // Clear state
             PostStateManager.clearCurrentPost();
 
             router.push(navigationRoutes.forum);
         } catch (error) {
-            message.error('删除失败');
+            message.error('Delete failed');
         }
     };
 
-    // 举报帖子
+    // Report post
     const handleReportPost = (reason: string) => {
         if (!contentId) return;
 
-        // 保存举报记录到localStorage
+        // Save report record to localStorage
         const reports = JSON.parse(localStorage.getItem('post_reports') || '[]');
         reports.push({
             contentId,
@@ -548,21 +548,21 @@ export default function PostDetailPage() {
         localStorage.setItem('post_reports', JSON.stringify(reports));
 
         setReportModalVisible(false);
-        message.success('举报已提交，我们会尽快处理');
+        message.success('Report submitted, we will handle it as soon as possible');
     };
 
     const [showReplyBoxId, setShowReplyBoxId] = useState<number | null>(null);
     const [replyTexts, setReplyTexts] = useState<Record<number, string>>({});
     const [collapsedReplies, setCollapsedReplies] = useState<Set<number>>(new Set());
 
-    // 渲染回复项
-    // 渲染回复项（支持递归渲染子回复）
+    // Render reply item
+    // Render reply item (supports recursive rendering of child replies)
     const renderReplyItem = (reply: ForumReply, level: number = 0) => {
         const isReplyAuthor = currentUserId === reply.authorId;
         const hasChildren = reply.children && reply.children.length > 0;
         const childCount = reply.children?.length || 0;
 
-        // 🔥 从父组件状态获取
+        // 🔥 Get from parent component state
         const showReplyBox = showReplyBoxId === reply.replyId;
         const replyText = replyTexts[reply.replyId] || '';
         const collapsed = collapsedReplies.has(reply.replyId);
@@ -586,13 +586,13 @@ export default function PostDetailPage() {
                             style={getDefaultAvatarStyle(level === 0 ? 40 : 32)}
                         />
                         <div style={{ flex: 1 }}>
-                            {/* 用户信息 */}
+                            {/* User information */}
                             <div style={{ marginBottom: 8 }}>
                                 <Space split={<Divider type="vertical" style={{ borderColor: 'rgba(99, 102, 241, 0.3)' }} />}>
                                     <Text strong style={{ color: '#f9fafb', fontSize: level > 0 ? '13px' : '14px' }}>
                                         {reply.authorNickname || reply.authorName || 'Anonymous'}
                                     </Text>
-                                    {/* 🔥 楼层号 */}
+                                    {/* 🔥 Floor number */}
                                     {level === 0 && (
                                         <Tag color="blue" style={{ margin: 0 }}>
                                             #Floor {replies.indexOf(reply) + 1}
@@ -604,7 +604,7 @@ export default function PostDetailPage() {
                                 </Space>
                             </div>
 
-                            {/* 回复内容 */}
+                            {/* Reply content */}
                             {level > 0 && reply.replyToName && (
                                 <Text
                                     style={{
@@ -615,7 +615,7 @@ export default function PostDetailPage() {
                                         marginRight: '4px'
                                     }}
                                 >
-                                    回复 @{reply.replyToName}:
+                                    Reply to @{reply.replyToName}:
                                 </Text>
                             )}
 
@@ -631,7 +631,7 @@ export default function PostDetailPage() {
                                 {reply.bodyPlain || reply.body}
                             </Paragraph>
 
-                            {/* 操作按钮 */}
+                            {/* Action buttons */}
                             <Space size="small">
                                 <Button
                                     type="text"
@@ -646,7 +646,7 @@ export default function PostDetailPage() {
                                     {reply.likeCount || 0}
                                 </Button>
 
-                                {/* 🔥 回复按钮 */}
+                                {/* 🔥 Reply button */}
                                 <Button
                                     type="text"
                                     size="small"
@@ -663,10 +663,10 @@ export default function PostDetailPage() {
                                         fontSize: '12px'
                                     }}
                                 >
-                                    回复 {childCount > 0 && `(${childCount})`}
+                                    Reply {childCount > 0 && `(${childCount})`}
                                 </Button>
 
-                                {/* 🔥 展开/收起子回复 */}
+                                {/* 🔥 Expand/collapse child replies */}
                                 {hasChildren && childCount > 3 && (
                                     <Button
                                         type="text"
@@ -682,7 +682,7 @@ export default function PostDetailPage() {
                                         }}
                                         style={{ color: '#9ca3af', fontSize: '12px' }}
                                     >
-                                        {collapsed ? `展开${childCount}条回复` : '收起'}
+                                        {collapsed ? `Expand ${childCount} replies` : 'Collapse'}
                                     </Button>
                                 )}
 
@@ -695,12 +695,12 @@ export default function PostDetailPage() {
                                         onClick={() => handleDeleteReply(reply.replyId)}
                                         style={{ fontSize: '12px' }}
                                     >
-                                        删除
+                                        Delete
                                     </Button>
                                 )}
                             </Space>
 
-                            {/* 🔥 内联回复输入框 */}
+                            {/* 🔥 Inline reply input box */}
                             {showReplyBox && (
                                 <div
                                     style={{
@@ -719,7 +719,7 @@ export default function PostDetailPage() {
                                                 [reply.replyId]: e.target.value
                                             });
                                         }}
-                                        placeholder={`回复 @${reply.authorName}...`}
+                                        placeholder={`Reply to @${reply.authorName}...`}
                                         rows={3}
                                         autoFocus
                                         style={{
@@ -738,22 +738,22 @@ export default function PostDetailPage() {
                                             loading={replyLoading}
                                             onClick={async () => {
                                                 if (!replyText.trim()) {
-                                                    message.warning('请输入回复内容');
+                                                    message.warning('Please enter reply content');
                                                     return;
                                                 }
 
                                                 try {
-                                                    // 🔥 直接传参，不依赖 state
+                                                    // 🔥 Pass parameters directly, not dependent on state
                                                     await handleSubmitReply(replyText, reply);
 
-                                                    // 清空输入框和状态
+                                                    // Clear input field and state
                                                     setReplyTexts({
                                                         ...replyTexts,
                                                         [reply.replyId]: ''
                                                     });
                                                     setShowReplyBoxId(null);
                                                 } catch (error) {
-                                                    console.error('回复失败:', error);
+                                                    console.error('Reply failed:', error);
                                                 }
                                             }}
                                             style={{
@@ -761,7 +761,7 @@ export default function PostDetailPage() {
                                                 border: 'none',
                                             }}
                                         >
-                                            发送
+                                            Send
                                         </Button>
                                         <Button
                                             size="small"
@@ -774,7 +774,7 @@ export default function PostDetailPage() {
                                                 setReplyToReply(null);
                                             }}
                                         >
-                                            取消
+                                            Cancel
                                         </Button>
                                     </Space>
                                 </div>
@@ -783,7 +783,7 @@ export default function PostDetailPage() {
                     </Space>
                 </List.Item>
 
-                {/* 子回复区域 */}
+                {/* Child replies area */}
                 {hasChildren && (
                     <div
                         style={{
@@ -794,12 +794,12 @@ export default function PostDetailPage() {
                             marginBottom: level === 0 ? 16 : 8,
                         }}
                     >
-                        {/* 🔥 根据折叠状态显示子回复 */}
+                        {/* 🔥 Display child replies based on collapse state */}
                         {(collapsed ? reply.children!.slice(0, 3) : reply.children!).map((childReply) =>
                             renderReplyItem(childReply, level + 1)
                         )}
 
-                        {/* 🔥 展开按钮(如果有更多回复且处于折叠状态) */}
+                        {/* 🔥 Expand button (if there are more replies and in collapsed state) */}
                         {collapsed && childCount > 3 && (
                             <Button
                                 type="link"
@@ -815,7 +815,7 @@ export default function PostDetailPage() {
                                     fontSize: '13px',
                                 }}
                             >
-                                展开剩余{childCount - 3}条回复 &gt;&gt;
+                                Expand remaining {childCount - 3} replies &gt;&gt;
                             </Button>
                         )}
                     </div>
@@ -849,7 +849,7 @@ export default function PostDetailPage() {
                 }}
             >
                 <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
-                    {/* 面包屑导航 */}
+                    {/* Breadcrumb navigation */}
                     <Breadcrumb
                         style={{ marginBottom: 24 }}
                         items={[
@@ -871,12 +871,12 @@ export default function PostDetailPage() {
                                 <Card style={cardStyle}>
                                     <div style={{ textAlign: 'center', padding: '60px 0' }}>
                                         <Spin size="large" />
-                                        <div style={{ marginTop: 16, color: '#9ca3af' }}>加载中...</div>
+                                        <div style={{ marginTop: 16, color: '#9ca3af' }}>Loading...</div>
                                     </div>
                                 </Card>
                             ) : post ? (
                                 <>
-                                    {/* 帖子主体 */}
+                                    {/* Post body */}
                                     <Card
                                         className="animate-card-hover"
                                         style={{
@@ -885,7 +885,7 @@ export default function PostDetailPage() {
                                         }}
                                         styles={{ body: { padding: '32px' } }}
                                     >
-                                        {/* 帖子头部 */}
+                                        {/* Post header */}
                                         <div style={{ marginBottom: 24 }}>
                                             <Space style={{ marginBottom: 16 }}>
                                                 {post.category && (
@@ -912,7 +912,7 @@ export default function PostDetailPage() {
                                                             padding: '2px 12px',
                                                         }}
                                                     >
-                                                        热门
+                                                        Hot
                                                     </Tag>
                                                 )}
                                             </Space>
@@ -936,7 +936,7 @@ export default function PostDetailPage() {
                                                         src={getAvatarUrl(post.authorAvatar)}
                                                         icon={<UserOutlined />}
                                                         onError={() => {
-                                                            handleAvatarError(new Error('头像加载失败'), true);
+                                                            handleAvatarError(new Error('Avatar loading failed'), true);
                                                             return false;
                                                         }}
                                                         style={getDefaultAvatarStyle(24)}
@@ -962,20 +962,20 @@ export default function PostDetailPage() {
 
                                         <Divider style={{ borderColor: 'rgba(99, 102, 241, 0.2)' }} />
 
-                                        {/* 帖子内容 */}
+                                        {/* Post content */}
 
                                         <div
-                                            className="quill-content"  // 添加这个 class
+                                            className="quill-content"  // Add this class
                                             style={{
                                                 color: '#e5e7eb',
                                                 fontSize: '15px',
                                                 lineHeight: 1.8,
                                                 minHeight: 200,
                                             }}
-                                            dangerouslySetInnerHTML={{ __html: post.body }}  // 使用 HTML 渲染
+                                            dangerouslySetInnerHTML={{ __html: post.body }}  // Use HTML rendering
                                         />
 
-                                        {/* 标签 */}
+                                        {/* Tags */}
                                         {post.tags && post.tags.length > 0 && (
                                             <div style={{ marginTop: 24 }}>
                                                 <Space wrap>
@@ -999,7 +999,7 @@ export default function PostDetailPage() {
 
                                         <Divider style={{ borderColor: 'rgba(99, 102, 241, 0.2)' }} />
 
-                                        {/* 操作栏 */}
+                                        {/* Action bar */}
                                         <Row justify="space-between" align="middle">
                                             <Col>
                                                 <Space size="large">
@@ -1043,7 +1043,7 @@ export default function PostDetailPage() {
                                                             onClick={() => setReportModalVisible(true)}
                                                             style={{ color: '#9ca3af' }}
                                                         >
-                                                            举报
+                                                            Report
                                                         </Button>
                                                     )}
                                                 </Space>
@@ -1051,7 +1051,7 @@ export default function PostDetailPage() {
                                         </Row>
                                     </Card>
 
-                                    {/* 回复输入框 */}
+                                    {/* Reply input box */}
                                     {isLoggedIn ? (
                                         <Card
                                             style={{
@@ -1073,14 +1073,14 @@ export default function PostDetailPage() {
                                                     >
                                                         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                                                             <Text style={{ color: '#a5b4fc' }}>
-                                                                回复 @{replyToReply.authorName}
+                                                                Reply to @{replyToReply.authorName}
                                                             </Text>
                                                             <Button
                                                                 type="text"
                                                                 size="small"
                                                                 onClick={() => setReplyToReply(null)}
                                                             >
-                                                                取消
+                                                                Cancel
                                                             </Button>
                                                         </Space>
                                                     </div>
@@ -1089,15 +1089,15 @@ export default function PostDetailPage() {
                                                 <Form form={form} onFinish={handleSubmitReply}>
                                                     <Form.Item
                                                         name="content"
-                                                        rules={[{ required: true, message: '请输入回复内容' }]}
+                                                        rules={[{ required: true, message: 'Please enter reply content' }]}
                                                     >
                                                         <TextArea
                                                             value={replyContent}
                                                             onChange={(e) => setReplyContent(e.target.value)}
                                                             placeholder={
                                                                 replyToReply
-                                                                    ? `回复 @${replyToReply.authorName}...`
-                                                                    : '写下你的回复...'
+                                                                    ? `Reply to @${replyToReply.authorName}...`
+                                                                    : 'Write your reply...'
                                                             }
                                                             rows={4}
                                                             style={{
@@ -1136,26 +1136,26 @@ export default function PostDetailPage() {
                                             styles={{ body: { padding: '32px' } }}
                                         >
                                             <Text style={{ color: '#9ca3af', fontSize: '14px' }}>
-                                                请
+                                                Please
                                                 <Button
                                                     type="link"
                                                     onClick={() => router.push(navigationRoutes.login)}
                                                     style={{ padding: '0 4px' }}
                                                 >
-                                                    登录
+                                                    login
                                                 </Button>
-                                                后参与讨论
+                                                to join the discussion
                                             </Text>
                                         </Card>
                                     )}
 
-                                    {/* 回复列表 */}
+                                    {/* Replies list */}
                                     <Card
                                         title={
                                             <Space>
                                                 <CommentOutlined style={{ color: '#6366f1' }} />
                                                 <span style={{ color: '#f9fafb', fontSize: '16px', fontWeight: 600 }}>
-                                                    全部回复 ({replies.length})
+                                                    All Replies ({replies.length})
                                                 </span>
                                             </Space>
                                         }
@@ -1166,13 +1166,13 @@ export default function PostDetailPage() {
                                             <List
                                                 dataSource={replies}
                                                 renderItem={renderReplyItem}
-                                                locale={{ emptyText: '暂无回复' }}
+                                                locale={{ emptyText: 'No replies yet' }}
                                             />
                                         ) : (
                                             <Empty
                                                 description={
                                                     <span style={{ color: '#9ca3af' }}>
-                                                        还没有回复，快来抢沙发吧！
+                                                        No replies yet, be the first to comment!
                                                     </span>
                                                 }
                                                 style={{ padding: '40px 0' }}
@@ -1182,7 +1182,7 @@ export default function PostDetailPage() {
                                 </>
                             ) : (
                                 <Card style={cardStyle}>
-                                    <Empty description="帖子不存在或已被删除" />
+                                    <Empty description="Post does not exist or has been deleted" />
                                 </Card>
                             )}
                         </Col>
@@ -1190,36 +1190,36 @@ export default function PostDetailPage() {
                 </div>
             </div>
 
-            {/* 删除确认弹窗 */}
+            {/* Delete confirmation modal */}
             <Modal
                 title={
                     <Space>
                         <WarningOutlined style={{ color: '#ef4444' }} />
-                        <span>确认删除</span>
+                        <span>Confirm Delete</span>
                     </Space>
                 }
                 open={deleteModalVisible}
                 onOk={handleDeletePost}
                 onCancel={() => setDeleteModalVisible(false)}
-                okText="确认删除"
-                cancelText="取消"
+                okText="Confirm Delete"
+                cancelText="Cancel"
                 okButtonProps={{
                     danger: true,
                 }}
             >
-                <p>确定要删除这篇帖子吗？此操作不可恢复。</p>
+                <p>Are you sure you want to delete this post? This action cannot be undone.</p>
             </Modal>
 
-            {/* 举报弹窗 */}
+            {/* Report modal */}
             <Modal
-                title="举报帖子"
+                title="Report Post"
                 open={reportModalVisible}
                 onCancel={() => setReportModalVisible(false)}
                 footer={null}
             >
                 <Space direction="vertical" style={{ width: '100%' }}>
-                    <Text>请选择举报原因：</Text>
-                    {['违规内容', '广告营销', '恶意攻击', '虚假信息', '其他'].map(reason => (
+                    <Text>Please select a reason for reporting:</Text>
+                    {['Inappropriate Content', 'Advertising', 'Malicious Attack', 'False Information', 'Other'].map(reason => (
                         <Button
                             key={reason}
                             block

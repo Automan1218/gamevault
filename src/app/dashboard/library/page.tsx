@@ -17,7 +17,7 @@ export default function LibraryPage() {
   const { message } = App.useApp();
   const [tab, setTab] = useState<string>("library");
   
-  // 使用 Library Hook
+  // Use Library Hook
   const { 
     filteredGames, 
     loading: libraryLoading, 
@@ -25,7 +25,7 @@ export default function LibraryPage() {
     setSearchQuery 
   } = useLibrary();
   
-  // 使用 Orders Hook
+  // Use Orders Hook
   const { 
     selectedOrder, 
     fetchOrders,
@@ -33,17 +33,17 @@ export default function LibraryPage() {
     setSelectedOrder 
   } = useOrders();
   
-  // 激活码模态框状态
+  // Activation code modal state
   const [selectedGame, setSelectedGame] = useState<OwnedGame | null>(null);
   const [codesModalOpen, setCodesModalOpen] = useState(false);
   const [orderOpen, setOrderOpen] = useState(false);
 
   const orderColumns: ProColumns<any>[] = [
-    { title: "订单ID", dataIndex: "orderId" },
-    { title: "创建时间", dataIndex: "createdAt", valueType: "dateTime" },
-    { title: "状态", dataIndex: "status", render: (_, r) => <Badge status={r.status === 'PAID' || r.status === 'COMPLETED' ? 'success' : r.status === 'PENDING' ? 'warning' : 'error'} text={r.status} /> },
-    { title: "总额", dataIndex: "total", valueType: "money" },
-    { title: "操作", valueType: 'option', render: (_, r) => [
+    { title: "Order ID", dataIndex: "orderId" },
+    { title: "Created Time", dataIndex: "createdAt", valueType: "dateTime" },
+    { title: "Status", dataIndex: "status", render: (_, r) => <Badge status={r.status === 'PAID' || r.status === 'COMPLETED' ? 'success' : r.status === 'PENDING' ? 'warning' : 'error'} text={r.status} /> },
+    { title: "Total", dataIndex: "total", valueType: "money" },
+    { title: "Actions", valueType: 'option', render: (_, r) => [
       <Button 
         key="detail" 
         type="link"
@@ -58,23 +58,23 @@ export default function LibraryPage() {
             await fetchOrderDetail(r.orderId);
             setOrderOpen(true);
           } catch (error: any) {
-            message.error(error?.message || '获取详情失败');
+            message.error(error?.message || 'Failed to get details');
           }
         }}
       >
-        详情
+        Details
       </Button>
     ] },
   ];
 
   return (
     <>
-      {/* 顶部导航栏 */}
+      {/* Top navigation bar */}
       <Menubar currentPath="/dashboard/library" />
 
       <PageContainer
-        title="我的游戏库"
-        subtitle="管理您的游戏收藏 • 探索无限可能"
+        title="My Game Library"
+        subtitle="Manage your game collection • Explore infinite possibilities"
         showBackground={true}
         showDecorations={true}
       >
@@ -90,12 +90,12 @@ export default function LibraryPage() {
         { key: 'library', label: (
           <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <PlaySquareOutlined />
-            已拥有的游戏
+            Owned Games
           </span>
         ), children: (
           <>
             <SearchForm
-              placeholder="搜索游戏"
+              placeholder="Search games"
               onSearch={setSearchQuery}
               onChange={setSearchQuery}
               value={searchQuery}
@@ -120,9 +120,9 @@ export default function LibraryPage() {
               </div>
             ) : filteredGames.length === 0 ? (
               <EmptyState
-                title="暂无游戏"
-                description="开始您的游戏之旅，探索精彩世界"
-                subDescription="购买游戏后，它们将出现在这里"
+                title="No Games Yet"
+                description="Start your gaming journey and explore amazing worlds"
+                subDescription="After purchasing games, they will appear here"
               />
             ) : (
               <div style={{ 
@@ -153,7 +153,7 @@ export default function LibraryPage() {
             { key: 'orders', label: (
               <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <ShoppingCartOutlined />
-                购买记录
+                Purchase History
               </span>
             ), children: (
           <ProTable
@@ -164,7 +164,7 @@ export default function LibraryPage() {
               pageSize: 10,
               showSizeChanger: false,
               showQuickJumper: true,
-              showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条记录`,
+              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} records`,
             }}
             request={async (params) => {
               try {
@@ -188,7 +188,7 @@ export default function LibraryPage() {
         )}
       ]} />
 
-      {/* 激活码查看模态框 */}
+      {/* Activation code view modal */}
       <ActivationCodesModal
         open={codesModalOpen}
         onClose={() => setCodesModalOpen(false)}
@@ -196,7 +196,7 @@ export default function LibraryPage() {
         activationCodes={selectedGame?.activationCodes || []}
       />
 
-      {/* 订单详情模态框 */}
+      {/* Order details modal */}
       <OrderDetailModal
         open={orderOpen}
         onClose={() => {

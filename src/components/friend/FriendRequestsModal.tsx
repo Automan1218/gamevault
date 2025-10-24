@@ -49,16 +49,16 @@ export default function FriendRequestsModal({
         const hours = Math.floor(minutes / 60);
         const days = Math.floor(hours / 24);
 
-        if (days > 0) return `${days}天前`;
-        if (hours > 0) return `${hours}小时前`;
-        if (minutes > 0) return `${minutes}分钟前`;
-        return '刚刚';
+        if (days > 0) return `${days} days ago`;
+        if (hours > 0) return `${hours} hours ago`;
+        if (minutes > 0) return `${minutes} minutes ago`;
+        return 'Just now';
     };
 
     const ReceivedRequestsList = () => (
         <List
             dataSource={receivedRequests}
-            locale={{ emptyText: <Empty description="暂无好友请求" /> }}
+            locale={{ emptyText: <Empty description="No friend requests" /> }}
             renderItem={(request) => (
                 <List.Item
                     actions={[
@@ -69,7 +69,7 @@ export default function FriendRequestsModal({
                                 loading={handlingId === request.id}
                                 onClick={() => handleAccept(request.id)}
                             >
-                                接受
+                                Accept
                             </Button>
                             <Button
                                 danger
@@ -77,7 +77,7 @@ export default function FriendRequestsModal({
                                 loading={handlingId === request.id}
                                 onClick={() => handleReject(request.id)}
                             >
-                                拒绝
+                                Reject
                             </Button>
                         </Space>,
                     ]}
@@ -95,7 +95,7 @@ export default function FriendRequestsModal({
                             <div>
                                 {request.message && (
                                     <div style={{ marginBottom: 4 }}>
-                                        留言：{request.message}
+                                        Message: {request.message}
                                     </div>
                                 )}
                                 <div style={{ color: '#999', fontSize: 12 }}>
@@ -112,7 +112,7 @@ export default function FriendRequestsModal({
     const SentRequestsList = () => (
         <List
             dataSource={sentRequests}
-            locale={{ emptyText: <Empty description="暂无发送的请求" /> }}
+            locale={{ emptyText: <Empty description="No sent requests" /> }}
             renderItem={(request) => (
                 <List.Item>
                     <List.Item.Meta
@@ -120,18 +120,18 @@ export default function FriendRequestsModal({
                             <div>
                                 <span style={{ fontWeight: 600 }}>{request.toUsername}</span>
                                 <Tag color="orange" style={{ marginLeft: 8 }}>
-                                    等待确认
+                                    Pending
                                 </Tag>
                             </div>
                         }
                         description={
                             <div>
                                 <div style={{ marginBottom: 4 }}>
-                                    发送至：{request.toEmail}
+                                    Sent to: {request.toEmail}
                                 </div>
                                 {request.message && (
                                     <div style={{ marginBottom: 4 }}>
-                                        留言：{request.message}
+                                        Message: {request.message}
                                     </div>
                                 )}
                                 <div style={{ color: '#999', fontSize: 12 }}>
@@ -147,7 +147,7 @@ export default function FriendRequestsModal({
 
     return (
         <Modal
-            title="好友请求"
+            title="Friend Requests"
             open={open}
             onCancel={onClose}
             footer={null}
@@ -157,12 +157,12 @@ export default function FriendRequestsModal({
                 items={[
                     {
                         key: 'received',
-                        label: `收到的请求${receivedRequests.length > 0 ? ` (${receivedRequests.length})` : ''}`,
+                        label: `Received Requests${receivedRequests.length > 0 ? ` (${receivedRequests.length})` : ''}`,
                         children: <ReceivedRequestsList />,
                     },
                     {
                         key: 'sent',
-                        label: `发送的请求${sentRequests.length > 0 ? ` (${sentRequests.length})` : ''}`,
+                        label: `Sent Requests${sentRequests.length > 0 ? ` (${sentRequests.length})` : ''}`,
                         children: <SentRequestsList />,
                     },
                 ]}

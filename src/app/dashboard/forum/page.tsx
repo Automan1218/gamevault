@@ -62,7 +62,7 @@ export default function ForumPage() {
     const [mounted, setMounted] = useState(false);
     const { message } = App.useApp();
     const [isHovered, setIsHovered] = useState(false);
-    // 热门游戏数据
+    // Hot games data
     const hotGames = [
         {
             id: 1,
@@ -108,26 +108,26 @@ export default function ForumPage() {
 
     const isLoggedIn = mounted ? AuthApi.isAuthenticated() : false;
 
-    // 点击帖子卡片时
+    // When clicking post card
     const handlePostClick = (contentId: number) => {
-        // 1. 先使用 PostStateManager 设置当前要查看的帖子
+        // 1. First use PostStateManager to set the current post to view
         PostStateManager.setCurrentPost(contentId);
 
-        // 2. 然后跳转到详情页（不带ID参数）
+        // 2. Then navigate to detail page (without ID parameter)
         router.push(navigationRoutes.forumDetail);
     }
 
-    // 点赞帖子
+    // Like post
     const handleLikePost = async (postId: number) => {
         try {
             const liked = await toggleLike(postId);
-            message.success(liked ? '点赞成功' : '取消点赞');
+            message.success(liked ? 'Liked successfully' : 'Unliked');
         } catch (error) {
-            message.error('操作失败');
+            message.error('Operation failed');
         }
     };
 
-    // 渲染帖子卡片
+    // Render post card
     const renderPostCard = (post: ForumPost) => (
         <Card
             hoverable
@@ -142,7 +142,7 @@ export default function ForumPage() {
             onClick={() => handlePostClick(post.contentId)}
         >
             <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                {/* 帖子头部：标签和时间 */}
+                {/* Post header: tags and time */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Space size="small">
                         <Tag 
@@ -171,7 +171,7 @@ export default function ForumPage() {
                                     fontWeight: 600,
                                 }}
                             >
-                                热门
+                                Hot
                             </Tag>
                         )}
                     </Space>
@@ -190,7 +190,7 @@ export default function ForumPage() {
                     </Text>
                 </div>
 
-                {/* 帖子标题 */}
+                {/* Post title */}
                 <Title 
                     level={4} 
                     style={{
@@ -204,7 +204,7 @@ export default function ForumPage() {
                     {post.title}
                 </Title>
 
-                {/* 帖子内容摘要 */}
+                {/* Post content summary */}
                 {post.bodyPlain && (
                     <Paragraph
                         ellipsis={{ rows: 2 }}
@@ -221,26 +221,26 @@ export default function ForumPage() {
 
                 <Divider style={{ margin: '12px 0', borderColor: 'rgba(99, 102, 241, 0.2)' }} />
 
-                {/* 帖子底部：作者和互动数据 */}
+                {/* Post footer: author and interaction data */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    {/* 作者信息 */}
+                    {/* Author information */}
                     <Space size="small">
                         <Avatar
                             size={32}
                             src={getAvatarUrl(post.authorAvatar)}
                             icon={<UserOutlined />}
                             onError={() => {
-                                handleAvatarError(new Error('头像加载失败'), true);
+                                handleAvatarError(new Error('Avatar loading failed'), true);
                                 return false;
                             }}
                             style={getDefaultAvatarStyle(32)}
                         />
                         <Text style={{ color: '#d1d5db', fontSize: '14px', fontWeight: 500 }}>
-                                    {post.authorNickname || post.authorUsername || post.authorName || `用户${post.authorId}`}
+                                    {post.authorNickname || post.authorUsername || post.authorName || `User${post.authorId}`}
                         </Text>
                     </Space>
 
-                    {/* 互动数据 */}
+                    {/* Interaction data */}
                     <Space size="large">
                         <Space size={4} style={{ color: '#9ca3af', fontSize: '14px' }}>
                             <EyeOutlined />
@@ -271,14 +271,14 @@ export default function ForumPage() {
         </Card>
     );
 
-    // 渲染热门话题侧边栏
+    // Render hot topics sidebar
     const renderHotTopics = () => {
         const hotTopics = [
-            { id: 1, title: '最新游戏推荐', icon: <FireOutlined />, count: 2341 },
-            { id: 2, title: '游戏攻略分享', icon: <TrophyOutlined />, count: 1892 },
-            { id: 3, title: '玩家交流', icon: <CommentOutlined />, count: 1654 },
-            { id: 4, title: '游戏评测', icon: <StarOutlined />, count: 1423 },
-            { id: 5, title: '游戏新闻', icon: <FileTextOutlined />, count: 1201 },
+            { id: 1, title: 'Latest Game Recommendations', icon: <FireOutlined />, count: 2341 },
+            { id: 2, title: 'Game Strategy Sharing', icon: <TrophyOutlined />, count: 1892 },
+            { id: 3, title: 'Player Communication', icon: <CommentOutlined />, count: 1654 },
+            { id: 4, title: 'Game Reviews', icon: <StarOutlined />, count: 1423 },
+            { id: 5, title: 'Game News', icon: <FileTextOutlined />, count: 1201 },
         ];
 
         return (
@@ -286,7 +286,7 @@ export default function ForumPage() {
                 title={
                     <Space>
                         <FireOutlined style={{ color: '#ef4444' }} />
-                        <span style={{ color: '#f9fafb', fontSize: '16px', fontWeight: 600 }}>热门话题</span>
+                        <span style={{ color: '#f9fafb', fontSize: '16px', fontWeight: 600 }}>Hot Topics</span>
                     </Space>
                 }
                 style={{
@@ -340,12 +340,12 @@ export default function ForumPage() {
         );
     };
 
-    // 渲染活跃用户侧边栏
+    // Render active users sidebar
     const renderActiveUsers = () => {
         const activeUsers = [
-            { id: 1, name: '游戏达人01', posts: 245, icon: '🏆' },
-            { id: 2, name: '游戏狂热者', posts: 189, icon: '⭐' },
-            { id: 3, name: '攻略专家', posts: 167, icon: '💎' },
+            { id: 1, name: 'Game Master 01', posts: 245, icon: '🏆' },
+            { id: 2, name: 'Game Enthusiast', posts: 189, icon: '⭐' },
+            { id: 3, name: 'Strategy Expert', posts: 167, icon: '💎' },
         ];
 
         return (
@@ -353,7 +353,7 @@ export default function ForumPage() {
                 title={
                     <Space>
                         <CrownOutlined style={{ color: '#fbbf24' }} />
-                        <span style={{ color: '#f9fafb', fontSize: '16px', fontWeight: 600 }}>活跃用户</span>
+                        <span style={{ color: '#f9fafb', fontSize: '16px', fontWeight: 600 }}>Active Users</span>
                     </Space>
                 }
                 style={{
@@ -391,7 +391,7 @@ export default function ForumPage() {
                                         {user.name}
                                     </div>
                                     <div style={{ color: '#9ca3af', fontSize: '12px' }}>
-                                        发帖 {user.posts} 条
+                                        {user.posts} posts
                                     </div>
                                 </div>
                             </Space>
@@ -422,10 +422,10 @@ export default function ForumPage() {
 
     return (
         <ConfigProvider theme={darkTheme}>
-            {/* 顶部导航栏 */}
+            {/* Top navigation bar */}
             <Menubar currentPath={navigationRoutes.forum} />
             
-            {/* 主内容区 */}
+            {/* Main content area */}
             <div 
                 className="animate-fade-in-up"
                 style={{
@@ -449,9 +449,9 @@ export default function ForumPage() {
                     padding: '0 60px',
                 }}>
                     <Row gutter={24}>
-                        {/* 左侧主内容区 */}
+                        {/* Left main content area */}
                         <Col xs={24} lg={17}>
-                            {/* 热门游戏轮播 */}
+                            {/* Hot games carousel */}
                             <div style={{ marginBottom: 24 }}>
                                 <Carousel 
                                     autoplay 
@@ -483,7 +483,7 @@ export default function ForumPage() {
                                                     justifyContent: 'space-between',
                                                 } }}
                                             >
-                                                {/* 装饰性背景 */}
+                                                {/* Decorative background */}
                                                 <div
                                                     style={{
                                                         position: 'absolute',
@@ -509,7 +509,7 @@ export default function ForumPage() {
                                                     }}
                                                 />
 
-                                                {/* 游戏内容 */}
+                                                {/* Game content */}
                                                 <div style={{ position: 'relative', zIndex: 1 }}>
                                                     <div style={{ marginBottom: '16px' }}>
                                                         <span style={{ fontSize: '64px' }}>{game.icon}</span>
@@ -549,7 +549,7 @@ export default function ForumPage() {
                                                     </Text>
                                                 </div>
 
-                                                {/* 游戏统计 */}
+                                                {/* Game statistics */}
                                                 <div style={{ position: 'relative', zIndex: 1 }}>
                                                     <Row gutter={24}>
                                                         <Col span={12}>
@@ -598,10 +598,10 @@ export default function ForumPage() {
                                 </Carousel>
                             </div>
 
-                    {/* 发帖按钮 */}
+                    {/* Post button */}
 
 
-                            {/* 标签导航 */}
+                            {/* Tag navigation */}
                             <Card 
                                 style={{
                                     ...cardStyle,
@@ -647,12 +647,12 @@ export default function ForumPage() {
                                 </Space>
                             </Card>
 
-                    {/* 帖子列表 */}
+                    {/* Post list */}
                                         <div>
                                             {loading && posts.length === 0 ? (
                                     <div style={{ textAlign: 'center', padding: '80px 0' }}>
                                                     <Spin size="large" />
-                                        <div style={{ marginTop: 16, color: '#9ca3af' }}>加载中...</div>
+                                        <div style={{ marginTop: 16, color: '#9ca3af' }}>Loading...</div>
                                                 </div>
                                             ) : error ? (
                                     <Card style={cardStyle}>
@@ -663,7 +663,7 @@ export default function ForumPage() {
                                             ) : posts.length === 0 ? (
                                     <Card style={cardStyle}>
                                         <Empty 
-                                            description={<span style={{ color: '#9ca3af' }}>暂无帖子</span>} 
+                                            description={<span style={{ color: '#9ca3af' }}>No posts yet</span>} 
                                         />
                                     </Card>
                                             ) : (
@@ -699,31 +699,31 @@ export default function ForumPage() {
                                         </div>
                         </Col>
 
-                        {/* 右侧边栏 */}
+                        {/* Right sidebar */}
                         <Col xs={0} lg={7}>
-                            {/* 热门话题 */}
+                            {/* Hot topics */}
                             {renderHotTopics()}
                             
-                            {/* 活跃用户 */}
+                            {/* Active users */}
                             {renderActiveUsers()}
 
-                            {/* 论坛规则 */}
+                            {/* Forum rules */}
                             <Card 
                                 title={
                                     <Space>
                                         <FileTextOutlined style={{ color: '#06b6d4' }} />
-                                        <span style={{ color: '#f9fafb', fontSize: '16px', fontWeight: 600 }}>论坛规则</span>
+                                        <span style={{ color: '#f9fafb', fontSize: '16px', fontWeight: 600 }}>Forum Rules</span>
                                     </Space>
                                 }
                                 style={cardStyle}
                                 styles={{ body: { padding: '16px' } }}
                             >
                                 <div style={{ color: '#9ca3af', fontSize: '13px', lineHeight: 1.8 }}>
-                                    <p style={{ margin: '8px 0' }}>• 友善交流，尊重他人</p>
-                                    <p style={{ margin: '8px 0' }}>• 禁止发布违法违规内容</p>
-                                    <p style={{ margin: '8px 0' }}>• 禁止恶意刷屏灌水</p>
-                                    <p style={{ margin: '8px 0' }}>• 原创内容请注明出处</p>
-                                    <p style={{ margin: '8px 0' }}>• 共同维护良好环境</p>
+                                    <p style={{ margin: '8px 0' }}>• Communicate friendly and respect others</p>
+                                    <p style={{ margin: '8px 0' }}>• Prohibited to post illegal content</p>
+                                    <p style={{ margin: '8px 0' }}>• No malicious spamming</p>
+                                    <p style={{ margin: '8px 0' }}>• Please indicate source for original content</p>
+                                    <p style={{ margin: '8px 0' }}>• Work together to maintain a good environment</p>
                                 </div>
                     </Card>
                         </Col>

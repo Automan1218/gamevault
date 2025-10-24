@@ -14,42 +14,42 @@ export default function GlobalNavigation({ style, className }: GlobalNavigationP
     const router = useRouter();
     const pathname = usePathname();
 
-    // 导航按钮配置
+    // Navigation button configuration
     const navButtons = [
         {
             key: 'home',
-            label: '首页',
+            label: 'Home',
             path: navigationRoutes.home,
             color:'#fff'
         },
         {
             key: 'community',
-            label: '社区',
-            path: navigationRoutes.forum, // 指向 /dashboard/forum
+            label: 'Community',
+            path: navigationRoutes.forum, // Points to /dashboard/forum
             color:'#fff'
         },
         {
             key: 'store',
-            label: '商城',
+            label: 'Store',
             path: navigationRoutes.shop,
             color:'#fff'
         },
         {
             key: 'developer',
-            label: '开发',
+            label: 'Developer',
             path: navigationRoutes.developer,
             color:'#fff'
         },
         {
             key: 'chat',
-            label: '聊天',
+            label: 'Chat',
             path: navigationRoutes.chat,
             color:'#fff'
         }
     ];
 
 
-    // 检查当前路径是否激活
+    // Check if current path is active
     const isActivePath = (path: string) => {
         if (path === '/') {
             return pathname === '/';
@@ -57,7 +57,7 @@ export default function GlobalNavigation({ style, className }: GlobalNavigationP
         return pathname.startsWith(path);
     };
 
-    // 处理导航点击
+    // Handle navigation click
     const handleNavClick = (path: string) => {
         router.push(path);
     };

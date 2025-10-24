@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { ConfigProvider, App as AntdApp } from 'antd';
-import zhCN from 'antd/locale/zh_CN';
+import enUS from 'antd/locale/en_US';
 import { CartProvider } from '@/contexts/CartContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import './globals.css';
@@ -21,11 +21,11 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="zh-CN">
+        <html lang="en">
         <body className={inter.className}>
         <AntdRegistry>
             <ConfigProvider
-                locale={zhCN}
+                locale={enUS}
                 theme={{
                     token: {
                         colorPrimary: '#FF6B6B',

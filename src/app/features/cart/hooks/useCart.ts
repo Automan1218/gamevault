@@ -7,40 +7,40 @@ import type { CartDTO } from "@/lib/api/StoreTypes";
 export function useCart() {
   const [cart, setCart] = useState<CartDTO | null>(null);
 
-  /** 🛒 获取购物车 */
+  /** 🛒 Get cart */
   const fetchCart = async () => {
     const data = await cartApi.getCart();
     setCart(data);
   };
 
-  /** ➕ 添加商品 */
+  /** ➕ Add item */
   const addToCart = async (gameId: number, quantity: number = 1) => {
     const data = await cartApi.addToCart(gameId, quantity);
     setCart(data);
   };
 
-  /** 🔄 更新商品数量 */
+  /** 🔄 Update item quantity */
   const updateQuantity = async (gameId: number, quantity: number) => {
     const data = await cartApi.updateQuantity(gameId, quantity);
     setCart(data);
   };
 
-  /** ❌ 移除商品 */
+  /** ❌ Remove item */
   const removeFromCart = async (gameId: number) => {
     const data = await cartApi.removeFromCart(gameId);
     setCart(data);
   };
 
-  /** 🧹 清空购物车 */
+  /** 🧹 Clear cart */
   const clearCart = async () => {
     const data = await cartApi.clearCart();
     setCart(data);
   };
 
-  /** 💳 结账 */
+  /** 💳 Checkout */
   const checkout = async (method: string) => {
     await cartApi.checkout(method);
-    await fetchCart(); // 支付后刷新购物车状态
+    await fetchCart(); // Refresh cart status after payment
   };
 
   useEffect(() => {

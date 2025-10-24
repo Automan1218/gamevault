@@ -21,70 +21,70 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartDTO | null>(null);
   const [loading, setLoading] = useState(true);
 
-  /** 🛒 获取购物车 */
+  /** 🛒 Get cart */
   const fetchCart = async () => {
     try {
       setLoading(true);
       const data = await cartApi.getCart();
       setCart(data);
     } catch (error) {
-      console.error('获取购物车失败:', error);
+      console.error('Failed to get cart:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  /** ➕ 添加商品 */
+  /** ➕ Add item */
   const addToCart = async (gameId: number, quantity: number = 1) => {
     try {
       const data = await cartApi.addToCart(gameId, quantity);
       setCart(data);
     } catch (error) {
-      console.error('添加到购物车失败:', error);
+      console.error('Failed to add to cart:', error);
       throw error;
     }
   };
 
-  /** 🔄 更新商品数量 */
+  /** 🔄 Update item quantity */
   const updateQuantity = async (gameId: number, quantity: number) => {
     try {
       const data = await cartApi.updateQuantity(gameId, quantity);
       setCart(data);
     } catch (error) {
-      console.error('更新数量失败:', error);
+      console.error('Failed to update quantity:', error);
       throw error;
     }
   };
 
-  /** ❌ 移除商品 */
+  /** ❌ Remove item */
   const removeFromCart = async (gameId: number) => {
     try {
       const data = await cartApi.removeFromCart(gameId);
       setCart(data);
     } catch (error) {
-      console.error('移除商品失败:', error);
+      console.error('Failed to remove item:', error);
       throw error;
     }
   };
 
-  /** 🧹 清空购物车 */
+  /** 🧹 Clear cart */
   const clearCart = async () => {
     try {
       const data = await cartApi.clearCart();
       setCart(data);
     } catch (error) {
-      console.error('清空购物车失败:', error);
+      console.error('Failed to clear cart:', error);
       throw error;
     }
   };
 
-  /** 💳 结账 */
+  /** 💳 Checkout */
   const checkout = async (method: string) => {
     try {
       await cartApi.checkout(method);
-      await fetchCart(); // 支付后刷新购物车状态
+      await fetchCart(); // Refresh cart status after payment
     } catch (error) {
-      console.error('结账失败:', error);
+      console.error('Checkout failed:', error);
       throw error;
     }
   };

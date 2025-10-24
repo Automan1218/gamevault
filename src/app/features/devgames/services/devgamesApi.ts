@@ -10,7 +10,7 @@ import { AuthApi } from "@/lib/api";
 const BASE_URL = ENV.DEVGAMES_API_URL;
 
 /**
- * 🔧 通用请求封装 — 自动带 Token + 错误处理
+ * 🔧 Generic request wrapper — Auto include Token + error handling
  */
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const token = AuthApi.getToken();
@@ -30,13 +30,13 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
         throw new Error(`[${res.status}] ${msg || "Request failed"}`);
     }
 
-    // 若无内容返回（DELETE 等）
+    // If no content returned (DELETE etc.)
     if (res.status === 204) return {} as T;
     return res.json();
 }
 
 /**
- * 🔧 文件上传通用封装 (multipart/form-data)
+ * 🔧 File upload generic wrapper (multipart/form-data)
  */
 async function requestFile<T>(endpoint: string, method: string, body: FormData): Promise<T> {
     const token = AuthApi.getToken();
@@ -56,43 +56,45 @@ async function requestFile<T>(endpoint: string, method: string, body: FormData):
 }
 
 /**
- * 🎮 开发者相关接口合集
+ * 🎮 Developer related API collection
  */
 export const devgamesApi = {
-    /** 🎮 上传游戏 */
+    /** 🎮 Upload game */
     async upload(request: UploadDevGameRequest): Promise<DevGame> {
         const fd = new FormData();
         fd.append("name", request.name);
         fd.append("description", request.description);
         fd.append("releaseDate", request.releaseDate);
         fd.append("image", request.image);
-        if (request.video) fd.append("video", request.video);
+        if (request.video) {
+            fd.append("video", request.video);
+        }
         fd.append("zip", request.zip);
 
         return requestFile<DevGame>(`/devgame/upload`, "POST", fd);
     },
 
-    /** 🗂 获取我的游戏 */
+    /** 🗂 Get my games */
     async getMyGames(): Promise<DevGame[]> {
         return request<DevGame[]>(`/devgame/my`, { method: "GET" });
     },
 
-    /** ❌ 删除游戏 */
+    /** ❌ Delete game */
     async deleteGame(gameId: string): Promise<void> {
         return request<void>(`/devgame/${gameId}`, { method: "DELETE" });
     },
 
-    /** 🔍 根据 ID 获取游戏详情 */
+    /** 🔍 Get game details by ID */
     async getGameById(gameId: string): Promise<DevGame> {
         return request<DevGame>(`/devgame/${gameId}`, { method: "GET" });
     },
 
-    /** ✏️ 更新游戏 */
+    /** ✏️ Update game */
     async updateGame(gameId: string, formData: FormData): Promise<DevGame> {
         return requestFile<DevGame>(`/devgame/update/${gameId}`, "PUT", formData);
     },
 
-    /** 🌐 获取公开游戏分页 */
+    /** 🌐 Get public games pagination */
     async getPublicGames(page: number, pageSize: number): Promise<DevGameListResponse> {
         return request<DevGameListResponse>(
             `/devgame/public/all?page=${page}&pageSize=${pageSize}`,
@@ -100,7 +102,7 @@ export const devgamesApi = {
         );
     },
 
-    /** ⬇️ 记录下载事件 */
+    /** ⬇️ Record download event */
     async recordDownload(gameId: string): Promise<void> {
         return request<void>(`/devgame/public/${gameId}/download`, {
             method: "POST",
@@ -109,15 +111,15 @@ export const devgamesApi = {
         });
     },
 
-    /** 🔥 获取热门游戏 */
+    /** 🔥 Get hot games */
     async getHotGames(limit: number = 6) {
         return request(`/devgame/public/hot?limit=${limit}`, { method: "GET" });
     },
 
     /**
-     * 📊 获取开发者仪表盘数据（Dashboard）
-     * ✅ 自动识别当前登录用户（通过 JWT）
-     * ✅ 无需传 developerId
+     * 📊 Get developer dashboard data (Dashboard)
+     * ✅ Auto identify current logged in user (via JWT)
+     * ✅ No need to pass developerId
      */
     async getDeveloperDashboard(): Promise<DevDashboardDetailedResponse> {
         return request<DevDashboardDetailedResponse>(`/dev/statistics/dashboard/me`, { method: "GET" });

@@ -9,7 +9,7 @@ export default function AntdRegistry({ children }: PropsWithChildren) {
   useServerInsertedHTML(() => (
     <style
       id="antd-cssinjs"
-      // 这里把服务端生成的样式注入到 HTML
+      // Inject server-generated styles into HTML
       dangerouslySetInnerHTML={{ __html: extractStyle(cache, true) }}
     />
   ));

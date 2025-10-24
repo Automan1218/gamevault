@@ -6,7 +6,7 @@ import { App, Tag } from "antd";
 import Link from "next/link";
 import { PageContainer, Menubar } from '@/components/layout';
 
-// 对齐 order_items 表
+// Align with order_items table
 type OrderItemRow = {
   orderItemId: number; // order_item_id
   orderId: number;     // order_id
@@ -28,30 +28,30 @@ export default function OrdersPage() {
         const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
         const res = await fetch(`/api/orders`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
         const d = await res.json();
-        if (!res.ok) throw new Error(d?.message || "加载失败");
+        if (!res.ok) throw new Error(d?.message || "Loading failed");
         setData(d?.items || []);
-      } catch (e: any) { message.error(e?.message || "加载失败"); }
+      } catch (e: any) { message.error(e?.message || "Loading failed"); }
     })();
   }, [message]);
 
   const columns: ProColumns<OrderItemRow>[] = [
-    { title: "订单项ID", dataIndex: "orderItemId", render: (_, r) => <Link href={`/orders/${r.orderItemId}`}>{r.orderItemId}</Link> },
-    { title: "订单ID", dataIndex: "orderId" },
-    { title: "游戏ID", dataIndex: "gameId" },
-    { title: "下单时间", dataIndex: "orderDate", valueType: "dateTime" },
-    { title: "单价", dataIndex: "unitPrice", valueType: "money" },
-    { title: "折后价", dataIndex: "discountPrice", valueType: "money" },
-    { title: "状态", dataIndex: "orderStatus", render: (_, r) => <Tag color={r.orderStatus === 'PAID' || r.orderStatus === 'COMPLETED' ? 'green' : r.orderStatus === 'PENDING' ? 'gold' : 'red'}>{r.orderStatus}</Tag> },
+    { title: "Order Item ID", dataIndex: "orderItemId", render: (_, r) => <Link href={`/orders/${r.orderItemId}`}>{r.orderItemId}</Link> },
+    { title: "Order ID", dataIndex: "orderId" },
+    { title: "Game ID", dataIndex: "gameId" },
+    { title: "Order Time", dataIndex: "orderDate", valueType: "dateTime" },
+    { title: "Unit Price", dataIndex: "unitPrice", valueType: "money" },
+    { title: "Discounted Price", dataIndex: "discountPrice", valueType: "money" },
+    { title: "Status", dataIndex: "orderStatus", render: (_, r) => <Tag color={r.orderStatus === 'PAID' || r.orderStatus === 'COMPLETED' ? 'green' : r.orderStatus === 'PENDING' ? 'gold' : 'red'}>{r.orderStatus}</Tag> },
   ];
 
   return (
     <>
-      {/* 顶部导航栏 */}
+      {/* Top navigation bar */}
       <Menubar currentPath="/orders" />
       
       <PageContainer
-        title="购买记录"
-        subtitle="查看您的订单历史 • 管理购买记录"
+        title="Purchase History"
+        subtitle="View your order history • Manage purchase records"
         showBackground={true}
         showDecorations={true}
       >

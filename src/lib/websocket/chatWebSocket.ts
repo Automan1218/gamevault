@@ -4,7 +4,7 @@ import { ENV } from '@/config/env';
 
 export type MessageCallback = (message: any) => void;
 
-// 文件信息接口
+// File information interface
 export interface FileMessageInfo {
     fileId: string;
     fileName: string;
@@ -26,11 +26,11 @@ class ChatWebSocketClient {
     private activeSubscriptions: Map<string, StompSubscription> = new Map();
 
     /**
-     * 连接 WebSocket
+     * Connect WebSocket
      */
     connect(token: string): Promise<void> {
         return new Promise((resolve, reject) => {
-            console.log('开始连接 WebSocket...');
+            console.log('Starting WebSocket connection...');
 
             this.isManualDisconnect = false;
 
@@ -55,28 +55,28 @@ class ChatWebSocketClient {
                 },
 
                 onConnect: () => {
-                    console.log('WebSocket 连接成功');
+                    console.log('WebSocket connected successfully');
                     this.reconnectAttempts = 0;
                     this.restoreSubscriptions();
                     resolve();
                 },
 
                 onStompError: (frame) => {
-                    console.error('STOMP 错误:', frame);
-                    console.error('   - 错误信息:', frame.headers.message);
-                    console.error('   - 错误详情:', frame.body);
+                    console.error('STOMP error:', frame);
+                    console.error('   - Error message:', frame.headers.message);
+                    console.error('   - Error details:', frame.body);
 
                     if (this.reconnectAttempts === 0) {
-                        reject(new Error(frame.headers.message || 'WebSocket 连接失败'));
+                        reject(new Error(frame.headers.message || 'WebSocket connection failed'));
                     }
                 },
 
                 onWebSocketError: (error) => {
-                    console.error('WebSocket 错误:', error);
+                    console.error('WebSocket error:', error);
                 },
 
                 onDisconnect: () => {
-                    console.log('WebSocket 已断开');
+                    console.log('WebSocket disconnected');
 
                     if (!this.isManualDisconnect) {
                         this.attemptReconnect(token);
@@ -84,7 +84,7 @@ class ChatWebSocketClient {
                 },
 
                 onWebSocketClose: (event) => {
-                    console.log('WebSocket 连接关闭');
+                    console.log('WebSocket connection closed');
                     console.log('   - Code:', event.code);
                     console.log('   - Reason:', event.reason);
                     console.log('   - Clean:', event.wasClean);
@@ -96,39 +96,39 @@ class ChatWebSocketClient {
     }
 
     /**
-     * 尝试重连
+     * Attempting reconnection
      */
     private attemptReconnect(token: string) {
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-            console.error('已达到最大重连次数，停止重连');
+            console.error('Maximum reconnection attempts reached, stopping reconnection');
             return;
         }
 
         this.reconnectAttempts++;
         const delay = this.reconnectDelay * this.reconnectAttempts;
 
-        console.log(`尝试重连 (${this.reconnectAttempts}/${this.maxReconnectAttempts})，${delay / 1000}秒后重试...`);
+        console.log(`Attempting reconnection (${this.reconnectAttempts}/${this.maxReconnectAttempts}), retry in ${delay / 1000} seconds...`);
 
         setTimeout(() => {
             if (!this.isManualDisconnect) {
-                console.log('开始重连...');
+                console.log('Starting reconnection...');
                 this.connect(token).catch(err => {
-                    console.error('重连失败:', err);
+                    console.error('Reconnection failed:', err);
                 });
             }
         }, delay);
     }
 
     /**
-     * 恢复订阅
+     * Restore subscriptions
      */
     private restoreSubscriptions() {
         if (this.subscriptionQueue.length === 0) {
-            console.log('没有需要恢复的订阅');
+            console.log('No subscriptions to restore');
             return;
         }
 
-        console.log(`恢复 ${this.subscriptionQueue.length} 个订阅...`);
+        console.log(`Restoring ${this.subscriptionQueue.length} subscriptions...`);
 
         this.subscriptionQueue.forEach(({ destination, callback }) => {
             try {
@@ -137,29 +137,29 @@ class ChatWebSocketClient {
                         const payload = JSON.parse(message.body);
                         callback(payload);
                     } catch (error) {
-                        console.error('解析消息失败:', error);
+                        console.error('Failed to parse message:', error);
                     }
                 });
 
                 this.activeSubscriptions.set(destination, subscription);
-                console.log(`恢复订阅: ${destination}`);
+                console.log(`Restore subscriptions: ${destination}`);
             } catch (error) {
-                console.error(`恢复订阅失败: ${destination}`, error);
+                console.error(`Failed to restore subscription: ${destination}`, error);
             }
         });
     }
 
     /**
-     * 订阅私聊消息（带重连支持）
+     * Subscribe to private messages (with reconnection support)
      */
     subscribeToPrivateMessages(userId: number, callback: MessageCallback) {
-        console.log('subscribeToPrivateMessages 被调用 - userId:', userId);
+        console.log('subscribeToPrivateMessages called - userId:', userId);
 
         if (!this.client || !this.client.connected) {
-            console.error('WebSocket 未连接，无法订阅');
+            console.error('WebSocket not connected, cannot subscribe');
             return {
                 unsubscribe: () => {
-                    console.log('⚠无效的订阅，无需取消');
+                    console.log('⚠ Invalid subscription, no need to cancel');
                 }
             };
         }
@@ -168,28 +168,28 @@ class ChatWebSocketClient {
 
         this.subscriptionQueue.push({ destination, callback });
 
-        console.log('订阅私聊消息:', destination);
+        console.log('Subscribe to private messages:', destination);
 
         try {
             const subscription = this.client.subscribe(destination, (message) => {
-                console.log('WebSocket 收到私聊消息');
-                console.log('原始消息:', message.body);
+                console.log('WebSocket received private message');
+                console.log('Raw message:', message.body);
 
                 try {
                     const payload = JSON.parse(message.body);
-                    console.log('解析后:', payload);
+                    console.log('Parsed:', payload);
                     callback(payload);
                 } catch (error) {
-                    console.error('解析消息失败:', error);
+                    console.error('Failed to parse message:', error);
                 }
             });
 
             this.activeSubscriptions.set(destination, subscription);
-            console.log('私聊消息订阅成功 - subscription.id:', subscription.id);
+            console.log('Private message subscription successful - subscription.id:', subscription.id);
 
             return {
                 unsubscribe: () => {
-                    console.log('取消私聊订阅:', destination);
+                    console.log('Unsubscribe from private messages:', destination);
                     subscription.unsubscribe();
                     this.activeSubscriptions.delete(destination);
 
@@ -200,26 +200,26 @@ class ChatWebSocketClient {
             };
 
         } catch (error) {
-            console.error('订阅时发生错误:', error);
+            console.error('Error occurred during subscription:', error);
             return {
                 unsubscribe: () => {
-                    console.log('订阅失败，无需取消');
+                    console.log('Subscription failed, no need to cancel');
                 }
             };
         }
     }
 
     /**
-     * 订阅群聊消息（带重连支持）
+     * Subscribe to group chat messages (with reconnection support)
      */
     subscribeToConversation(conversationId: string, callback: MessageCallback) {
-        console.log('subscribeToConversation 被调用 - conversationId:', conversationId);
+        console.log('subscribeToConversation called - conversationId:', conversationId);
 
         if (!this.client || !this.client.connected) {
-            console.error('WebSocket 未连接，无法订阅');
+            console.error('WebSocket not connected, cannot subscribe');
             return {
                 unsubscribe: () => {
-                    console.log('无效的订阅，无需取消');
+                    console.log('Invalid subscription, no need to cancel');
                 }
             };
         }
@@ -228,14 +228,14 @@ class ChatWebSocketClient {
 
         this.subscriptionQueue.push({ destination, callback });
 
-        console.log('订阅群聊消息:', destination);
+        console.log('Subscribe to group chat messages:', destination);
 
         try {
             const subscription = this.client.subscribe(destination, (message) => {
                 try {
                     const payload = JSON.parse(message.body);
-                    console.log('收到群聊消息:', payload.content);
-                    console.log('🔔 收到群聊消息:', {
+                    console.log('Received group chat message:', payload.content);
+                    console.log('🔔 Received group chat message:', {
                         id: payload.id,
                         messageType: payload.messageType,
                         content: payload.content,
@@ -245,18 +245,18 @@ class ChatWebSocketClient {
                     });
                     callback(payload);
                 } catch (error) {
-                    console.error('解析消息失败:', error);
+                    console.error('Failed to parse message:', error);
                 }
             });
 
             this.activeSubscriptions.set(destination, subscription);
             this.subscribers.set(conversationId, callback);
 
-            console.log('群聊消息订阅成功 - subscription.id:', subscription.id);
+            console.log('Group chat message subscription successful - subscription.id:', subscription.id);
 
             return {
                 unsubscribe: () => {
-                    console.log('取消群聊订阅:', destination);
+                    console.log('Unsubscribe from group chat:', destination);
                     subscription.unsubscribe();
                     this.activeSubscriptions.delete(destination);
                     this.subscribers.delete(conversationId);
@@ -268,7 +268,7 @@ class ChatWebSocketClient {
             };
 
         } catch (error) {
-            console.error('订阅时发生错误:', error);
+            console.error('Error occurred during subscription:', error);
             return {
                 unsubscribe: () => {}
             };
@@ -276,12 +276,12 @@ class ChatWebSocketClient {
     }
 
     /**
-     * 发送群聊消息（带重试）
+     * Send group chat message (with retry)
      */
     sendMessage(conversationId: string, content: string, messageType: string = 'text') {
         if (!this.client || !this.client.connected) {
-            console.error('WebSocket 未连接，无法发送消息');
-            throw new Error('WebSocket 未连接');
+            console.error('WebSocket not connected, cannot send message');
+            throw new Error('WebSocket not connected');
         }
 
         const message = {
@@ -296,32 +296,32 @@ class ChatWebSocketClient {
                 body: JSON.stringify(message),
             });
 
-            console.log('群聊消息已发送:', message);
+            console.log('Group chat message sent:', message);
         } catch (error) {
-            console.error('发送消息失败:', error);
+            console.error('Failed to send message:', error);
             throw error;
         }
     }
 
     /**
-     * 发送群聊文件消息
+     * Send group chat file message
      */
     sendMessageWithFile(conversationId: string, content: string, fileInfo: FileMessageInfo) {
-        console.log('🟣 chatWebSocket.sendMessageWithFile 被调用');
+        console.log('🟣 chatWebSocket.sendMessageWithFile called');
         console.log('   conversationId:', conversationId);
         console.log('   content:', content);
         console.log('   fileInfo:', fileInfo);
 
         if (!this.client || !this.client.connected) {
-            console.error('WebSocket 未连接，无法发送消息');
-            throw new Error('WebSocket 未连接');
+            console.error('WebSocket not connected, cannot send message');
+            throw new Error('WebSocket not connected');
         }
 
         const message = {
             conversationId: parseInt(conversationId),
             content,
             messageType: 'file',
-            // 文件相关字段
+            // File related fields
             fileId: fileInfo.fileId,
             fileName: fileInfo.fileName,
             fileSize: fileInfo.fileSize,
@@ -331,7 +331,7 @@ class ChatWebSocketClient {
             thumbnailUrl: fileInfo.thumbnailUrl,
         };
 
-        console.log('📤 即将发送的消息对象:');
+        console.log('📤 Message object to be sent:');
         console.log(JSON.stringify(message, null, 2));
 
         try {
@@ -340,20 +340,20 @@ class ChatWebSocketClient {
                 body: JSON.stringify(message),
             });
 
-            console.log('群聊文件消息已发送:', message);
+            console.log('Group chat file message sent:', message);
         } catch (error) {
-            console.error('发送文件消息失败:', error);
+            console.error('Failed to send file message:', error);
             throw error;
         }
     }
 
     /**
-     * 发送私聊消息（带重试）
+     * Send private message (with retry)
      */
     sendPrivateMessage(receiverId: number, content: string, messageType: string = 'text') {
         if (!this.client || !this.client.connected) {
-            console.error('WebSocket 未连接，无法发送消息');
-            throw new Error('WebSocket 未连接');
+            console.error('WebSocket not connected, cannot send message');
+            throw new Error('WebSocket not connected');
         }
 
         const message = {
@@ -368,27 +368,27 @@ class ChatWebSocketClient {
                 body: JSON.stringify(message),
             });
 
-            console.log('私聊消息已发送:', message);
+            console.log('Private message sent:', message);
         } catch (error) {
-            console.error('发送消息失败:', error);
+            console.error('Failed to send message:', error);
             throw error;
         }
     }
 
     /**
-     * 发送私聊文件消息
+     * Send private file message
      */
     sendPrivateMessageWithFile(receiverId: number, content: string, fileInfo: FileMessageInfo) {
         if (!this.client || !this.client.connected) {
-            console.error('WebSocket 未连接，无法发送消息');
-            throw new Error('WebSocket 未连接');
+            console.error('WebSocket not connected, cannot send message');
+            throw new Error('WebSocket not connected');
         }
 
         const message = {
             receiverId,
             content,
             messageType: 'file',
-            // 🆕 文件相关字段
+            // 🆕 File related fields
             fileId: fileInfo.fileId,
             fileName: fileInfo.fileName,
             fileSize: fileInfo.fileSize,
@@ -404,18 +404,18 @@ class ChatWebSocketClient {
                 body: JSON.stringify(message),
             });
 
-            console.log('私聊文件消息已发送:', message);
+            console.log('Private file message sent:', message);
         } catch (error) {
-            console.error('发送文件消息失败:', error);
+            console.error('Failed to send file message:', error);
             throw error;
         }
     }
 
     /**
-     * 手动断开连接
+     * Manually disconnect
      */
     disconnect() {
-        console.log('手动断开 WebSocket 连接');
+        console.log('Manually disconnect WebSocket connection');
         this.isManualDisconnect = true;
 
         if (this.client) {
@@ -427,14 +427,14 @@ class ChatWebSocketClient {
     }
 
     /**
-     * 检查连接状态
+     * Check connection status
      */
     isConnected(): boolean {
         return this.client?.connected || false;
     }
 
     /**
-     * 获取连接统计信息
+     * Get connection statistics
      */
     getStats() {
         return {
@@ -446,5 +446,5 @@ class ChatWebSocketClient {
     }
 }
 
-// 导出单例
+// Export singleton
 export const chatWebSocket = new ChatWebSocketClient();

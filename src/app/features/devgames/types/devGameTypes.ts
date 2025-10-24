@@ -33,9 +33,9 @@ export interface PublicGame {
     id: string;
     name: string;
     description: string;
-    coverImageUrl?: string; // 封面图片下载地址
-    videoUrl?: string;      // 视频资源地址
-    zipUrl?: string;        // 游戏安装包下载地址
+    coverImageUrl?: string; // Cover image download URL
+    videoUrl?: string;      // Video resource URL
+    zipUrl?: string;        // Game installation package download URL
 }
 
 export interface DevDashboardDetailedResponse {

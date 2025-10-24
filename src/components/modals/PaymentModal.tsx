@@ -14,7 +14,7 @@ export function PaymentModal({ open, onClose, amount, onConfirm }: PaymentModalP
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
-  // Luhn 校验
+  // Luhn validation
   const luhnCheck = (card: string): boolean => {
     const digits = card.replace(/\s+/g, "").replace(/-/g, "");
     if (!/^\d{12,19}$/.test(digits)) return false;
@@ -69,45 +69,45 @@ export function PaymentModal({ open, onClose, amount, onConfirm }: PaymentModalP
       open={open}
       onCancel={onClose}
       onOk={handleOk}
-      okText="支付"
-      cancelText="取消"
+      okText="Pay"
+      cancelText="Cancel"
       confirmLoading={loading}
-      title="模拟支付"
+      title="Simulate Payment"
     >
       <Form layout="vertical" form={form}>
         <Form.Item
           name="paymentMethod"
-          label="支付方式"
-          rules={[{ required: true, message: "请选择支付方式" }]}
+          label="Payment Method"
+          rules={[{ required: true, message: "Please select payment method" }]}
         >
           <Select
             options={[
-              { label: "信用卡", value: "CREDIT_CARD" },
-              { label: "借记卡", value: "DEBIT_CARD" },
-              { label: "钱包余额", value: "WALLET" },
+              { label: "Credit Card", value: "CREDIT_CARD" },
+              { label: "Debit Card", value: "DEBIT_CARD" },
+              { label: "Wallet Balance", value: "WALLET" },
             ]}
           />
         </Form.Item>
         <Form.Item
           name="cardHolder"
-          label="持卡人姓名"
-          rules={[{ required: true, message: "请输入持卡人姓名" }]}
+          label="Cardholder Name"
+          rules={[{ required: true, message: "Please enter cardholder name" }]}
         >
-          <Input placeholder="与卡面一致的姓名" />
+          <Input placeholder="Name as shown on card" />
         </Form.Item>
         <Form.Item
           name="cardNumber"
-          label="卡号"
+          label="Card Number"
           rules={[
-            { required: true, message: "请输入卡号" },
+            { required: true, message: "Please enter card number" },
             {
               validator: (_, value) => {
                 const normalized = (value || "").replace(/\s+/g, "");
                 if (!/^\d{12,19}$/.test(normalized)) {
-                  return Promise.reject(new Error("卡号应为12-19位数字"));
+                  return Promise.reject(new Error("Card number should be 12-19 digits"));
                 }
                 if (!luhnCheck(value || "")) {
-                  return Promise.reject(new Error("卡号未通过校验"));
+                  return Promise.reject(new Error("Card number validation failed"));
                 }
                 return Promise.resolve();
               },
@@ -126,15 +126,15 @@ export function PaymentModal({ open, onClose, amount, onConfirm }: PaymentModalP
         <div style={{ display: "flex", gap: 12 }}>
           <Form.Item
             name="expiry"
-            label="有效期 (MM/YY)"
+            label="Expiry Date (MM/YY)"
             style={{ flex: 1 }}
             rules={[
-              { required: true, message: "请输入有效期" },
+              { required: true, message: "Please enter expiry date" },
               {
                 validator: (_, value) =>
                   validateExpiry(value || "")
                     ? Promise.resolve()
-                    : Promise.reject(new Error("有效期格式或日期无效")),
+                    : Promise.reject(new Error("Invalid expiry date format or date")),
               },
             ]}
           >
@@ -152,17 +152,17 @@ export function PaymentModal({ open, onClose, amount, onConfirm }: PaymentModalP
             label="CVC"
             style={{ flex: 1 }}
             rules={[
-              { required: true, message: "请输入 CVC" },
+              { required: true, message: "Please enter CVC" },
               {
                 validator: (_, value) =>
                   /^\d{3,4}$/.test((value || "").trim())
                     ? Promise.resolve()
-                    : Promise.reject(new Error("CVC 应为 3-4 位数字")),
+                    : Promise.reject(new Error("CVC should be 3-4 digits")),
               },
             ]}
           >
             <Input
-              placeholder="3-4位数字"
+              placeholder="3-4 digits"
               inputMode="numeric"
               onChange={(e) => {
                 const formatted = normalizeCvc(e.target.value);
@@ -172,7 +172,7 @@ export function PaymentModal({ open, onClose, amount, onConfirm }: PaymentModalP
           </Form.Item>
         </div>
         <p style={{ textAlign: "right" }}>
-          支付金额：<strong>￥{amount?.toFixed(2) || 0}</strong>
+          Payment Amount: <strong>${amount?.toFixed(2) || 0}</strong>
         </p>
       </Form>
     </Modal>

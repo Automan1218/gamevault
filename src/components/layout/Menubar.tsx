@@ -12,7 +12,10 @@ import {
   MessageOutlined,
   CodeOutlined,
   FileTextOutlined,
-  CommentOutlined
+  CommentOutlined,
+  UserOutlined,
+  AppstoreOutlined,
+  RocketOutlined
 } from '@ant-design/icons';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import { getLoginRedirectUrl, navigationRoutes } from '@/lib/navigation';
@@ -47,8 +50,9 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
-  // 获取购物车信息
+  // Get cart information
   const { cart } = useCart();
   const cartItemCount = cart?.cartItems?.length || 0;
 
@@ -62,7 +66,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
     return queryString ? `${nextPath}?${queryString}` : nextPath;
   }, [pathname, searchParams, currentPath]);
 
-  // 检查登录状态
+  // Check login status
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
@@ -75,30 +79,31 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
           setUser(userData);
         }
       } catch (error) {
-        console.error('检查认证状态失败:', error);
+        console.error('Failed to check authentication status:', error);
         setIsLoggedIn(false);
         setUser(null);
       } finally {
         setLoading(false);
+        setMounted(true);
       }
     };
 
     checkAuthStatus();
   }, []);
 
-  // 检查路径是否匹配（支持子路径匹配）
+  // Check if path matches (supports sub-path matching)
   const isPathActive = (itemPath: string, currentPath: string) => {
-    // 如果是精确匹配
+    // If exact match
     if (currentPath === itemPath) return true;
     
-    // 如果是首页，只有精确匹配才算
+    // If homepage, only exact match counts
     if (itemPath === '/') return false;
     
-    // 如果当前路径是该菜单项路径的子路径
+    // If current path is a sub-path of this menu item
     return currentPath.startsWith(itemPath + '/');
   };
 
-  // 导航菜单项
+  // Navigation menu items
   const navItems: NavItem[] = [
     { key: 'home', label: 'Home', path: navigationRoutes.home, icon: <HomeOutlined />, requireAuth: false },
     { key: 'store', label: 'Store', path: navigationRoutes.shopping, icon: <ShoppingCartOutlined />, requireAuth: false },
@@ -127,12 +132,42 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
       ]
     },
     { key: 'chat', label: 'Chat', path: '/dashboard/chat', icon: <MessageOutlined />, requireAuth: true },
-    { key: 'developer', label: 'Developer', path: '/dashboard/developer', icon: <CodeOutlined />, requireAuth: true },
+    {
+      key: 'developer', 
+      label: 'Developer', 
+      path: navigationRoutes.developer,
+      icon: <CodeOutlined />,
+      requireAuth: true,
+      hasDropdown: true,
+      dropdownItems: [
+        { 
+          key: 'developer-profile', 
+          label: 'Profile', 
+          path: navigationRoutes.developerProfile,
+          icon: <UserOutlined />,
+          requireAuth: true 
+        },
+        { 
+          key: 'developer-mygames', 
+          label: 'My Games', 
+          path: navigationRoutes.developerMyGames, 
+          icon: <AppstoreOutlined />,
+          requireAuth: true 
+        },
+        { 
+          key: 'developer-gamehub', 
+          label: 'GameHub', 
+          path: navigationRoutes.developerGameHub, 
+          icon: <RocketOutlined />,
+          requireAuth: true 
+        },
+      ]
+    },
   ];
 
-  // 处理导航点击
+  // Handle navigation click
   const handleNavClick = (item: NavItem) => {
-    // 如果菜单项需要登录但用户未登录，跳转到登录页面
+    // If menu item requires login but user is not logged in, redirect to login page
     if (item.requireAuth && !isLoggedIn) {
       router.push(getLoginRedirectUrl(item.path));
       return;
@@ -141,7 +176,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
     router.push(item.path);
   };
 
-  // 处理购物车点击
+  // Handle cart click
   const handleCartClick = () => {
     if (!isLoggedIn) {
       router.push(getLoginRedirectUrl(navigationRoutes.cart));
@@ -150,17 +185,17 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
     router.push(navigationRoutes.cart);
   };
 
-  // 处理通知点击
+  // Handle notification click
   const handleNotificationClick = () => {
     router.push(navigationRoutes.notifications);
   };
 
-  // 处理登录
+  // Handle login
   const handleLogin = () => {
     router.push(getLoginRedirectUrl(resolvedCurrentPath));
   };
 
-  // 搜索输入状态与提交（第一版实现）
+  // Search input state and submission (first version implementation)
   const [searchValue, setSearchValue] = useState<string>("");
   const handleSearchSubmit = () => {
     const q = searchValue.trim();
@@ -194,7 +229,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
         }}
         className="animate-slide-in"
       >
-        {/* 左侧Logo和导航 */}
+        {/* Left side Logo and navigation */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
           {/* Logo */}
           <div
@@ -241,12 +276,56 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
             </span>
           </div>
 
-          {/* 导航菜单 */}
+          {/* Navigation menu */}
           <Space size="large">
             {navItems.map((item) => {
-              // 如果有下拉菜单
+              // If has dropdown menu
               if (item.hasDropdown && item.dropdownItems) {
-                const filteredItems = item.dropdownItems.filter(dropItem => !dropItem.requireAuth || isLoggedIn);
+                const filteredItems = mounted ? item.dropdownItems.filter(dropItem => !dropItem.requireAuth || isLoggedIn) : [];
+                
+                // If no menu items after filtering, show as regular button
+                if (filteredItems.length === 0) {
+                  return (
+                    <Button
+                      key={item.key}
+                      type="text"
+                      icon={item.icon}
+                      onClick={() => handleNavClick(item)}
+                      style={{
+                        color: mounted && isPathActive(item.path, currentPath) ? '#6366f1' : '#d1d5db',
+                        fontWeight: mounted && isPathActive(item.path, currentPath) ? 600 : 500,
+                        fontSize: '16px',
+                        height: '40px',
+                        padding: '0 16px',
+                        borderRadius: '12px',
+                        background: mounted && isPathActive(item.path, currentPath) 
+                          ? 'rgba(99, 102, 241, 0.1)' 
+                          : 'transparent',
+                        border: mounted && isPathActive(item.path, currentPath) 
+                          ? '1px solid rgba(99, 102, 241, 0.3)' 
+                          : '1px solid transparent',
+                        transition: 'all 0.3s ease',
+                        opacity: item.requireAuth && mounted && !isLoggedIn ? 0.6 : 1,
+                      }}
+                      onMouseEnter={(e) => {
+                        if (mounted && !isPathActive(item.path, currentPath)) {
+                          e.currentTarget.style.background = 'rgba(99, 102, 241, 0.05)';
+                          e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)';
+                          e.currentTarget.style.color = '#e0e7ff';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (mounted && !isPathActive(item.path, currentPath)) {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.borderColor = 'transparent';
+                          e.currentTarget.style.color = '#d1d5db';
+                        }
+                      }}
+                    >
+                      {item.label}
+                    </Button>
+                  );
+                }
                 
                 const dropdownMenuItems = filteredItems.map((dropItem, index) => {
                   const menuItem = {
@@ -260,8 +339,18 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
                     onClick: () => router.push(dropItem.path),
                   };
                   
-                  // 如果有多个菜单项且这是第一项（论坛首页），添加分隔线
-                  if (filteredItems.length > 1 && index === 0 && isLoggedIn) {
+                  // Add divider for Developer menu: after the first menu item
+                  if (item.key === 'developer' && index === 0 && filteredItems.length > 1) {
+                    return [menuItem, { type: 'divider' as const, key: `divider-${index}` }];
+                  }
+                  
+                  // Add divider for Developer menu after My Games
+                  if (item.key === 'developer' && dropItem.key === 'developer-mygames' && filteredItems.length > 2) {
+                    return [menuItem, { type: 'divider' as const, key: `divider-${index}` }];
+                  }
+                  
+                  // Add divider for Forum menu: after the first menu item (if user is logged in)
+                  if (item.key === 'forum' && index === 0 && filteredItems.length > 1 && isLoggedIn) {
                     return [menuItem, { type: 'divider' as const, key: `divider-${index}` }];
                   }
                   
@@ -308,14 +397,14 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
                         opacity: item.requireAuth && !isLoggedIn ? 0.6 : 1,
                       }}
                       onMouseEnter={(e) => {
-                        if (!isPathActive(item.path, currentPath)) {
+                        if (mounted && !isPathActive(item.path, currentPath)) {
                           e.currentTarget.style.background = 'rgba(99, 102, 241, 0.05)';
                           e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)';
                           e.currentTarget.style.color = '#e0e7ff';
                         }
                       }}
                       onMouseLeave={(e) => {
-                        if (!isPathActive(item.path, currentPath)) {
+                        if (mounted && !isPathActive(item.path, currentPath)) {
                           e.currentTarget.style.background = 'transparent';
                           e.currentTarget.style.borderColor = 'transparent';
                           e.currentTarget.style.color = '#d1d5db';
@@ -328,7 +417,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
                 );
               }
 
-              // 普通按钮
+              // Regular button
               return (
                 <Button
                   key={item.key}
@@ -373,9 +462,9 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
           </Space>
         </div>
 
-        {/* 右侧搜索和用户区域 */}
+        {/* Right side search and user area */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {/* 搜索框 */}
+          {/* Search box */}
           <Input
             placeholder="Search games..."
             prefix={<SearchOutlined style={{ color: '#9ca3af' }} />}
@@ -401,7 +490,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
             }}
           />
 
-          {/* 通知和购物车图标 */}
+          {/* Notification and cart icons */}
           {isLoggedIn && (
             <Space size="middle">
               <Badge count={3} size="small">
@@ -463,7 +552,7 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
             </Space>
           )}
 
-          {/* 用户菜单或登录按钮 */}
+          {/* User menu or login button */}
           {loading ? (
             <div style={{ width: '40px', height: '40px' }} />
           ) : isLoggedIn ? (

@@ -9,7 +9,7 @@ const { Title } = Typography;
 
 export default function UploadFormPage() {
     const [form] = Form.useForm<UploadFormValues>();
-    const { uploadGame } = useDevGames(); // ✅ 从 Hook 拿上传逻辑
+    const { uploadGame } = useDevGames(); // ✅ Get upload logic from Hook
 
     return (
         <Card style={{ maxWidth: 800, margin: "0 auto" }}>
@@ -18,7 +18,7 @@ export default function UploadFormPage() {
             <Form
                 form={form}
                 layout="vertical"
-                onFinish={(values) => uploadGame(values, () => form.resetFields())} // ✅ 调用 Hook 方法
+                onFinish={(values) => uploadGame(values, () => form.resetFields())} // ✅ Call Hook method
             >
                 <Form.Item name="name" label="Game Name" rules={[{ required: true }]}>
                     <Input />
@@ -32,7 +32,7 @@ export default function UploadFormPage() {
                     <DatePicker showTime />
                 </Form.Item>
 
-                {/* Upload 部分统一封装 */}
+                {/* Upload section unified encapsulation */}
                 <Form.Item
                     name="image"
                     label="Game Image"

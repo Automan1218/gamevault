@@ -1,8 +1,8 @@
 /**
- * 头像相关功能统一导出
+ * Avatar related functionality unified export
  */
 
-// 导出头像工具函数
+// Export avatar utility functions
 export { 
     getAvatarUrl, 
     isValidAvatarUrl, 
@@ -10,6 +10,6 @@ export {
     handleAvatarError 
 } from './avatar';
 
-// 导出头像事件管理
+// Export avatar event management
 export { avatarEvents } from './avatarEvents';
 

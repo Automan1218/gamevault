@@ -38,7 +38,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           overflow: "hidden",
         }}
       >
-        {/* 左侧装饰与品牌区（固定不随子路由状态变化） */}
+        {/* Left decoration and brand area (fixed, doesn't change with sub-route state) */}
         <div
           style={{
             display: "flex",
@@ -49,7 +49,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               "linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%)",
           }}
         >
-          {/* 装饰性背景元素 */}
+          {/* Decorative background elements */}
           <div
             style={{
               position: "absolute",
@@ -77,7 +77,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             }}
           />
 
-          {/* 左侧内容 */}
+          {/* Left content */}
           <div style={{ textAlign: "center", zIndex: 1, padding: "0 80px" }}>
             <div
               style={{
@@ -120,7 +120,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 marginBottom: "24px",
               }}
             >
-              探索无限游戏世界
+              Explore Infinite Gaming Worlds
             </Text>
             <Text
               style={{
@@ -130,14 +130,14 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 lineHeight: 1.6,
               }}
             >
-              发现精彩游戏，享受极致体验
+              Discover amazing games, enjoy ultimate experience
               <br />
-              您的游戏库，您的选择
+              Your game library, your choice
             </Text>
           </div>
         </div>
 
-        {/* 右侧子页面承载区 */}
+        {/* Right sub-page container */}
         <div
           style={{
             display: "flex",

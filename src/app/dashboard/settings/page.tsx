@@ -19,7 +19,7 @@ export default function SettingsPage() {
   const [changePasswordForm] = Form.useForm();
   const [changeEmailForm] = Form.useForm();
 
-  // 修改密码
+  // Change password
   const handleChangePassword = async (values: { oldPassword: string; newPassword: string; confirmPassword: string }) => {
     const result = await changePassword(values.oldPassword, values.newPassword);
     if (result.success) {
@@ -30,7 +30,7 @@ export default function SettingsPage() {
     }
   };
 
-  // 更改邮箱
+  // Change email
   const handleChangeEmail = async (values: { password: string; newEmail: string }) => {
     const result = await changeEmail(values.password, values.newEmail);
     if (result.success) {
@@ -41,10 +41,10 @@ export default function SettingsPage() {
     }
   };
 
-  // 头像更新处理
+  // Avatar update handling
   const handleAvatarChange = (avatarUrl: string | null) => {
     updateAvatar(avatarUrl);
-    // 发送头像更新事件，通知其他组件（如UserMenu）刷新
+    // Send avatar update event to notify other components (like UserMenu) to refresh
     avatarEvents.emit(avatarUrl);
   };
 
@@ -59,7 +59,7 @@ export default function SettingsPage() {
       ),
       children: (
         <Row gutter={[24, 24]}>
-          {/* 用户信息卡片 */}
+          {/* User information card */}
           <Col xs={24} lg={8}>
             <Card
               className="animate-card-hover animate-fade-in-up"
@@ -74,7 +74,7 @@ export default function SettingsPage() {
               }}
             >
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                {/* 头像显示和编辑 */}
+                {/* Avatar display and edit */}
                 <AvatarUpload
                   currentAvatar={userInfo?.avatarUrl}
                   onAvatarChange={handleAvatarChange}
@@ -93,7 +93,7 @@ export default function SettingsPage() {
 
                 <Divider style={{ borderColor: 'rgba(99, 102, 241, 0.2)', margin: '24px 0' }} />
                 
-                {/* 编辑头像按钮 */}
+                {/* Edit avatar button */}
                 <AvatarUpload
                   currentAvatar={userInfo?.avatarUrl}
                   onAvatarChange={handleAvatarChange}
@@ -104,7 +104,7 @@ export default function SettingsPage() {
             </Card>
           </Col>
 
-          {/* 账户统计信息 */}
+          {/* Account statistics */}
           <Col xs={24} lg={16}>
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12}>
@@ -152,7 +152,7 @@ export default function SettingsPage() {
               </Col>
             </Row>
 
-            {/* 快速操作 */}
+            {/* Quick actions */}
             <Card
               className="animate-card-hover animate-fade-in-up"
               style={{
@@ -523,7 +523,7 @@ export default function SettingsPage() {
 
   return (
     <>
-      {/* 顶部导航栏 */}
+      {/* Top navigation bar */}
       <Menubar currentPath="/dashboard/settings" />
 
       <PageContainer

@@ -28,7 +28,7 @@ interface ChatWindowProps {
 }
 
 /**
- * 聊天窗口组件
+ * Chat window component
  */
 export const ChatWindow: React.FC<ChatWindowProps> = ({
                                                           conversation,
@@ -44,12 +44,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                                                       }) => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // 自动滚动到底部
+    // Auto scroll to bottom
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    // 未选择会话
+    // No conversation selected
     if (!conversation) {
         return (
             <div
@@ -63,7 +63,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                 }}
             >
                 <Empty
-                    description="选择一个会话开始聊天"
+                    description="Select a conversation to start chatting"
                     style={{
                         color: darkMode ? '#9ca3af' : undefined,
                     }}
@@ -74,16 +74,16 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
     const isGroup = conversation.type === 'group';
 
-    // 获取消息发送者信息
+    // Get message sender information
     const getSenderInfo = (message: ChatMessage) => {
         if (message.senderId === currentUserId) {
-            return { name: '我', avatar: undefined };
+            return { name: 'Me', avatar: undefined };
         }
 
         if (isGroup && members.length > 0) {
             const member = members.find((m) => m.userId === message.senderId);
             return {
-                name: member?.nickname || member?.username || '未知用户',
+                name: member?.nickname || member?.username || 'Unknown User',
                 avatar: undefined,
             };
         }
@@ -94,7 +94,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         };
     };
 
-    // 获取 bizId
+    // Get bizId
     const getBizId = () => {
         if (conversation.type === 'group') {
             return String(conversation.data.id);
@@ -113,7 +113,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                 backdropFilter: darkMode ? 'blur(10px)' : 'none',
             }}
         >
-            {/* 标题栏 */}
+            {/* Title bar */}
             <div
                 style={{
                     height: 60,
@@ -133,7 +133,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                     </Title>
                     {isGroup && members.length > 0 && (
                         <Tag color="blue">
-                            <TeamOutlined /> {members.length} 成员
+                            <TeamOutlined /> {members.length} members
                         </Tag>
                     )}
                 </Space>
@@ -142,7 +142,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                     <Button
                         icon={<BellOutlined />}
                         type="text"
-                        title="通知设置（暂未实现）"
+                        title="Notification settings (not implemented yet)"
                     />
                     {isGroup && (
                         <>
@@ -150,20 +150,20 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                                 icon={<UserAddOutlined />}
                                 type="text"
                                 onClick={onAddMember}
-                                title="添加成员"
+                                title="Add member"
                             />
                             <Button
                                 icon={<SettingOutlined />}
                                 type="text"
                                 onClick={onOpenSettings}
-                                title="群聊设置"
+                                title="Group settings"
                             />
                         </>
                     )}
                 </Space>
             </div>
 
-            {/* 消息列表 */}
+            {/* Message list */}
             <div
                 style={{
                     flex: 1,
@@ -175,7 +175,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             >
                 {loading ? (
                     <div style={{ textAlign: 'center', padding: '40px' }}>
-                        <Spin tip="加载消息中..." />
+                        <Spin tip="Loading messages..." />
                     </div>
                 ) : messages.length > 0 ? (
                     <>
@@ -196,17 +196,17 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                     </>
                 ) : (
                     <Empty
-                        description="暂无消息，发送第一条消息开始聊天吧"
+                        description="No messages yet, send the first message to start chatting"
                         style={{ margin: 'auto' }}
                     />
                 )}
             </div>
 
-            {/* 输入框 */}
+            {/* Input box */}
             <MessageInput
                 onSend={onSendMessage}
                 loading={sending}
-                placeholder={`发送消息到 ${conversation.name}`}
+                placeholder={`Send message to ${conversation.name}`}
                 bizType={conversation.type === 'group' ? 'conversation' : 'message'}
                 bizId={getBizId()}
             />

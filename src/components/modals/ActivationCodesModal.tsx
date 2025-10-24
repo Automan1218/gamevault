@@ -44,7 +44,7 @@ export const ActivationCodesModal: React.FC<ActivationCodesModalProps> = ({
           backgroundClip: 'text',
         }}>
           <EyeOutlined style={{ marginRight: 8, color: '#6366f1' }} />
-          {gameTitle} - 激活码列表
+          {gameTitle} - Activation Codes
         </span>
       } 
       width={800}
@@ -61,7 +61,7 @@ export const ActivationCodesModal: React.FC<ActivationCodesModalProps> = ({
       <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
         <div style={{ marginBottom: 16, textAlign: 'center' }}>
           <Typography.Text style={{ color: '#9ca3af', fontSize: '1rem' }}>
-            共 {activationCodes.length} 个激活码，当前显示第 {currentPage} 页
+            Total {activationCodes.length} activation codes, showing page {currentPage}
           </Typography.Text>
         </div>
         
@@ -85,7 +85,7 @@ export const ActivationCodesModal: React.FC<ActivationCodesModalProps> = ({
                   marginBottom: 8,
                 }}>
                   <Typography.Text style={{ color: '#9ca3af', fontSize: '0.9rem' }}>
-                    激活码 #{(currentPage - 1) * codesPerPage + index + 1}
+                    Activation Code #{(currentPage - 1) * codesPerPage + index + 1}
                   </Typography.Text>
                   <Tag 
                     style={{
@@ -128,7 +128,7 @@ export const ActivationCodesModal: React.FC<ActivationCodesModalProps> = ({
               showSizeChanger={false}
               showQuickJumper
               showTotal={(total, range) => 
-                `第 ${range[0]}-${range[1]} 个，共 ${total} 个激活码`
+                `${range[0]}-${range[1]} of ${total} activation codes`
               }
               className="custom-pagination"
             />

@@ -25,7 +25,7 @@ class ApiInterceptor {
     return ApiInterceptor.instance;
   }
 
-  // 请求拦截器
+  // Request interceptor
   async requestInterceptor(request: ApiRequest): Promise<ApiRequest> {
     const token = AuthApi.getToken();
     
@@ -39,13 +39,13 @@ class ApiInterceptor {
     return request;
   }
 
-  // 响应拦截器
+  // Response interceptor
   async responseInterceptor(response: Response, originalRequest: ApiRequest): Promise<ApiResponse> {
-    // 如果是401错误且不是登录/注册请求，尝试刷新token
+    // If 401 error and not login/register request, try to refresh token
     if (response.status === 401 && !this.isAuthEndpoint(originalRequest.url)) {
-      console.log('Token可能已过期，尝试刷新认证状态...');
+      console.log('Token may have expired, trying to refresh authentication...');
       
-      // 防止重复刷新
+      // Prevent duplicate refresh
       if (!this.isRefreshing) {
         this.isRefreshing = true;
         this.refreshPromise = this.refreshAuth();
@@ -54,8 +54,8 @@ class ApiInterceptor {
       const refreshSuccess = await this.refreshPromise;
       
       if (refreshSuccess) {
-        // 刷新成功，重新发送原请求
-        console.log('认证状态已刷新，重新发送请求...');
+        // Refresh successful, resend original request
+        console.log('Authentication status refreshed, resending request...');
         const newToken = AuthApi.getToken();
         if (newToken) {
           originalRequest.options.headers = {
@@ -68,18 +68,18 @@ class ApiInterceptor {
             ok: retryResponse.ok,
             status: retryResponse.status,
             data: retryResponse.ok ? await retryResponse.json() : undefined,
-            error: retryResponse.ok ? undefined : `请求失败: ${retryResponse.status}`,
+            error: retryResponse.ok ? undefined : `Request failed: ${retryResponse.status}`,
           };
         }
       }
       
-      // 刷新失败，清除认证状态
-      console.log('认证刷新失败，清除认证状态...');
+      // Refresh failed, clear authentication status
+      console.log('Authentication refresh failed, clearing authentication status...');
       localStorage.removeItem('auth_token');
       this.isRefreshing = false;
       this.refreshPromise = null;
       
-      // 如果不是在登录页面，重定向到登录页
+      // If not on login page, redirect to login page
       if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/login')) {
         window.location.href = '/auth/login?redirect=' + encodeURIComponent(window.location.pathname);
       }
@@ -89,17 +89,17 @@ class ApiInterceptor {
       ok: response.ok,
       status: response.status,
       data: response.ok ? await response.json() : undefined,
-      error: response.ok ? undefined : `请求失败: ${response.status}`,
+      error: response.ok ? undefined : `Request failed: ${response.status}`,
     };
   }
 
-  // 检查是否是认证相关的端点
+  // Check if it's an authentication-related endpoint
   private isAuthEndpoint(url: string): boolean {
     const authEndpoints = ['/auth/login', '/auth/register', '/auth/me'];
     return authEndpoints.some(endpoint => url.includes(endpoint));
   }
 
-  // 刷新认证状态
+  // Refresh authentication status
   private async refreshAuth(): Promise<boolean> {
     try {
       const token = AuthApi.getToken();
@@ -107,7 +107,7 @@ class ApiInterceptor {
         return false;
       }
 
-      // 尝试调用 /auth/me 来验证token
+      // Try calling /auth/me to verify token
       const response = await fetch(`${process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:8080/api'}/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -117,7 +117,7 @@ class ApiInterceptor {
 
       return response.ok;
     } catch (error) {
-      console.error('认证刷新失败:', error);
+      console.error('Authentication refresh failed:', error);
       return false;
     } finally {
       this.isRefreshing = false;
@@ -127,25 +127,25 @@ class ApiInterceptor {
 
 export const apiInterceptor = ApiInterceptor.getInstance();
 
-// 封装的fetch函数，自动应用拦截器
+// Wrapped fetch function that automatically applies interceptors
 export async function interceptedFetch(url: string, options: RequestInit = {}): Promise<ApiResponse> {
   const interceptor = ApiInterceptor.getInstance();
   
-  // 应用请求拦截器
+  // Apply request interceptor
   const interceptedRequest = await interceptor.requestInterceptor({ url, options });
   
   try {
-    // 发送请求
+    // Send request
     const response = await fetch(interceptedRequest.url, interceptedRequest.options);
     
-    // 应用响应拦截器
+    // Apply response interceptor
     return await interceptor.responseInterceptor(response, interceptedRequest);
   } catch (error) {
-    console.error('请求失败:', error);
+    console.error('Request failed:', error);
     return {
       ok: false,
       status: 0,
-      error: error instanceof Error ? error.message : '网络错误',
+      error: error instanceof Error ? error.message : 'Network error',
     };
   }
 }

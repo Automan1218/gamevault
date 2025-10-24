@@ -33,12 +33,12 @@ export default function ShoppingPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
-  // 筛选器状态
+  // Filter state
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
 
-  // 确保只在客户端渲染动态内容
+  // Ensure dynamic content is only rendered on client side
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -53,7 +53,7 @@ export default function ShoppingPage() {
     setTimeout(() => setSelectedGame(null), 300);
   };
 
-  // 获取筛选选项
+  // Get filter options
   const getFilterOptions = () => {
     const years = new Set<string>();
     const platforms = new Set<string>();
@@ -73,13 +73,13 @@ export default function ShoppingPage() {
     });
 
     return {
-      years: Array.from(years).sort((a, b) => b.localeCompare(a)), // 降序排列
+      years: Array.from(years).sort((a, b) => b.localeCompare(a)), // Descending order
       platforms: Array.from(platforms).sort(),
       genres: Array.from(genres).sort()
     };
   };
 
-  // 应用筛选
+  // Apply filters
   const applyFilters = (games: GameDTO[]) => {
     return games.filter(game => {
       const yearMatch = !selectedYear || (game.releaseDate && 
@@ -91,15 +91,15 @@ export default function ShoppingPage() {
     });
   };
 
-  // 获取筛选后的游戏列表（基于后端检索结果）
+  // Get filtered game list (based on backend search results)
   const displayGames = applyFilters(games);
 
-  // 当 URL 的 q 变化时，同步触发检索
+  // Trigger search when URL q parameter changes
   useEffect(() => {
     setSearchQuery(initialQ);
   }, [initialQ, setSearchQuery]);
 
-  // 清除所有筛选
+  // Clear all filters
   const clearAllFilters = () => {
     setSelectedYear(null);
     setSelectedPlatform(null);
@@ -108,7 +108,7 @@ export default function ShoppingPage() {
 
   const filterOptions = getFilterOptions();
 
-  // 渲染游戏卡片
+  // Render game card
   const renderGameCard = (game: GameDTO, index: number) => (
     <Card
       className="fade-in-up"
@@ -160,7 +160,7 @@ export default function ShoppingPage() {
             overflow: "hidden",
           }}
         >
-          {/* 渐变遮罩 */}
+          {/* Gradient overlay */}
           <div
             style={{
               position: "absolute",
@@ -172,7 +172,7 @@ export default function ShoppingPage() {
             }}
           />
           
-          {/* 折扣标签 */}
+          {/* Discount tag */}
           {game.discountPrice && (
             <div
               style={{
@@ -194,7 +194,7 @@ export default function ShoppingPage() {
             </div>
           )}
           
-          {/* 游戏类型标签 */}
+          {/* Game genre tag */}
           <div
             style={{
               position: "absolute",
@@ -210,7 +210,7 @@ export default function ShoppingPage() {
               border: "1px solid rgba(255, 255, 255, 0.1)",
             }}
           >
-            {game.genre || "游戏"}
+            {game.genre || "Game"}
           </div>
         </div>
       }
@@ -225,7 +225,7 @@ export default function ShoppingPage() {
       }}
     >
       <div>
-        {/* 游戏标题 */}
+        {/* Game title */}
         <div
           style={{
             fontWeight: 700,
@@ -242,7 +242,7 @@ export default function ShoppingPage() {
           {game.title}
         </div>
 
-        {/* 游戏描述 */}
+        {/* Game description */}
         <div
           style={{
             color: "rgba(255, 255, 255, 0.7)",
@@ -255,10 +255,10 @@ export default function ShoppingPage() {
             overflow: "hidden",
           }}
         >
-          {game.description || "一款精彩的游戏，等待您的探索..."}
+          {game.description || "An exciting game waiting for your exploration..."}
         </div>
 
-        {/* 价格区域 */}
+        {/* Price area */}
         <div style={{ 
           marginBottom: 16, 
           minHeight: 40,
@@ -300,7 +300,7 @@ export default function ShoppingPage() {
           )}
       </div>
 
-          {/* 平台信息 */}
+          {/* Platform info */}
           <div
             style={{
               background: "rgba(99, 102, 241, 0.2)",
@@ -320,7 +320,7 @@ export default function ShoppingPage() {
     </Card>
   );
 
-  // 渲染骨架屏
+  // Render skeleton screen
   const renderSkeleton = () => (
     <Card
       style={{
@@ -362,7 +362,7 @@ export default function ShoppingPage() {
         overflow: "hidden",
       }}
     >
-      {/* 动态背景装饰元素 */}
+      {/* Dynamic background decoration elements */}
       <div
         style={{
           position: "fixed",
@@ -375,7 +375,7 @@ export default function ShoppingPage() {
           overflow: "hidden",
         }}
       >
-        {/* 网格背景 */}
+        {/* Grid background */}
         <div
           style={{
             position: "absolute",
@@ -389,7 +389,7 @@ export default function ShoppingPage() {
           }}
         />
         
-        {/* 浮动光球 1 */}
+        {/* Floating light ball 1 */}
         <div
           style={{
             position: "absolute",
@@ -404,7 +404,7 @@ export default function ShoppingPage() {
           }}
         />
         
-        {/* 浮动光球 2 */}
+        {/* Floating light ball 2 */}
         <div
           style={{
             position: "absolute",
@@ -419,7 +419,7 @@ export default function ShoppingPage() {
           }}
         />
         
-        {/* 浮动光球 3 */}
+        {/* Floating light ball 3 */}
         <div
           style={{
             position: "absolute",
@@ -434,7 +434,7 @@ export default function ShoppingPage() {
           }}
         />
         
-        {/* 星光点缀 - 只在客户端渲染 */}
+        {/* Star decorations - only render on client side */}
         {isClient && [...Array(20)].map((_, i) => (
           <div
             key={i}
@@ -453,7 +453,7 @@ export default function ShoppingPage() {
         ))}
       </div>
 
-      {/* CSS动画 */}
+      {/* CSS animations */}
       <style jsx>{`
         @keyframes float {
           0%, 100% { transform: translate(0, 0) scale(1); }
@@ -467,7 +467,7 @@ export default function ShoppingPage() {
         }
       `}</style>
 
-      {/* 固定顶部导航栏 */}
+      {/* Fixed top navigation bar */}
       <Header
         style={{
           position: "fixed",
@@ -487,21 +487,21 @@ export default function ShoppingPage() {
         <Menubar currentPath="/dashboard/store" />
       </Header>
 
-      {/* 页面主体内容 */}
+      {/* Main page content */}
       <Content
         style={{
           marginTop: 64,
           padding: "32px 24px 64px",
         }}
       >
-        {/* 使用 Ant Design Pro 风格的容器 */}
+        {/* Container using Ant Design Pro style */}
         <div
           style={{
             maxWidth: 1600,
             margin: "0 auto",
           }}
         >
-          {/* 筛选器区域 */}
+          {/* Filter area */}
           <div 
             style={{
               marginBottom: 32,
@@ -513,7 +513,7 @@ export default function ShoppingPage() {
               boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
             }}
           >
-            {/* 时间筛选 */}
+            {/* Time filter */}
             <div style={{ marginBottom: 16, display: "flex", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
               <div
                 style={{
@@ -525,7 +525,7 @@ export default function ShoppingPage() {
                   opacity: 0.9,
                 }}
               >
-                时间
+                Time
               </div>
               <Space wrap size={[6, 6]}>
                 <Button
@@ -548,7 +548,7 @@ export default function ShoppingPage() {
                     transition: "all 0.3s ease",
                   }}
                 >
-                  全部
+                  All
                 </Button>
                 {filterOptions.years.map(year => (
                   <Button
@@ -578,7 +578,7 @@ export default function ShoppingPage() {
               </Space>
             </div>
 
-            {/* 平台筛选 */}
+            {/* Platform filter */}
             <div style={{ marginBottom: 16, display: "flex", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
               <div
                 style={{
@@ -590,7 +590,7 @@ export default function ShoppingPage() {
                   opacity: 0.9,
                 }}
               >
-                平台
+                Platform
               </div>
               <Space wrap size={[6, 6]}>
                 <Button
@@ -613,7 +613,7 @@ export default function ShoppingPage() {
                     transition: "all 0.3s ease",
                   }}
                 >
-                  全部
+                  All
                 </Button>
                 {filterOptions.platforms.map(platform => (
                   <Button
@@ -643,7 +643,7 @@ export default function ShoppingPage() {
               </Space>
             </div>
 
-            {/* 类型筛选 */}
+            {/* Genre filter */}
             <div style={{ marginBottom: 0, display: "flex", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
               <div
                 style={{
@@ -655,7 +655,7 @@ export default function ShoppingPage() {
                   opacity: 0.9,
                 }}
               >
-                类型
+                Genre
               </div>
               <Space wrap size={[6, 6]}>
                 <Button
@@ -678,7 +678,7 @@ export default function ShoppingPage() {
                     transition: "all 0.3s ease",
                   }}
                 >
-                  全部
+                  All
                 </Button>
                 {filterOptions.genres.map(genre => (
                   <Button
@@ -709,18 +709,18 @@ export default function ShoppingPage() {
             </div>
           </div>
 
-          {/* 内容区域 - 响应式网格 */}
+          {/* Content area - responsive grid */}
           {storeLoading ? (
             <Row gutter={[32, 32]}>
               {[...Array(8)].map((_, i) => (
                 <Col
                   key={i}
-                  xs={24}  // 手机: 1列
-                  sm={12}  // 平板竖屏: 2列
-                  md={12}  // 平板横屏: 2列
-                  lg={8}   // 小桌面: 3列
-                  xl={6}   // 大桌面: 4列
-                  xxl={6}  // 超大桌面: 4列
+                  xs={24}  // Mobile: 1 column
+                  sm={12}  // Tablet portrait: 2 columns
+                  md={12}  // Tablet landscape: 2 columns
+                  lg={8}   // Small desktop: 3 columns
+                  xl={6}   // Large desktop: 4 columns
+                  xxl={6}  // Extra large desktop: 4 columns
                 >
                   {renderSkeleton()}
                 </Col>
@@ -742,14 +742,14 @@ export default function ShoppingPage() {
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
                 description={
                   <span style={{ color: "#9ca3af", fontSize: 16 }}>
-                    暂无可购买的游戏
+                    No games available for purchase
                   </span>
                 }
               />
             </div>
           ) : (
             <>
-              {/* 结果统计 */}
+              {/* Results statistics */}
               <div
                 style={{
                   marginBottom: 32,
@@ -764,20 +764,20 @@ export default function ShoppingPage() {
                   border: "1px solid rgba(255, 255, 255, 0.1)",
                 }}
               >
-                共找到 <span style={{ color: "#4ade80", fontWeight: 700 }}>{displayGames.length}</span> 款精彩游戏
+                Found <span style={{ color: "#4ade80", fontWeight: 700 }}>{displayGames.length}</span> amazing games
               </div>
 
-              {/* 游戏卡片网格 */}
+              {/* Game cards grid */}
               <Row gutter={[32, 32]}>
                 {displayGames.map((game: GameDTO, index: number) => (
                   <Col
                     key={game.gameId}
-                    xs={24}  // 手机: 1列
-                    sm={12}  // 平板竖屏: 2列
-                    md={12}  // 平板横屏: 2列
-                    lg={8}   // 小桌面: 3列
-                    xl={6}   // 大桌面: 4列
-                    xxl={6}  // 超大桌面: 4列
+                    xs={24}  // Mobile: 1 column
+                    sm={12}  // Tablet portrait: 2 columns
+                    md={12}  // Tablet landscape: 2 columns
+                    lg={8}   // Small desktop: 3 columns
+                    xl={6}   // Large desktop: 4 columns
+                    xxl={6}  // Extra large desktop: 4 columns
                   >
                     {renderGameCard(game, index)}
                   </Col>
@@ -788,7 +788,7 @@ export default function ShoppingPage() {
         </div>
       </Content>
 
-      {/* 游戏详情弹窗 */}
+      {/* Game detail modal */}
       <GameDetailModal
         game={selectedGame}
         open={modalOpen}

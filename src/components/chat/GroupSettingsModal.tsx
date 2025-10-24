@@ -20,7 +20,7 @@ interface GroupSettingsModalProps {
 }
 
 /**
- * 群聊设置弹窗
+ * Group chat settings modal
  */
 export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
                                                                           open,
@@ -38,7 +38,7 @@ export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
         ? Number(group.ownerId) === currentUserId
         : false;
 
-    // 解散群聊
+    // Dissolve group chat
     const handleDissolveGroup = async () => {
         if (!onDissolveGroup) return;
 
@@ -47,7 +47,7 @@ export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
             await onDissolveGroup(group.id);
             onClose();
         } catch (error) {
-            console.error('解散群聊失败:', error);
+            console.error('Failed to dissolve group chat:', error);
         } finally {
             setDissolving(false);
         }
@@ -55,24 +55,24 @@ export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
 
     return (
         <Modal
-            title="群聊设置"
+            title="Group Chat Settings"
             open={open}
             onCancel={onClose}
             footer={null}
             width={500}
         >
-            {/* 群聊信息 */}
+            {/* Group chat information */}
             <div style={{ marginBottom: 24 }}>
                 <Title level={5}>{group.title}</Title>
-                <Text type="secondary">群聊 ID: {group.id}</Text>
+                <Text type="secondary">Group ID: {group.id}</Text>
             </div>
 
             <Divider />
 
-            {/* 成员列表 */}
+            {/* Member list */}
             <div>
                 <Title level={5} style={{ marginBottom: 16 }}>
-                    成员列表 ({members.length})
+                    Member List ({members.length})
                 </Title>
                 <List
                     dataSource={members}
@@ -88,14 +88,14 @@ export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
                                     <Space>
                                         <span>{member.nickname || member.username}</span>
                                         {member.role === 'owner' && (
-                                            <CrownOutlined style={{ color: '#faad14' }} title="群主" />
+                                            <CrownOutlined style={{ color: '#faad14' }} title="Owner" />
                                         )}
                                         {member.userId === currentUserId && (
-                                            <Text type="secondary">(你)</Text>
+                                            <Text type="secondary">(You)</Text>
                                         )}
                                     </Space>
                                 }
-                                description={`用户 ID: ${member.userId}`}
+                                description={`User ID: ${member.userId}`}
                             />
                         </List.Item>
                     )}
@@ -104,18 +104,18 @@ export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
 
             <Divider />
 
-            {/* 危险操作 */}
+            {/* Dangerous operations */}
             {isOwner && (
                 <div>
                     <Title level={5} style={{ marginBottom: 16, color: '#ff4d4f' }}>
-                        危险操作
+                        Dangerous Operations
                     </Title>
                     <Popconfirm
-                        title="确认解散群聊？"
-                        description="解散后所有成员将被移除，此操作不可恢复"
+                        title="Confirm to dissolve group chat?"
+                        description="All members will be removed after dissolution, this action is irreversible"
                         onConfirm={handleDissolveGroup}
-                        okText="确认解散"
-                        cancelText="取消"
+                        okText="Confirm Dissolution"
+                        cancelText="Cancel"
                         okButtonProps={{ danger: true }}
                     >
                         <Button
@@ -124,7 +124,7 @@ export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
                             loading={dissolving}
                             block
                         >
-                            解散群聊
+                            Dissolve Group Chat
                         </Button>
                     </Popconfirm>
                 </div>
@@ -132,7 +132,7 @@ export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
 
             {!isOwner && (
                 <Text type="secondary">
-                    只有群主可以解散群聊
+                    Only the group owner can dissolve the group chat
                 </Text>
             )}
         </Modal>

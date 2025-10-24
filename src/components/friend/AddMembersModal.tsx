@@ -35,19 +35,19 @@ export default function AddMembersModal({
 
     const handleSubmit = async () => {
         if (selectedIds.length === 0) {
-            message.warning('请选择要添加的好友');
+            message.warning('Please select friends to add');
             return;
         }
 
         setLoading(true);
         try {
             await onSubmit(conversationId, selectedIds);
-            message.success(`成功添加 ${selectedIds.length} 位成员`);
+            message.success(`Successfully added ${selectedIds.length} members`);
             setSelectedIds([]);
             onSuccess?.();
             onClose();
         } catch (error) {
-            message.error(error.message || '添加成员失败');
+            message.error(error.message || 'Failed to add members');
         } finally {
             setLoading(false);
         }
@@ -60,13 +60,13 @@ export default function AddMembersModal({
 
     return (
         <Modal
-            title="添加成员"
+            title="Add Members"
             open={open}
             onCancel={handleClose}
             width={600}
             footer={[
                 <Button key="cancel" onClick={handleClose}>
-                    取消
+                    Cancel
                 </Button>,
                 <Button
                     key="submit"
@@ -76,12 +76,12 @@ export default function AddMembersModal({
                     onClick={handleSubmit}
                     disabled={selectedIds.length === 0}
                 >
-                    添加 {selectedIds.length > 0 && `(${selectedIds.length})`}
+                    Add {selectedIds.length > 0 && `(${selectedIds.length})`}
                 </Button>,
             ]}
         >
             <div style={{ marginBottom: 16, color: '#666' }}>
-                从好友列表中选择要添加的成员（只能添加好友）
+                Select members to add from your friends list (can only add friends)
             </div>
 
             {friends.length > 0 ? (
@@ -117,7 +117,7 @@ export default function AddMembersModal({
                     }}
                 />
             ) : (
-                <Empty description="暂无好友可添加" />
+                <Empty description="No friends available to add" />
             )}
         </Modal>
     );

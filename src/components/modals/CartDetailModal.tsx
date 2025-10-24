@@ -27,7 +27,7 @@ export const CartDetailModal: React.FC<CartDetailModalProps> = ({
   return (
     <Modal
       open={open}
-      title="购物车详情"
+      title="Cart Details"
       onCancel={onClose}
       footer={null}
       width={720}
@@ -65,7 +65,7 @@ export const CartDetailModal: React.FC<CartDetailModalProps> = ({
                     onClick={() => onRemoveItem?.(item.game.gameId)}
                     style={{ color: "#f87171" }}
                   >
-                    移除
+                    Remove
                   </Button>,
                 ]}
               >
@@ -77,13 +77,13 @@ export const CartDetailModal: React.FC<CartDetailModalProps> = ({
                   }
                   description={
                     <Text style={{ color: "#9ca3af" }}>
-                      单价: ￥{item.unitPrice.toFixed(2)}
+                      Unit Price: ￥{item.unitPrice.toFixed(2)}
                     </Text>
                   }
                 />
                 <div style={{ textAlign: "right" }}>
                   <Text strong style={{ color: "#a5b4fc" }}>
-                    小计: ￥{(item.unitPrice * (item.quantity ?? 1)).toFixed(2)}
+                    Subtotal: ￥{(item.unitPrice * (item.quantity ?? 1)).toFixed(2)}
                   </Text>
                 </div>
               </List.Item>
@@ -104,7 +104,7 @@ export const CartDetailModal: React.FC<CartDetailModalProps> = ({
               level={5}
               style={{ margin: 0, color: "#e5e7eb", fontWeight: 600 }}
             >
-              总金额
+              Total Amount
             </Title>
             <Title
               level={4}
@@ -130,7 +130,7 @@ export const CartDetailModal: React.FC<CartDetailModalProps> = ({
                 background: "transparent",
               }}
             >
-              清空购物车
+              Clear Cart
             </Button>
 
             <Button
@@ -142,7 +142,7 @@ export const CartDetailModal: React.FC<CartDetailModalProps> = ({
                 fontWeight: 600,
               }}
             >
-              去结账
+              Checkout
             </Button>
           </div>
         </>
@@ -155,7 +155,7 @@ export const CartDetailModal: React.FC<CartDetailModalProps> = ({
             fontSize: "1.1rem",
           }}
         >
-          购物车为空，快去挑选您喜欢的游戏吧！
+          Your cart is empty, go pick your favorite games!
         </div>
       )}
     </Modal>

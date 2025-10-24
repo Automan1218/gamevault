@@ -1,7 +1,7 @@
 // types/chat.ts
 
 /**
- * 群聊类型
+ * Group chat type
  */
 export interface GroupChat {
     id: number;
@@ -15,7 +15,7 @@ export interface GroupChat {
 }
 
 /**
- * 好友会话类型（用于聊天列表显示）
+ * Friend session type (for chat list display)
  */
 export interface FriendConversation {
     friendId: any;
@@ -30,7 +30,7 @@ export interface FriendConversation {
 }
 
 /**
- * 统一会话类型
+ * Unified session type
  */
 export interface Conversation {
     id: string;
@@ -44,7 +44,7 @@ export interface Conversation {
 }
 
 /**
- * 聊天消息类型
+ * Chat message type
  */
 export interface ChatMessage {
     id: number;
@@ -62,7 +62,7 @@ export interface ChatMessage {
 }
 
 /**
- * 群聊成员类型
+ * Group chat member type
  */
 export interface GroupMember {
     userId: number;
@@ -73,7 +73,7 @@ export interface GroupMember {
     joinedAt?: string;
 }
 
-// 文件附件类型
+// File attachment type
 export interface MessageAttachment {
     fileId: string;
     fileName: string;
@@ -86,6 +86,6 @@ export interface MessageAttachment {
 }
 
 /**
- * WebSocket 状态
+ * WebSocket status
  */
 export type WebSocketStatus = 'connected' | 'disconnected' | 'connecting' | 'error';

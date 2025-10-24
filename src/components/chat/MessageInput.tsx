@@ -18,7 +18,7 @@ interface MessageInputProps {
 export const MessageInput: React.FC<MessageInputProps> = ({
                                                               onSend,
                                                               loading = false,
-                                                              placeholder = '输入消息...',
+                                                              placeholder = 'Type a message...',
                                                               bizType,
                                                               bizId,
                                                           }) => {
@@ -26,43 +26,43 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     const textAreaRef = useRef<any>(null);
 
     const handleSend = (fileInfo?: FileUploadResponse) => {
-        console.log('📤 handleSend 被调用:', {
+        console.log('📤 handleSend called:', {
             hasFileInfo: !!fileInfo,
             fileInfo: fileInfo,
             content: content
         });
 
         if (fileInfo) {
-            console.log('✅ 检测到文件，调用 onSend with fileInfo');
-            console.log('👉 调用 onSend(content, fileInfo)');
-            console.log('   content:', content.trim() || `[文件] ${fileInfo.fileName}`);
+            console.log('✅ File detected, calling onSend with fileInfo');
+            console.log('👉 Calling onSend(content, fileInfo)');
+            console.log('   content:', content.trim() || `[File] ${fileInfo.fileName}`);
             console.log('   fileInfo:', fileInfo);
 
-            onSend(content.trim() || `[文件] ${fileInfo.fileName}`, fileInfo);
+            onSend(content.trim() || `[File] ${fileInfo.fileName}`, fileInfo);
             setContent('');
             return;
         }
 
         if (!content.trim() || loading) return;
-        console.log('📝 发送纯文本消息');
+        console.log('📝 Sending plain text message');
         onSend(content.trim());
         setContent('');
     };
 
     const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-        // Ctrl/Cmd + Enter 发送
+        // Ctrl/Cmd + Enter to send
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
             e.preventDefault();
             handleSend();
         }
-        // Enter 直接发送（可选，取消注释启用）
+        // Enter to send directly (optional, uncomment to enable)
         // if (e.key === 'Enter' && !e.shiftKey) {
         //     e.preventDefault();
         //     handleSend();
         // }
     };
 
-    // 处理粘贴图片
+    // Handle paste image
     const handlePaste = async (e: React.ClipboardEvent) => {
         const items = e.clipboardData?.items;
         if (!items) return;
@@ -73,8 +73,8 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                 e.preventDefault();
                 const file = item.getAsFile();
                 if (file) {
-                    message.info('检测到图片，准备上传...');
-                    // 这里会通过 FileUploadArea 自动处理
+                    message.info('Image detected, preparing to upload...');
+                    // This will be automatically handled by FileUploadArea
                 }
             }
         }
@@ -92,26 +92,26 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                 position: 'relative',
             }}
         >
-            {/* 左侧工具栏 */}
+            {/* Left toolbar */}
             <Space>
                 <FileUploadArea
                     bizType={bizType}
                     bizId={bizId}
                     onUploadSuccess={(fileInfo) => handleSend(fileInfo)}
                     onUploadError={(error) => {
-                        console.error('上传失败:', error);
+                        console.error('Upload failed:', error);
                     }}
                 />
-                {/* 表情按钮（占位，可以后续实现） */}
+                {/* Emoji button (placeholder, can be implemented later) */}
                 <Button
                     icon={<SmileOutlined />}
                     type="text"
-                    title="表情（暂未实现）"
+                    title="Emoji (not implemented yet)"
                     disabled
                 />
             </Space>
 
-            {/* 输入框 */}
+            {/* Input box */}
             <TextArea
                 ref={textAreaRef}
                 value={content}
@@ -124,7 +124,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                 style={{ flex: 1 }}
             />
 
-            {/* 发送按钮 */}
+            {/* Send button */}
             <Button
                 type="primary"
                 icon={<SendOutlined />}
@@ -132,10 +132,10 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                 loading={loading}
                 disabled={!content.trim() || loading}
             >
-                发送
+                Send
             </Button>
 
-            {/* 提示文本 */}
+            {/* Hint text */}
             <div
                 style={{
                     position: 'absolute',
@@ -145,7 +145,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                     color: '#666',
                 }}
             >
-                Ctrl+Enter 发送
+                Ctrl+Enter to send
             </div>
         </div>
     );

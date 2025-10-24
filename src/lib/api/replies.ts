@@ -17,13 +17,13 @@ export interface CreateReplyRequest {
 }
 
 export class RepliesApi {
-    // 创建回复
+    // Create reply
     static async createReply(postId: number, data: CreateReplyRequest): Promise<Reply> {
         const response = await apiClient.post<{ reply: Reply }>(`/posts/${postId}/replies`, data);
         return response.reply;
     }
 
-    // 获取回复列表
+    // Get reply list
     static async getReplies(postId: number, page = 0, size = 20): Promise<Reply[]> {
         const response = await apiClient.get<{ replies: Reply[] }>(
             `/posts/${postId}/replies`,
@@ -32,7 +32,7 @@ export class RepliesApi {
         return response.replies;
     }
 
-    // 删除回复
+    // Delete reply
     static async deleteReply(postId: number, replyId: number): Promise<void> {
         await apiClient.delete(`/posts/${postId}/replies/${replyId}`);
     }

@@ -2,7 +2,7 @@
 import { chatroomApiClient } from './client';
 import type {GroupChat, GroupMember} from '@/types/chat';
 
-// 后端响应类型定义
+// Backend response type definitions
 interface ConversationListItem {
     id: number;
     title: string;
@@ -29,7 +29,7 @@ interface MemberResponse {
 export class ChatApi {
 
     /**
-     * 获取用户的所有群聊列表
+     * Get all group chat lists for user
      */
     async getGroupList(): Promise<GroupChat[]> {
         const conversations = await chatroomApiClient.get<ConversationListItem[]>('/conversation/list');
@@ -45,7 +45,7 @@ export class ChatApi {
     }
 
     /**
-     * 创建群聊
+     * Create group chat
      */
     async createGroup(params: { name: string }): Promise<GroupChat> {
         const response = await chatroomApiClient.post<CreateConversationResponse>(
@@ -53,24 +53,24 @@ export class ChatApi {
             { title: params.name }
         );
 
-        // 检查响应是否有效（后端返回的是 conversationId）
+        // Check if response is valid (backend returns conversationId)
         if (!response || typeof response.conversationId === 'undefined') {
-            console.error('创建群聊响应无效:', response);
-            throw new Error('创建群聊失败：服务器未返回群聊ID');
+            console.error('Invalid create group chat response:', response);
+            throw new Error('Failed to create group chat: server did not return group chat ID');
         }
 
-        // 使用 conversationId 字段
+        // Use conversationId field
         return {
             id: response.conversationId,
             title: params.name,
-            ownerId: '', // 暂时留空，创建成功后会在列表中获取
+            ownerId: '', // Leave empty for now, will be obtained from list after successful creation
             unread: 0,
             lastMessage: '',
         };
     }
 
     /**
-     * 解散群聊
+     * Dissolve group chat
      */
     async dissolveGroup(conversationId: number): Promise<void> {
         await chatroomApiClient.post<void>('/conversation/dissolve', {
@@ -79,7 +79,7 @@ export class ChatApi {
     }
 
     /**
-     * 获取群聊成员列表
+     * Get group chat member list
      */
     async getGroupMembers(conversationId: number): Promise<GroupMember[]> {
         const members = await chatroomApiClient.get<MemberResponse[]>(
@@ -97,7 +97,7 @@ export class ChatApi {
     }
 
     /**
-     * 添加成员到群聊
+     * Add members to group chat
      */
     async addMembersToGroup(conversationId: number, userIds: number[]): Promise<void> {
         await chatroomApiClient.post(`/conversation/${conversationId}/members/add`, {

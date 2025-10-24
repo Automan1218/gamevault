@@ -20,13 +20,13 @@ export const useSettings = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // 获取用户信息
+    // Get user information
     const fetchUserInfo = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
 
-            // 先尝试获取完整用户资料
+            // First try to get complete user profile
             try {
                 const profile = await ProfileApi.getProfile();
                 setUserInfo({
@@ -37,12 +37,12 @@ export const useSettings = () => {
                     bio: profile.bio,
                     avatarUrl: profile.avatarUrl
                 });
-                return; // 成功获取，直接返回
+                return; // Successfully obtained, return directly
             } catch (profileErr) {
-                console.warn('获取完整用户资料失败，尝试获取基本用户信息:', profileErr);
+                console.warn('Failed to get complete user profile, trying to get basic user info:', profileErr);
             }
 
-            // 如果获取完整资料失败，尝试获取基本用户信息
+            // If getting complete profile fails, try to get basic user info
             const basicUser = await AuthApi.getCurrentUser();
             setUserInfo({
                 username: basicUser.username,
@@ -50,33 +50,33 @@ export const useSettings = () => {
                 userId: basicUser.userId,
                 nickname: undefined,
                 bio: undefined,
-                avatarUrl: undefined // 没有头像时显示默认头像
+                avatarUrl: undefined // Show default avatar when no avatar
             });
-            setError('获取完整用户资料失败，显示基本信息');
+            setError('Failed to get complete user profile, showing basic info');
 
         } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : '获取用户信息失败';
-            console.error('获取用户信息失败:', errorMessage);
+            const errorMessage = err instanceof Error ? err.message : 'Failed to get user information';
+            console.error('Failed to get user information:', errorMessage);
             setError(errorMessage);
-            // 如果连基本用户信息都获取不到，跳转到登录页
+            // If even basic user info can't be obtained, redirect to login page
             router.push(getLoginRedirectUrl(navigationRoutes.settings));
         } finally {
             setLoading(false);
         }
     }, [router]);
 
-    // 修改密码
+    // Change password
     const changePassword = async (oldPassword: string, newPassword: string) => {
         try {
             setLoading(true);
             setError(null);
             await AuthApi.changePassword(oldPassword, newPassword);
-            // 密码修改成功后，先登出清除 token，再跳转到登录页
+            // After successful password change, logout to clear token, then redirect to login page
             await AuthApi.logout();
             router.push('/auth/login?message=password_changed');
-            return { success: true, message: '密码修改成功，请重新登录' };
+            return { success: true, message: 'Password changed successfully, please login again' };
         } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : '密码修改失败';
+            const errorMessage = err instanceof Error ? err.message : 'Password change failed';
             setError(errorMessage);
             return { success: false, message: errorMessage };
         } finally {
@@ -84,18 +84,18 @@ export const useSettings = () => {
         }
     };
 
-    // 修改邮箱
+    // Change email
     const changeEmail = async (password: string, newEmail: string) => {
         try {
             setLoading(true);
             setError(null);
             await AuthApi.changeEmail(password, newEmail);
-            // 邮箱修改成功后，先登出清除 token，再跳转到登录页
+            // After successful email change, logout to clear token, then redirect to login page
             await AuthApi.logout();
             router.push('/auth/login?message=email_changed');
-            return { success: true, message: '邮箱修改成功，请重新登录' };
+            return { success: true, message: 'Email changed successfully, please login again' };
         } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : '邮箱修改失败';
+            const errorMessage = err instanceof Error ? err.message : 'Email change failed';
             setError(errorMessage);
             return { success: false, message: errorMessage };
         } finally {
@@ -103,7 +103,7 @@ export const useSettings = () => {
         }
     };
 
-    // 更新用户资料
+    // Update user profile
     const updateProfile = async (data: { nickname?: string; bio?: string }) => {
         try {
             setLoading(true);
@@ -114,9 +114,9 @@ export const useSettings = () => {
                 nickname: result.nickname,
                 bio: result.bio
             } : null);
-            return { success: true, message: '资料更新成功' };
+            return { success: true, message: 'Profile updated successfully' };
         } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : '资料更新失败';
+            const errorMessage = err instanceof Error ? err.message : 'Profile update failed';
             setError(errorMessage);
             return { success: false, message: errorMessage };
         } finally {
@@ -124,7 +124,7 @@ export const useSettings = () => {
         }
     };
 
-    // 更新头像
+    // Update avatar
     const updateAvatar = (avatarUrl: string | null) => {
         setUserInfo(prev => prev ? {
             ...prev,
@@ -132,12 +132,12 @@ export const useSettings = () => {
         } : null);
     };
 
-    // 刷新用户信息
+    // Refresh user information
     const refresh = useCallback(() => {
         fetchUserInfo();
     }, [fetchUserInfo]);
 
-    // 自动加载用户信息
+    // Auto load user information
     useEffect(() => {
         fetchUserInfo();
     }, [fetchUserInfo]);

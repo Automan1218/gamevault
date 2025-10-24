@@ -8,7 +8,7 @@ export const useLibrary = () => {
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
 
-    // 获取游戏库
+    // Get game library
     const fetchLibrary = useCallback(async () => {
         try {
             setLoading(true);
@@ -16,7 +16,7 @@ export const useLibrary = () => {
             const gamesData = await LibraryApi.getLibrary();
             setGames(gamesData);
         } catch (err: any) {
-            const errorMessage = err?.message || "加载游戏库失败";
+            const errorMessage = err?.message || "Failed to load game library";
             setError(errorMessage);
             throw err;
         } finally {
@@ -24,22 +24,22 @@ export const useLibrary = () => {
         }
     }, []);
 
-    // 搜索游戏
+    // Search games
     const searchGames = useCallback((query: string) => {
         setSearchQuery(query);
     }, []);
 
-    // 过滤后的游戏列表
+    // Filtered games list
     const filteredGames = games.filter(game => 
         game.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // 刷新游戏库
+    // Refresh game library
     const refresh = useCallback(() => {
         fetchLibrary();
     }, [fetchLibrary]);
 
-    // 自动加载
+    // Auto load
     useEffect(() => {
         fetchLibrary();
     }, [fetchLibrary]);

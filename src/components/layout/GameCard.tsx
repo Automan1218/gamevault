@@ -58,7 +58,7 @@
 //         e.currentTarget.style.border = '1px solid rgba(99, 102, 241, 0.2)';
 //       }}
 //     >
-//       {/* 游戏封面占位符 */}
+//       {/* Game cover placeholder */}
 //       <div
 //         style={{
 //           height: '180px',
@@ -80,7 +80,7 @@
 //           overflow: 'hidden',
 //         }}
 //       >
-//         {/* 装饰性背景图案 */}
+//         {/* Decorative background pattern */}
 //         <div
 //           style={{
 //             position: 'absolute',
@@ -112,7 +112,7 @@
 //           🎮
 //         </div>
         
-//         {/* 查看激活码按钮 */}
+//         {/* View activation codes button */}
 //         <Button
 //           type="primary"
 //           size="small"
@@ -146,12 +146,12 @@
 //             e.currentTarget.style.boxShadow = '0 6px 20px rgba(99, 102, 241, 0.4)';
 //           }}
 //         >
-//           查看激活码
+//           View Activation Codes
 //         </Button>
 //       </div>
 
 //       <div style={{ padding: '0 28px 28px 28px' }}>
-//         {/* 游戏标题 */}
+//         {/* Game title */}
 //         <Typography.Title 
 //           level={4} 
 //           style={{ 
@@ -170,7 +170,7 @@
 //           {title}
 //         </Typography.Title>
         
-//         {/* 激活码数量显示 */}
+//         {/* Activation codes count display */}
 //         <div
 //           style={{ 
 //             color: "#d1d5db",
@@ -193,7 +193,7 @@
 //             filter: 'drop-shadow(0 1px 2px rgba(99, 102, 241, 0.3))'
 //           }} />
 //           <span style={{ fontWeight: 500 }}>
-//             拥有 {activationCodesCount} 个激活码
+//             Own {activationCodesCount} activation codes
 //           </span>
 //         </div>
 //       </div>
@@ -280,7 +280,7 @@ export const GameCard: React.FC<GameCardProps> = ({
           overflow: "hidden",
         }}
       >
-        {/* 如果没有图片，显示游戏手柄图标 */}
+        {/* If no image, show game controller icon */}
         {!imageUrl && (
           <div
             aria-hidden
@@ -298,7 +298,7 @@ export const GameCard: React.FC<GameCardProps> = ({
           </div>
         )}
         
-        {/* 如果有图片，添加渐变遮罩 */}
+        {/* If there's an image, add gradient overlay */}
         {imageUrl && (
           <div
             style={{
@@ -345,7 +345,7 @@ export const GameCard: React.FC<GameCardProps> = ({
             e.currentTarget.style.boxShadow = "0 6px 18px rgba(99,102,241,0.45)";
           }}
         >
-          查看激活码
+          View Activation Codes
         </Button>
       </div>
 
@@ -405,7 +405,7 @@ export const GameCard: React.FC<GameCardProps> = ({
             }}
           >
             <EyeOutlined style={{ color: "#6366f1", fontSize: "1rem" }} />
-            <span style={{ fontWeight: 500 }}>拥有 {activationCodesCount} 个激活码</span>
+            <span style={{ fontWeight: 500 }}>Own {activationCodesCount} activation codes</span>
           </div>
         </div>
       </div>

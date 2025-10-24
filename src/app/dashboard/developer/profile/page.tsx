@@ -2,7 +2,13 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Avatar, Card, Spin, Empty, Button, App } from "antd";
+import { Avatar, Card, Spin, Empty, Button, App, Typography } from "antd";
+import {
+    CodeOutlined,
+    EyeOutlined,
+    DownloadOutlined,
+    StarOutlined,
+} from "@ant-design/icons";
 import {
     PieChart,
     Pie,
@@ -16,6 +22,9 @@ import {
     ResponsiveContainer,
 } from "recharts";
 import { useDeveloperDashboard } from "@/app/features/devgames/hooks/useDeveloperDashboard";
+import { cardStyle, titleStyle } from "@/components/common/theme";
+
+const { Title, Text } = Typography;
 
 export default function DeveloperProfilePage() {
     const router = useRouter();
@@ -24,7 +33,7 @@ export default function DeveloperProfilePage() {
 
     useEffect(() => {
         if (error === "No authentication token found") {
-            message.warning("请先登录以访问开发者中心");
+            message.warning("Please login first to access the developer center");
             const timer = setTimeout(() => router.push("/login"), 1500);
             return () => clearTimeout(timer);
         }
@@ -34,7 +43,7 @@ export default function DeveloperProfilePage() {
         return (
             <div
                 style={{
-                    minHeight: "100vh",
+                    minHeight: "60vh",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -49,7 +58,7 @@ export default function DeveloperProfilePage() {
         return (
             <div
                 style={{
-                    minHeight: "100vh",
+                    minHeight: "60vh",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -73,9 +82,9 @@ export default function DeveloperProfilePage() {
     const developerId = data?.developerId ?? "N/A";
 
     const pieData = [
-        { name: "Games", value: summary?.totalGames ?? 0, color: "#1677ff" },
-        { name: "Views", value: summary?.totalViews ?? 0, color: "#fadb14" },
-        { name: "Downloads", value: summary?.totalDownloads ?? 0, color: "#52c41a" },
+        { name: "Games", value: summary?.totalGames ?? 0, color: "#6366f1" },
+        { name: "Views", value: summary?.totalViews ?? 0, color: "#8b5cf6" },
+        { name: "Downloads", value: summary?.totalDownloads ?? 0, color: "#06b6d4" },
     ];
 
     const lineData = games.map((g) => ({
@@ -85,161 +94,281 @@ export default function DeveloperProfilePage() {
     }));
 
     return (
-        <div
-            style={{
-                background: "#fff",
-                minHeight: "100vh",
-                padding: "60px 80px",
-                fontFamily: "Inter, sans-serif",
-            }}
-        >
+        <div style={{ fontFamily: "Inter, sans-serif" }}>
             {/* ===== Developer Header ===== */}
-            <div style={{ textAlign: "center", marginBottom: "60px" }}>
-                <Avatar size={120} style={{ background: "#BFD6FF" }}>
-                    D
-                </Avatar>
-                <h2
-                    style={{
-                        marginTop: "20px",
-                        marginBottom: "12px",
-                        fontWeight: 600,
-                        fontSize: "22px",
-                    }}
-                >
-                    Developer Dashboard
-                </h2>
-                <div
-                    style={{
-                        background: "#f7f7f7",
-                        borderRadius: "8px",
-                        padding: "10px 16px",
-                        display: "inline-block",
-                        color: "#333",
-                        fontSize: "15px",
-                    }}
-                >
-                    ID: {developerId}
+            <Card
+                style={{
+                    ...cardStyle,
+                    marginBottom: "32px",
+                    textAlign: "center",
+                }}
+            >
+                <div style={{ padding: "20px 0" }}>
+                    <Avatar 
+                        size={120} 
+                        style={{ 
+                            background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+                            marginBottom: "24px",
+                            boxShadow: "0 8px 32px rgba(99, 102, 241, 0.3)",
+                        }}
+                    >
+                        <CodeOutlined style={{ fontSize: "48px" }} />
+                    </Avatar>
+                    <Title 
+                        level={2} 
+                        style={{
+                            ...titleStyle,
+                            marginBottom: "16px",
+                        }}
+                    >
+                        Developer Dashboard
+                    </Title>
+                    <div
+                        style={{
+                            background: "rgba(99, 102, 241, 0.1)",
+                            borderRadius: "12px",
+                            padding: "12px 24px",
+                            display: "inline-block",
+                            border: "1px solid rgba(99, 102, 241, 0.3)",
+                        }}
+                    >
+                        <Text style={{ color: "#9ca3af", fontSize: "14px" }}>
+                            Developer ID: <Text style={{ color: "#f9fafb", fontWeight: 600 }}>{developerId}</Text>
+                        </Text>
+                    </div>
                 </div>
-            </div>
+            </Card>
 
             {/* ===== Summary Cards ===== */}
             <div
                 style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                    gap: "20px",
-                    marginBottom: "40px",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                    gap: "24px",
+                    marginBottom: "32px",
                 }}
             >
-                <Card variant="borderless" style={{ background: "#f0f5ff" }}>
-                    <h3 style={{ marginBottom: "8px" }}>Games</h3>
-                    <p style={{ fontSize: "24px", fontWeight: 700 }}>
-                        {summary?.totalGames ?? 0}
-                    </p>
+                <Card
+                    style={{
+                        ...cardStyle,
+                        background: "linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%)",
+                        border: "1px solid rgba(99, 102, 241, 0.3)",
+                    }}
+                >
+                    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                        <div
+                            style={{
+                                width: "56px",
+                                height: "56px",
+                                borderRadius: "12px",
+                                background: "rgba(99, 102, 241, 0.2)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            }}
+                        >
+                            <CodeOutlined style={{ fontSize: "24px", color: "#6366f1" }} />
+                        </div>
+                        <div>
+                            <Text style={{ color: "#9ca3af", display: "block", marginBottom: "4px" }}>
+                                Total Games
+                            </Text>
+                            <Title level={3} style={{ margin: 0, color: "#f9fafb" }}>
+                                {summary?.totalGames ?? 0}
+                            </Title>
+                        </div>
+                    </div>
                 </Card>
 
-                <Card variant="borderless" style={{ background: "#fff7e6" }}>
-                    <h3 style={{ marginBottom: "8px" }}>Total Views</h3>
-                    <p style={{ fontSize: "24px", fontWeight: 700 }}>
-                        {summary?.totalViews ?? 0}
-                    </p>
+                <Card
+                    style={{
+                        ...cardStyle,
+                        background: "linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%)",
+                        border: "1px solid rgba(139, 92, 246, 0.3)",
+                    }}
+                >
+                    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                        <div
+                            style={{
+                                width: "56px",
+                                height: "56px",
+                                borderRadius: "12px",
+                                background: "rgba(139, 92, 246, 0.2)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            }}
+                        >
+                            <EyeOutlined style={{ fontSize: "24px", color: "#8b5cf6" }} />
+                        </div>
+                        <div>
+                            <Text style={{ color: "#9ca3af", display: "block", marginBottom: "4px" }}>
+                                Total Views
+                            </Text>
+                            <Title level={3} style={{ margin: 0, color: "#f9fafb" }}>
+                                {summary?.totalViews ?? 0}
+                            </Title>
+                        </div>
+                    </div>
                 </Card>
 
-                <Card variant="borderless" style={{ background: "#f6ffed" }}>
-                    <h3 style={{ marginBottom: "8px" }}>Downloads</h3>
-                    <p style={{ fontSize: "24px", fontWeight: 700 }}>
-                        {summary?.totalDownloads ?? 0}
-                    </p>
+                <Card
+                    style={{
+                        ...cardStyle,
+                        background: "linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%)",
+                        border: "1px solid rgba(6, 182, 212, 0.3)",
+                    }}
+                >
+                    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                        <div
+                            style={{
+                                width: "56px",
+                                height: "56px",
+                                borderRadius: "12px",
+                                background: "rgba(6, 182, 212, 0.2)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            }}
+                        >
+                            <DownloadOutlined style={{ fontSize: "24px", color: "#06b6d4" }} />
+                        </div>
+                        <div>
+                            <Text style={{ color: "#9ca3af", display: "block", marginBottom: "4px" }}>
+                                Downloads
+                            </Text>
+                            <Title level={3} style={{ margin: 0, color: "#f9fafb" }}>
+                                {summary?.totalDownloads ?? 0}
+                            </Title>
+                        </div>
+                    </div>
                 </Card>
 
-                <Card variant="borderless" style={{ background: "#fff0f6" }}>
-                    <h3 style={{ marginBottom: "8px" }}>Average Rating</h3>
-                    <p style={{ fontSize: "24px", fontWeight: 700 }}>
-                        {(summary?.averageRating ?? 0).toFixed(1)}
-                    </p>
+                <Card
+                    style={{
+                        ...cardStyle,
+                        background: "linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(251, 191, 36, 0.05) 100%)",
+                        border: "1px solid rgba(251, 191, 36, 0.3)",
+                    }}
+                >
+                    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                        <div
+                            style={{
+                                width: "56px",
+                                height: "56px",
+                                borderRadius: "12px",
+                                background: "rgba(251, 191, 36, 0.2)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            }}
+                        >
+                            <StarOutlined style={{ fontSize: "24px", color: "#fbbf24" }} />
+                        </div>
+                        <div>
+                            <Text style={{ color: "#9ca3af", display: "block", marginBottom: "4px" }}>
+                                Avg Rating
+                            </Text>
+                            <Title level={3} style={{ margin: 0, color: "#f9fafb" }}>
+                                {(summary?.averageRating ?? 0).toFixed(1)}
+                            </Title>
+                        </div>
+                    </div>
                 </Card>
             </div>
 
-            {/* ===== Charts ===== */}
+            {/* ===== Charts Section ===== */}
             <div
                 style={{
-                    display: "flex",
-                    gap: "40px",
-                    alignItems: "flex-start",
-                    flexWrap: "wrap",
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "24px",
+                    marginBottom: "32px",
                 }}
             >
-                {/* --- Pie Chart --- */}
-                <div
-                    style={{
-                        flex: "1 1 300px",
-                        background: "#fafafa",
-                        borderRadius: "12px",
-                        padding: "20px",
-                    }}
+                {/* Pie Chart */}
+                <Card
+                    style={cardStyle}
+                    title={
+                        <Text style={{ color: "#f9fafb", fontSize: "18px", fontWeight: 600 }}>
+                            Statistics Overview
+                        </Text>
+                    }
                 >
-                    <h4>Status Overview</h4>
-                    <p style={{ fontSize: "14px", color: "#666" }}>
-                        Snapshot of your games statistics
-                    </p>
-                    <div style={{ width: "100%", height: 200 }}>
-                        <ResponsiveContainer>
-                            <PieChart>
-                                <Pie
-                                    data={pieData}
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius={80}
-                                    dataKey="value"
-                                    label
-                                >
-                                    {pieData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
-                    </div>
-                    <p style={{ textAlign: "center", marginTop: "10px", color: "#555" }}>
-                        <b>{pieData.reduce((a, b) => a + b.value, 0)}</b> Total Data Points
-                    </p>
-                </div>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                            <Pie
+                                data={pieData}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={({ name, value }) => `${name}: ${value}`}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="value"
+                            >
+                                {pieData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                ))}
+                            </Pie>
+                            <Tooltip 
+                                contentStyle={{
+                                    background: "rgba(15, 23, 42, 0.9)",
+                                    border: "1px solid rgba(99, 102, 241, 0.3)",
+                                    borderRadius: "8px",
+                                    color: "#f9fafb",
+                                }}
+                            />
+                        </PieChart>
+                    </ResponsiveContainer>
+                </Card>
 
-                {/* --- Line Chart --- */}
-                <div
-                    style={{
-                        flex: "2 1 500px",
-                        background: "#fafafa",
-                        borderRadius: "12px",
-                        padding: "20px",
-                    }}
+                {/* Line Chart */}
+                <Card
+                    style={cardStyle}
+                    title={
+                        <Text style={{ color: "#f9fafb", fontSize: "18px", fontWeight: 600 }}>
+                            Games Performance
+                        </Text>
+                    }
                 >
-                    <h4>Game Performance</h4>
-                    <div style={{ width: "100%", height: 220 }}>
-                        <ResponsiveContainer>
-                            <LineChart data={lineData}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" />
-                                <YAxis />
-                                <Tooltip />
-                                <Line
-                                    type="monotone"
-                                    dataKey="views"
-                                    stroke="#1677ff"
-                                    strokeWidth={2}
-                                    name="Views"
-                                />
-                                <Line
-                                    type="monotone"
-                                    dataKey="downloads"
-                                    stroke="#52c41a"
-                                    strokeWidth={2}
-                                    name="Downloads"
-                                />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={lineData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(75, 85, 99, 0.3)" />
+                            <XAxis 
+                                dataKey="name" 
+                                stroke="#9ca3af"
+                                tick={{ fill: "#9ca3af" }}
+                            />
+                            <YAxis 
+                                stroke="#9ca3af"
+                                tick={{ fill: "#9ca3af" }}
+                            />
+                            <Tooltip 
+                                contentStyle={{
+                                    background: "rgba(15, 23, 42, 0.9)",
+                                    border: "1px solid rgba(99, 102, 241, 0.3)",
+                                    borderRadius: "8px",
+                                    color: "#f9fafb",
+                                }}
+                            />
+                            <Line
+                                type="monotone"
+                                dataKey="views"
+                                stroke="#8b5cf6"
+                                strokeWidth={2}
+                                dot={{ fill: "#8b5cf6" }}
+                            />
+                            <Line
+                                type="monotone"
+                                dataKey="downloads"
+                                stroke="#06b6d4"
+                                strokeWidth={2}
+                                dot={{ fill: "#06b6d4" }}
+                            />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </Card>
             </div>
         </div>
     );

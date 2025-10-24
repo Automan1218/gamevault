@@ -18,7 +18,7 @@ export const useForumSearch = () => {
     const [lastSearchQuery, setLastSearchQuery] = useState<string>('');
     const [lastSearchFilter, setLastSearchFilter] = useState<ForumPostFilter>();
 
-    // 执行搜索
+    // Execute search
     const search = useCallback(async (
         keyword: string,
         filter?: ForumPostFilter,
@@ -59,14 +59,14 @@ export const useForumSearch = () => {
         }
     }, []);
 
-    // 加载更多搜索结果
+    // Load more search results
     const loadMore = useCallback(() => {
         if (hasNextPage && !loading && lastSearchQuery) {
             search(lastSearchQuery, lastSearchFilter, currentPage + 1, false);
         }
     }, [hasNextPage, loading, lastSearchQuery, lastSearchFilter, currentPage, search]);
 
-    // 清除搜索结果
+    // Clear search results
     const clearResults = useCallback(() => {
         setSearchResults([]);
         setTotalCount(0);
@@ -105,14 +105,14 @@ export const useSearchSuggestions = () => {
         setLoading(true);
 
         try {
-            // 这里应该调用搜索建议API
-            // 现在返回模拟数据
+            // Should call search suggestions API here
+            // Now return mock data
             const mockSuggestions = [
-                `${query} 攻略`,
-                `${query} 技巧`,
-                `${query} 评测`,
-                `${query} 新手指南`,
-                `${query} 队友招募`
+                `${query} Guide`,
+                `${query} Tips`,
+                `${query} Review`,
+                `${query} Beginner Guide`,
+                `${query} Team Recruitment`
             ].filter(suggestion =>
                 suggestion.toLowerCase().includes(query.toLowerCase())
             );
@@ -144,7 +144,7 @@ export const useSearchHistory = (maxItems: number = 10) => {
 
     const STORAGE_KEY = 'forum_search_history';
 
-    // 加载搜索历史
+    // Load search history
     const loadHistory = useCallback(() => {
         try {
             const savedHistory = localStorage.getItem(STORAGE_KEY);
@@ -158,7 +158,7 @@ export const useSearchHistory = (maxItems: number = 10) => {
         }
     }, []);
 
-    // 添加搜索记录
+    // Add search record
     const addToHistory = useCallback((query: string) => {
         if (!query.trim()) return;
 
@@ -176,7 +176,7 @@ export const useSearchHistory = (maxItems: number = 10) => {
         }
     }, [history, maxItems]);
 
-    // 删除搜索记录
+    // Remove search record
     const removeFromHistory = useCallback((query: string) => {
         const newHistory = history.filter(item => item !== query);
         setHistory(newHistory);
@@ -188,7 +188,7 @@ export const useSearchHistory = (maxItems: number = 10) => {
         }
     }, [history]);
 
-    // 清空搜索历史
+    // Clear search history
     const clearHistory = useCallback(() => {
         setHistory([]);
 
@@ -224,17 +224,17 @@ export const usePopularSearchTerms = () => {
         setLoading(true);
 
         try {
-            // 这里应该调用热门搜索词API
-            // 现在返回模拟数据
+            // This should call the popular search terms API
+            // Now return mock data
             const mockTerms = [
-                { term: '原神', count: 1250, trend: 'up' as const },
-                { term: '王者荣耀', count: 980, trend: 'stable' as const },
+                { term: 'Genshin Impact', count: 1250, trend: 'up' as const },
+                { term: 'Honor of Kings', count: 980, trend: 'stable' as const },
                 { term: 'CS2', count: 750, trend: 'up' as const },
-                { term: '永劫无间', count: 620, trend: 'down' as const },
+                { term: 'Naraka: Bladepoint', count: 620, trend: 'down' as const },
                 { term: 'APEX', count: 580, trend: 'stable' as const },
-                { term: '英雄联盟', count: 520, trend: 'down' as const },
-                { term: '和平精英', count: 480, trend: 'up' as const },
-                { term: '我的世界', count: 420, trend: 'stable' as const }
+                { term: 'League of Legends', count: 520, trend: 'down' as const },
+                { term: 'PUBG Mobile', count: 480, trend: 'up' as const },
+                { term: 'Minecraft', count: 420, trend: 'stable' as const }
             ];
 
             setPopularTerms(mockTerms);

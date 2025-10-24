@@ -14,9 +14,9 @@ interface AvatarUploadProps {
 }
 
 /**
- * 头像上传组件
- * 显示用户头像，并支持点击"编辑头像"按钮上传新头像
- * 上传新头像时会自动删除旧头像
+ * Avatar upload component
+ * Display user avatar and support clicking "Edit Avatar" button to upload new avatar
+ * Automatically delete old avatar when uploading new avatar
  */
 export default function AvatarUpload({ 
     currentAvatar, 
@@ -29,71 +29,71 @@ export default function AvatarUpload({
     const [previewVisible, setPreviewVisible] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // 处理文件选择
+    // Handle file selection
     const handleFileSelect = async (file: File) => {
-        // 验证文件类型
+        // Validate file type
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
         if (!allowedTypes.includes(file.type)) {
-            message.error('只支持 JPG、PNG、GIF、WebP 格式的图片');
+            message.error('Only JPG, PNG, GIF, WebP format images are supported');
             return false;
         }
 
-        // 验证文件大小 (5MB)
+        // Validate file size (5MB)
         const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
-            message.error('图片大小不能超过 5MB');
+            message.error('Image size cannot exceed 5MB');
             return false;
         }
 
         try {
             setLoading(true);
             
-            // 如果已有头像，先删除旧头像
+            // If avatar exists, delete old avatar first
             if (currentAvatar) {
                 try {
                     await ProfileApi.deleteAvatar();
-                    console.log('旧头像已删除');
+                    console.log('Old avatar deleted');
                 } catch (deleteError) {
-                    console.warn('删除旧头像失败，继续上传新头像:', deleteError);
-                    // 即使删除失败也继续上传新头像
+                    console.warn('Failed to delete old avatar, continuing with new avatar upload:', deleteError);
+                    // Continue uploading new avatar even if deletion fails
                 }
             }
             
-            // 上传新头像
+            // Upload new avatar
             const result = await ProfileApi.uploadAvatar(file);
-            message.success('头像更新成功');
+            message.success('Avatar updated successfully');
             onAvatarChange?.(result.avatarUrl);
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : '头像上传失败';
+            const errorMessage = error instanceof Error ? error.message : 'Avatar upload failed';
             message.error(errorMessage);
         } finally {
             setLoading(false);
         }
 
-        return false; // 阻止默认上传行为
+        return false; // Prevent default upload behavior
     };
 
-    // 预览头像
+    // Preview avatar
     const handlePreview = () => {
         if (currentAvatar) {
             setPreviewVisible(true);
         }
     };
 
-    // 处理头像加载失败
+    // Handle avatar loading failure
     const onAvatarError = () => {
-        handleAvatarError(new Error('头像加载失败'), true);
+        handleAvatarError(new Error('Avatar loading failed'), true);
         return false;
     };
 
-    // 触发文件选择
+    // Trigger file selection
     const handleEditClick = () => {
         fileInputRef.current?.click();
     };
 
     return (
         <div style={{ textAlign: 'center' }}>
-            {/* 头像显示 */}
+            {/* Avatar display */}
             {size > 0 && (
                 <div style={{ marginBottom: showEditButton ? 16 : 0 }}>
                     <Avatar
@@ -111,7 +111,7 @@ export default function AvatarUpload({
                 </div>
             )}
 
-            {/* 编辑头像按钮 */}
+            {/* Edit avatar button */}
             {showEditButton && (
                 <div>
                     <Button
@@ -129,12 +129,12 @@ export default function AvatarUpload({
                             fontWeight: 500,
                         }}
                     >
-                        编辑头像
+                        Edit Avatar
                     </Button>
                 </div>
             )}
 
-            {/* 隐藏的文件输入 */}
+            {/* Hidden file input */}
             <input
                 ref={fileInputRef}
                 type="file"
@@ -144,16 +144,16 @@ export default function AvatarUpload({
                     const file = e.target.files?.[0];
                     if (file) {
                         handleFileSelect(file);
-                        // 清空input，以便可以重复选择同一个文件
+                        // Clear input to allow selecting the same file again
                         e.target.value = '';
                     }
                 }}
             />
 
-            {/* 头像预览模态框 */}
+            {/* Avatar preview modal */}
             <Modal
                 open={previewVisible}
-                title="头像预览"
+                title="Avatar Preview"
                 footer={null}
                 onCancel={() => setPreviewVisible(false)}
                 centered
@@ -161,7 +161,7 @@ export default function AvatarUpload({
                 <div style={{ textAlign: 'center' }}>
                     <Image
                         src={getAvatarUrl(currentAvatar)}
-                        alt="头像预览"
+                        alt="Avatar preview"
                         style={{ maxWidth: '100%', maxHeight: '400px' }}
                         preview={false}
                     />

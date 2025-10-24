@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const username = searchParams.get("username");
   if (!username) return NextResponse.json({ message: "username required" }, { status: 400 });
 
-  // 后端若提供 /api/auth/check-username?username=xxx 返回 {exists:boolean}
+  // Backend provides /api/auth/check-username?username=xxx returns {exists:boolean}
   try {
     const res = await fetch(`${BACKEND_BASE_URL}/api/auth/check-username?username=${encodeURIComponent(username)}`);
     const data = await res.json().catch(() => ({}));

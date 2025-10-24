@@ -1,38 +1,38 @@
 // src/lib/utils/timeFormat.ts
 
 /**
- * 格式化消息时间
- * - 今天的消息：显示 HH:mm
- * - 昨天的消息：显示 "昨天 HH:mm"
- * - 今年的消息：显示 "MM-DD HH:mm"
- * - 往年的消息：显示 "YYYY-MM-DD HH:mm"
+ * Format message time
+ * - Today's messages: display HH:mm
+ * - Yesterday's messages: display "Yesterday HH:mm"
+ * - This year's messages: display "MM-DD HH:mm"
+ * - Previous years' messages: display "YYYY-MM-DD HH:mm"
  */
 export function formatMessageTime(dateString: string | undefined): string {
     if (!dateString) {
-        console.error('时间字符串为空');
+        console.error('Time string is empty');
         return '--:--';
     }
 
     try {
-        // 处理不同格式的时间字符串
+        // Handle different time string formats
         let date: Date;
 
-        // ISO 格式：2025-10-08T14:30:00 或 2025-10-08T14:30:00.123456
+        // ISO format: 2025-10-08T14:30:00 or 2025-10-08T14:30:00.123456
         if (typeof dateString === 'string' && dateString.includes('T')) {
             date = new Date(dateString);
         }
-        // 时间戳
+        // Timestamp
         else if (typeof dateString === 'number') {
             date = new Date(dateString);
         }
-        // 其他格式
+        // Other formats
         else {
             date = new Date(dateString);
         }
 
-        // 检查日期是否有效
+        // Check if date is valid
         if (isNaN(date.getTime())) {
-            console.error('无效的时间:', dateString);
+            console.error('Invalid time:', dateString);
             return '--:--';
         }
 
@@ -43,48 +43,48 @@ export function formatMessageTime(dateString: string | undefined): string {
 
         const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-        // 格式化时间部分 HH:mm
+        // Format time part HH:mm
         const hours = date.getHours().toString().padStart(2, '0');
         const minutes = date.getMinutes().toString().padStart(2, '0');
         const timeStr = `${hours}:${minutes}`;
 
-        // 今天的消息
+        // Today's messages
         if (messageDate.getTime() === today.getTime()) {
             return timeStr;
         }
 
-        // 昨天的消息
+        // Yesterday's messages
         if (messageDate.getTime() === yesterday.getTime()) {
-            return `昨天 ${timeStr}`;
+            return `Yesterday ${timeStr}`;
         }
 
-        // 今年的消息
+        // This year's messages
         if (date.getFullYear() === now.getFullYear()) {
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
             const day = date.getDate().toString().padStart(2, '0');
             return `${month}-${day} ${timeStr}`;
         }
 
-        // 往年的消息
+        // Previous years' messages
         const year = date.getFullYear();
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const day = date.getDate().toString().padStart(2, '0');
         return `${year}-${month}-${day} ${timeStr}`;
 
     } catch (error) {
-        console.error('格式化时间失败:', error, dateString);
+        console.error('Failed to format time:', error, dateString);
         return '--:--';
     }
 }
 
 /**
- * 格式化相对时间（用于会话列表的"最后消息时间"）
- * - 1分钟内：刚刚
- * - 1小时内：X分钟前
- * - 今天：HH:mm
- * - 昨天：昨天
- * - 今年：MM-DD
- * - 往年：YYYY-MM-DD
+ * Format relative time (for "last message time" in conversation list)
+ * - Within 1 minute: Just now
+ * - Within 1 hour: X minutes ago
+ * - Today: HH:mm
+ * - Yesterday: Yesterday
+ * - This year: MM-DD
+ * - Previous years: YYYY-MM-DD
  */
 export function formatRelativeTime(dateString: string | undefined): string {
     if (!dateString) {
@@ -103,46 +103,46 @@ export function formatRelativeTime(dateString: string | undefined): string {
         const diffHours = Math.floor(diffMs / 3600000);
         const diffDays = Math.floor(diffMs / 86400000);
 
-        // 1分钟内
+        // Within 1 minute
         if (diffMinutes < 1) {
-            return '刚刚';
+            return 'Just now';
         }
 
-        // 1小时内
+        // Within 1 hour
         if (diffMinutes < 60) {
-            return `${diffMinutes}分钟前`;
+            return `${diffMinutes} minutes ago`;
         }
 
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-        // 今天
+        // Today
         if (messageDate.getTime() === today.getTime()) {
             const hours = date.getHours().toString().padStart(2, '0');
             const minutes = date.getMinutes().toString().padStart(2, '0');
             return `${hours}:${minutes}`;
         }
 
-        // 昨天
+        // Yesterday
         if (diffDays === 1) {
-            return '昨天';
+            return 'Yesterday';
         }
 
-        // 今年
+        // This year
         if (date.getFullYear() === now.getFullYear()) {
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
             const day = date.getDate().toString().padStart(2, '0');
             return `${month}-${day}`;
         }
 
-        // 往年
+        // Previous years
         const year = date.getFullYear();
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const day = date.getDate().toString().padStart(2, '0');
         return `${year}-${month}-${day}`;
 
     } catch (error) {
-        console.error('格式化相对时间失败:', error);
+        console.error('Failed to format relative time:', error);
         return '';
     }
 }

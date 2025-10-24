@@ -80,7 +80,7 @@ export function useDevGames() {
                 values.releaseDate ? values.releaseDate.toISOString() : new Date().toISOString()
             );
 
-            // ✅ 可选文件
+            // ✅ Optional files
             if (values.image?.[0]?.originFileObj) {
                 formData.append("image", values.image[0].originFileObj as File);
             }
@@ -95,7 +95,7 @@ export function useDevGames() {
             message.success("Game updated successfully");
             onSuccess?.();
 
-            // 如果你希望自动刷新 MyGames
+            // If you want to auto-refresh MyGames
             await fetchMyGames?.();
         } catch (e) {
             message.error(e instanceof Error ? e.message : "Update failed");

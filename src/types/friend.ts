@@ -1,16 +1,16 @@
 /**
- * 用户搜索结果
+ * User search result
  */
 export interface UserSearchResult {
     userId: number;
     username: string;
     email: string;
-    isFriend: boolean;      // 是否已是好友
-    hasPending: boolean;    // 是否有待处理的请求
+    isFriend: boolean;      // Whether already a friend
+    hasPending: boolean;    // Whether has pending request
 }
 
 /**
- * 好友请求
+ * Friend request
  */
 export interface FriendRequest {
     id: number;
@@ -27,7 +27,7 @@ export interface FriendRequest {
 }
 
 /**
- * 好友信息
+ * Friend information
  */
 export interface Friend {
     userId: number;

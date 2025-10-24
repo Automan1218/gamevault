@@ -11,8 +11,8 @@ interface ServerListProps {
 }
 
 /**
- * 最左侧服务器/群组列表
- * 暂时只显示 GameVault 主服务器
+ * Leftmost server/group list
+ * Temporarily only shows GameVault main server
  */
 export const ServerList: React.FC<ServerListProps> = ({
                                                           darkMode = true,
@@ -34,7 +34,7 @@ export const ServerList: React.FC<ServerListProps> = ({
                 boxShadow: darkMode ? '4px 0 16px rgba(0, 0, 0, 0.2)' : 'none',
             }}
         >
-            {/* 主服务器图标 */}
+            {/* Main server icon */}
             <Tooltip title="GameVault" placement="right">
                 <Badge count={unreadCount} offset={[-5, 5]}>
                     <Avatar
@@ -63,8 +63,8 @@ export const ServerList: React.FC<ServerListProps> = ({
 
             <Divider style={{ margin: '8px 0' }} />
 
-            {/* 创建群组按钮 */}
-            <Tooltip title="创建群组" placement="right">
+            {/* Create group button */}
+            <Tooltip title="Create Group" placement="right">
                 <Button
                     type="dashed"
                     shape="circle"

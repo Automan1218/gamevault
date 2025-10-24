@@ -3,7 +3,7 @@ import {apiClient} from './client';
 import {ENV} from '@/config/env';
 import {AuthApi} from "@/lib/api/auth";
 
-// 根据后端User实体定义类型
+// Define types based on backend User entity
 export interface User {
     userId: number;
     username: string;
@@ -18,19 +18,19 @@ export interface User {
 export class UsersApi {
     private static currentUserCache: any = null;
     private static cacheTimestamp: number = 0;
-    private static readonly CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
+    private static readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minute cache
 
-    // 带缓存的获取当前用户信息
+    // Get current user info with caching
     static async getCurrentUser() {
         const now = Date.now();
 
-        // 如果缓存存在且未过期，直接返回缓存
+        // If cache exists and is not expired, return cache directly
         if (this.currentUserCache && (now - this.cacheTimestamp) < this.CACHE_DURATION) {
             return this.currentUserCache;
         }
 
         try {
-            // 使用认证服务（端口8080）获取用户信息，而不是论坛服务
+            // Use auth service (port 8080) to get user info, not forum service
             const response = await fetch(`${ENV.AUTH_API_URL}/auth/me`, {
                 headers: {
                     'Authorization': `Bearer ${AuthApi.getToken()}`,
@@ -38,48 +38,48 @@ export class UsersApi {
             });
 
             if (!response.ok) {
-                throw new Error('获取用户信息失败');
+                throw new Error('Failed to get user info');
             }
 
             const data = await response.json();
 
-            // 更新缓存
+            // Update cache
             this.currentUserCache = data;
             this.cacheTimestamp = now;
 
             return data;
         } catch (error) {
-            // 清除缓存
+            // Clear cache
             this.currentUserCache = null;
             this.cacheTimestamp = 0;
             throw error;
         }
     }
 
-    // 清除缓存的方法
+    // Method to clear cache
     static clearUserCache() {
         this.currentUserCache = null;
         this.cacheTimestamp = 0;
     }
 
-    // 优化后的 getUserId - 避免重复请求
+    // Optimized getUserId - avoid duplicate requests
     static async getUserId(): Promise<number | null> {
         try {
             const data = await this.getCurrentUser();
             return data.userId;
         } catch (error) {
-            console.error('获取 userId 失败:', error);
+            console.error('Failed to get userId:', error);
             return null;
         }
     }
 
-    // 优化后的 getUsername - 避免重复请求
+    // Optimized getUsername - avoid duplicate requests
     static async getUsername(): Promise<string | null> {
         try {
             const data = await this.getCurrentUser();
             return data.username;
         } catch (error) {
-            console.error('获取 username 失败:', error);
+            console.error('Failed to get username:', error);
             return null;
         }
     }
@@ -88,8 +88,8 @@ export class UsersApi {
         try {
             return await apiClient.get<User>(`/users/${userId}`);
         } catch (error) {
-            console.error(`获取用户 ${userId} 失败:`, error);
-            throw new Error('获取用户信息失败');
+            console.error(`Failed to get user ${userId}:`, error);
+            throw new Error('Failed to get user info');
         }
     }
 }

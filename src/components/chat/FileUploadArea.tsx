@@ -32,16 +32,16 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     const uploaderRef = useRef<FileUploader | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // 处理文件选择
+    // Handle file selection
     const handleFileSelect = async (file: File) => {
         const allowedTypes = [
-            // 图片
+            // Images
             'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp', 'image/svg+xml',
-            // 视频
+            // Videos
             'video/mp4', 'video/avi', 'video/mov', 'video/wmv', 'video/flv', 'video/mkv', 'video/webm',
-            // 音频
+            // Audio
             'audio/mp3', 'audio/wav', 'audio/aac', 'audio/flac', 'audio/ogg', 'audio/m4a',
-            // 文档
+            // Documents
             'application/pdf',
             'application/msword',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -61,25 +61,25 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                 'txt', 'zip', 'rar', '7z', 'mp3', 'mp4', 'avi', 'mov'].includes(fileExtension || '');
 
         if (!isAllowedType) {
-            message.error('不支持的文件类型');
+            message.error('Unsupported file type');
             return;
         }
 
-        // 文件大小限制（100MB）
+        // File size limit (100MB)
         const maxSize = 100 * 1024 * 1024;
 
         if (file.size > maxSize) {
-            message.error(`文件大小不能超过 100MB，当前文件：${formatFileSize(file.size)}`);
+            message.error(`File size cannot exceed 100MB, current file: ${formatFileSize(file.size)}`);
             return;
         }
 
-        // 添加：大文件提示
+        // Add: Large file prompt
         const chunkThreshold = 10 * 1024 * 1024; // 10MB
         if (file.size > chunkThreshold) {
-            message.info('文件较大，将使用分片上传，请稍候...');
+            message.info('Large file detected, will use chunked upload, please wait...');
         }
 
-        // 图片预览
+        // Image preview
         if (file.type.startsWith('image/')) {
             const url = URL.createObjectURL(file);
             setPreviewUrl(url);
@@ -88,7 +88,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
             setPreviewFile(file);
         }
 
-        // 开始上传
+        // Start upload
         setUploading(true);
 
         const uploader = new FileUploader(file, {
@@ -98,7 +98,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                 setProgress(prog);
             },
             onSuccess: (result) => {
-                message.success('上传成功！');
+                message.success('Upload successful!');
                 setUploading(false);
                 setProgress(null);
                 setPreviewFile(null);
@@ -106,7 +106,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                 onUploadSuccess?.(result);
             },
             onError: (error) => {
-                message.error(`上传失败: ${error.message}`);
+                message.error(`Upload failed: ${error.message}`);
                 setUploading(false);
                 setProgress(null);
                 setPreviewFile(null);
@@ -120,11 +120,11 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
         try {
             await uploader.upload();
         } catch (error) {
-            console.error('上传错误:', error);
+            console.error('Upload error:', error);
         }
     };
 
-    //  添加：格式化文件大小的辅助函数
+    // Add: Helper function to format file size
     const formatFileSize = (bytes: number): string => {
         if (bytes < 1024) return bytes + ' B';
         if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
@@ -132,7 +132,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
         return (bytes / 1024 / 1024 / 1024).toFixed(2) + ' GB';
     };
 
-    // 取消上传
+    // Cancel upload
     const handleCancel = async () => {
         if (uploaderRef.current) {
             await uploaderRef.current.abort();
@@ -141,10 +141,10 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
         setProgress(null);
         setPreviewFile(null);
         setPreviewUrl('');
-        message.info('已取消上传');
+        message.info('Upload cancelled');
     };
 
-    // 获取文件图标
+    // Get file icon
     const getFileIcon = (file: File) => {
         if (file.type.startsWith('image/')) return <FileImageOutlined />;
         if (file.type.startsWith('video/')) return <VideoCameraOutlined />;
@@ -154,7 +154,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
 
     return (
         <div>
-            {/* 文件选择按钮 */}
+            {/* File selection button */}
             <input
                 ref={fileInputRef}
                 type="file"
@@ -162,7 +162,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                 onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) handleFileSelect(file);
-                    e.target.value = ''; // 清空，允许重复选择同一文件
+                    e.target.value = ''; // Clear to allow selecting the same file repeatedly
                 }}
                 accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar,.7z"
             />
@@ -172,10 +172,10 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
                 type="text"
-                title="上传文件"
+                title="Upload file"
             />
 
-            {/* 上传进度显示 */}
+            {/* Upload progress display */}
             {uploading && previewFile && (
                 <div
                     style={{
@@ -210,11 +210,11 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                             />
                         </Space>
 
-                        {/* 图片预览 */}
+                        {/* Image preview */}
                         {previewUrl && (
                             <Image
                                 src={previewUrl}
-                                alt="预览"
+                                alt="Preview"
                                 style={{
                                     maxWidth: '100%',
                                     maxHeight: 150,
@@ -225,7 +225,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                             />
                         )}
 
-                        {/* 进度条 */}
+                        {/* Progress bar */}
                         {progress && (
                             <>
                                 <Progress
@@ -241,17 +241,17 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                                     }}
                                     format={(percent) => {
                                         if (progress.stage === 'calculating') {
-                                            return `计算MD5: ${percent}%`;
+                                            return `Calculating MD5: ${percent}%`;
                                         } else if (progress.stage === 'merging') {
-                                            return `合并文件: ${percent}%`;
+                                            return `Merging files: ${percent}%`;
                                         } else if (progress.current && progress.total) {
-                                            return `${progress.current}/${progress.total} 分片`;
+                                            return `${progress.current}/${progress.total} chunks`;
                                         }
                                         return `${percent}%`;
                                     }}
                                 />
                                 <div style={{ color: '#999', fontSize: 12 }}>
-                                    {progress.message || '上传中...'}
+                                    {progress.message || 'Uploading...'}
                                 </div>
                             </>
                         )}

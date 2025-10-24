@@ -31,7 +31,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
     const displayTime = formatMessageTime(message.createdAt || message.timestamp);
     const hasAttachment = !!message.attachment;
 
-    // 获取文件图标
+    // Get file icon
     const getFileIcon = (fileType: string) => {
         switch (fileType) {
             case 'image':
@@ -45,14 +45,14 @@ export const MessageItem: React.FC<MessageItemProps> = ({
         }
     };
 
-    // 渲染文件附件
+    // Render file attachment
     const renderAttachment = () => {
         if (!message.attachment) return null;
 
         const { fileType, fileName, fileSize, accessUrl, thumbnailUrl } =
             message.attachment;
 
-        // 图片消息
+        // Image message
         if (fileType === 'image') {
             return (
                 <div style={{ marginTop: hasTextContent() ? 8 : 0 }}>
@@ -83,7 +83,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
             );
         }
 
-        // 视频消息
+        // Video message
         if (fileType === 'video') {
             return (
                 <div
@@ -118,7 +118,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
             );
         }
 
-        // 音频消息
+        // Audio message
         if (fileType === 'audio') {
             return (
                 <div
@@ -145,7 +145,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
             );
         }
 
-        // 其他文件（文档等）
+        // Other files (documents, etc.)
         return (
             <div
                 style={{
@@ -173,18 +173,18 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                         target="_blank"
                         style={{ color: isCurrentUser ? '#fff' : '#1890ff' }}
                     >
-                        下载
+                        Download
                     </Button>
                 </Space>
             </div>
         );
     };
 
-    // 判断是否有文本内容
+    // Check if there is text content
     const hasTextContent = () => {
         return message.content &&
             message.content.trim() &&
-            !message.content.startsWith('[文件]');
+            !message.content.startsWith('[File]');
     };
 
     return (
@@ -196,7 +196,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                 gap: 12,
             }}
         >
-            {/* 头像 */}
+            {/* Avatar */}
             <Avatar
                 size={36}
                 src={senderAvatar}
@@ -208,7 +208,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                 <UserOutlined />
             </Avatar>
 
-            {/* 消息内容 */}
+            {/* Message content */}
             <div
                 style={{
                     display: 'flex',
@@ -217,7 +217,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                     maxWidth: '60%',
                 }}
             >
-                {/* 发送者名称 */}
+                {/* Sender name */}
                 {!isCurrentUser && (
                     <div
                         style={{
@@ -230,7 +230,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                     </div>
                 )}
 
-                {/* 消息气泡 */}
+                {/* Message bubble */}
                 <div
                     style={{
                         padding: hasAttachment ? '8px' : '10px 14px',
@@ -245,14 +245,14 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                         whiteSpace: 'pre-wrap',
                     }}
                 >
-                    {/* 文本内容（如果有且不是默认的[文件]文本） */}
+                    {/* Text content (if any and not default [File] text) */}
                     {hasTextContent() && <div>{message.content}</div>}
 
-                    {/* 文件附件 */}
+                    {/* File attachment */}
                     {renderAttachment()}
                 </div>
 
-                {/* 时间 */}
+                {/* Time */}
                 <div
                     style={{
                         fontSize: 11,

@@ -22,7 +22,7 @@ export const ConnectionMonitor: React.FC = () => {
             }
         };
 
-        // 每秒检查一次
+        // Check every second
         const timer = setInterval(checkConnection, 1000);
 
         return () => clearInterval(timer);
@@ -43,15 +43,15 @@ export const ConnectionMonitor: React.FC = () => {
             zIndex: 9999,
         }}>
             <Alert
-                message={reconnecting ? "连接已断开，正在重连..." : "网络连接已断开"}
-                description={reconnecting ? "请稍候，系统正在尝试重新连接..." : "请检查您的网络连接"}
+                message={reconnecting ? "Connection lost, reconnecting..." : "Network connection lost"}
+                description={reconnecting ? "Please wait, system is trying to reconnect..." : "Please check your network connection"}
                 type="warning"
                 showIcon
                 banner
                 action={
                     !reconnecting && (
                         <Button size="small" onClick={handleReconnect}>
-                            重新加载
+                            Reload
                         </Button>
                     )
                 }

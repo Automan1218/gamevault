@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const email = searchParams.get("email");
   if (!email) return NextResponse.json({ message: "email required" }, { status: 400 });
 
-  // 后端若提供 /api/auth/check-email?email=xxx 返回 {exists:boolean}
+  // Backend provides /api/auth/check-email?email=xxx returns {exists:boolean}
   try {
     const res = await fetch(`${BACKEND_BASE_URL}/api/auth/check-email?email=${encodeURIComponent(email)}`);
     const data = await res.json().catch(() => ({}));

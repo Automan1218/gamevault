@@ -20,7 +20,7 @@ interface ChannelListProps {
 }
 
 /**
- * 中间会话列表（群聊 + 好友）
+ * Middle conversation list (group chats + friends)
  */
 export const ChannelList: React.FC<ChannelListProps> = ({
                                                             friends,
@@ -36,7 +36,7 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                                                         }) => {
     const [searchKeyword, setSearchKeyword] = useState('');
 
-    // 转换为统一的会话格式
+    // Convert to unified conversation format
     const groupConversations: Conversation[] = groups.map(group => ({
         id: `group-${group.id}`,
         type: 'group',
@@ -57,7 +57,7 @@ export const ChannelList: React.FC<ChannelListProps> = ({
         data: friend,
     }));
 
-    // 搜索过滤
+    // Search filtering
     const filteredGroups = searchKeyword
         ? groupConversations.filter(c =>
             c.name.toLowerCase().includes(searchKeyword.toLowerCase())
@@ -70,7 +70,7 @@ export const ChannelList: React.FC<ChannelListProps> = ({
         )
         : friendConversations;
 
-    // 渲染会话项
+    // Render conversation item
     const renderConversationItem = (conversation: Conversation) => {
         const isSelected = selectedConversation?.id === conversation.id;
         const isGroup = conversation.type === 'group';
@@ -130,7 +130,7 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                         </Badge>
                     )}
 
-                    {/* 名称和最后消息 */}
+                    {/* Name and last message */}
                     <div style={{ maxWidth: 140 }}>
                         <div
                             style={{
@@ -152,7 +152,7 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                     </div>
                 </Space>
 
-                {/* 未读数 */}
+                {/* Unread count */}
                 {(conversation.unread || 0) > 0 && <Badge count={conversation.unread} />}
             </div>
         );
@@ -170,29 +170,29 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                 boxShadow: darkMode ? '4px 0 16px rgba(0, 0, 0, 0.2)' : 'none',
             }}
         >
-            {/* 搜索框 */}
+            {/* Search box */}
             <div style={{ padding: '16px' }}>
                 <Input
-                    placeholder="搜索群聊或好友"
+                    placeholder="Search groups or friends"
                     prefix={<SearchOutlined />}
                     value={searchKeyword}
                     onChange={(e) => setSearchKeyword(e.target.value)}
                 />
             </div>
 
-            {/* 会话列表 */}
+            {/* Conversation list */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '0 8px' }}>
                 <Collapse
                     defaultActiveKey={['groups', 'friends']}
                     ghost
                     expandIconPosition="end"
                 >
-                    {/* 群聊列表 */}
+                    {/* Group chat list */}
                     <Panel
                         header={
                             <Space>
                                 <TeamOutlined />
-                                <Text strong>群聊</Text>
+                                <Text strong>Group Chats</Text>
                                 <Text type="secondary">({filteredGroups.length})</Text>
                             </Space>
                         }
@@ -202,7 +202,7 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                             filteredGroups.map(renderConversationItem)
                         ) : (
                             <Text type="secondary" style={{ padding: '12px', display: 'block' }}>
-                                暂无群聊
+                                No group chats yet
                             </Text>
                         )}
                         <Button
@@ -212,16 +212,16 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                             onClick={onCreateGroup}
                             style={{ marginTop: 8 }}
                         >
-                            创建群聊
+                            Create Group Chat
                         </Button>
                     </Panel>
 
-                    {/* 好友列表 */}
+                    {/* Friends list */}
                     <Panel
                         header={
                             <Space>
                                 <UserOutlined />
-                                <Text strong>好友</Text>
+                                <Text strong>Friends</Text>
                                 <Text type="secondary">({filteredFriends.length})</Text>
                             </Space>
                         }
@@ -234,7 +234,7 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                                         size="small"
                                         icon={<BellOutlined />}
                                         onClick={onViewFriendRequests}
-                                        title="好友请求"
+                                        title="Friend Requests"
                                     />
                                 </Badge>
                                 <Button
@@ -242,7 +242,7 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                                     size="small"
                                     icon={<UserAddOutlined />}
                                     onClick={onAddFriend}
-                                    title="添加好友"
+                                    title="Add Friend"
                                 />
                             </Space>
                         }
@@ -251,7 +251,7 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                             filteredFriends.map(renderConversationItem)
                         ) : (
                             <Text type="secondary" style={{ padding: '12px', display: 'block' }}>
-                                暂无好友
+                                No friends yet
                             </Text>
                         )}
                     </Panel>
@@ -260,7 +260,7 @@ export const ChannelList: React.FC<ChannelListProps> = ({
 
             <Divider style={{ margin: 0 }} />
 
-            {/* 用户状态 */}
+            {/* User status */}
             <div
                 style={{
                     padding: '12px',
@@ -274,9 +274,9 @@ export const ChannelList: React.FC<ChannelListProps> = ({
                         </Avatar>
                     </Badge>
                     <div>
-                        <div style={{ fontWeight: 500 }}>当前用户</div>
+                        <div style={{ fontWeight: 500 }}>Current User</div>
                         <Text type="secondary" style={{ fontSize: 12 }}>
-                            在线
+                            Online
                         </Text>
                     </div>
                 </Space>

@@ -1,6 +1,6 @@
 /**
- * 头像更新事件管理
- * 用于在头像更新后通知其他组件刷新
+ * Avatar update event management
+ * Used to notify other components to refresh after avatar update
  */
 
 type AvatarUpdateListener = (avatarUrl: string | null) => void;
@@ -9,31 +9,31 @@ class AvatarEventEmitter {
     private listeners: AvatarUpdateListener[] = [];
 
     /**
-     * 订阅头像更新事件
+     * Subscribe to avatar update events
      */
     subscribe(listener: AvatarUpdateListener) {
         this.listeners.push(listener);
         
-        // 返回取消订阅函数
+        // Return unsubscribe function
         return () => {
             this.listeners = this.listeners.filter(l => l !== listener);
         };
     }
 
     /**
-     * 发布头像更新事件
+     * Emit avatar update event
      */
     emit(avatarUrl: string | null) {
         this.listeners.forEach(listener => {
             try {
                 listener(avatarUrl);
             } catch (error) {
-                console.error('头像更新事件处理失败:', error);
+                console.error('Avatar update event handling failed:', error);
             }
         });
     }
 }
 
-// 创建全局实例
+// Create global instance
 export const avatarEvents = new AvatarEventEmitter();
 

@@ -20,16 +20,16 @@ export default function LoginPage() {
     const { login, register, checkEmailExists, checkUsernameExists, loading } = useAuth();
     const [showMessage, setShowMessage] = useState<string | null>(null);
 
-    // 检查URL参数并显示相应消息
+    // Check URL parameters and display corresponding messages
     useEffect(() => {
         if (messageParam === 'password_changed') {
-            setShowMessage('密码修改成功，请重新登录');
+            setShowMessage('Password changed successfully, please login again');
         } else if (messageParam === 'email_changed') {
-            setShowMessage('邮箱修改成功，请重新登录');
+            setShowMessage('Email changed successfully, please login again');
         }
     }, [messageParam]);
 
-    // 处理登录
+    // Handle login
     const handleLogin = async (values: LoginRequest) => {
         const result = await login(values, redirect);
         if (result.success) {
@@ -39,7 +39,7 @@ export default function LoginPage() {
         }
     };
 
-    // 处理注册
+    // Handle registration
     const handleRegister = async (values: RegisterRequest) => {
         const result = await register(values, redirect);
         if (result.success) {
@@ -49,45 +49,45 @@ export default function LoginPage() {
         }
     };
 
-    // 忘记密码处理
+    // Handle forgot password
     const handleForgotPassword = () => {
-        message.info('忘记密码功能开发中...');
+        message.info('Forgot password feature is under development...');
     };
 
-    // 邮箱唯一性验证
+    // Email uniqueness validation
     const validateEmail = async (rule: any, value: string) => {
         if (!value) return Promise.resolve();
         
         try {
             const exists = await checkEmailExists(value);
             if (exists) {
-                return Promise.reject(new Error('该邮箱已被注册'));
+                return Promise.reject(new Error('This email is already registered'));
             }
             return Promise.resolve();
         } catch (error) {
-            console.error('邮箱验证失败:', error);
-            return Promise.resolve(); // 验证失败时不阻止提交
+            console.error('Email validation failed:', error);
+            return Promise.resolve(); // Don't block submission when validation fails
         }
     };
 
-    // 用户名唯一性验证
+    // Username uniqueness validation
     const validateUsername = async (rule: any, value: string) => {
         if (!value) return Promise.resolve();
         
         try {
             const exists = await checkUsernameExists(value);
             if (exists) {
-                return Promise.reject(new Error('该用户名已被使用'));
+                return Promise.reject(new Error('This username is already taken'));
             }
             return Promise.resolve();
         } catch (error) {
-            console.error('用户名验证失败:', error);
-            return Promise.resolve(); // 验证失败时不阻止提交
+            console.error('Username validation failed:', error);
+            return Promise.resolve(); // Don't block submission when validation fails
         }
     };
 
 
-    // 右侧卡片内容（布局已由 (auth)/layout.tsx 提供）
+    // Right card content (layout provided by (auth)/layout.tsx)
     return (
         <div
             className="login-card"
@@ -98,14 +98,14 @@ export default function LoginPage() {
                 ...cardStyle,
             }}
         >
-            {/* 表单标题 */}
+            {/* Form title */}
             <div style={{ textAlign: 'center', marginBottom: 40 }}>
                 <CustomTitle level={2} style={{ fontSize: '2rem' }}>
-                    欢迎回来
+                    Welcome Back
                 </CustomTitle>
             </div>
 
-            {/* 显示重定向消息 */}
+            {/* Display redirect message */}
             {showMessage && (
                 <Alert
                     message={showMessage}
@@ -129,7 +129,7 @@ export default function LoginPage() {
                 validateUsername={validateUsername}
             />
 
-            {/* 返回首页 */}
+            {/* Return to homepage */}
             <div style={{ textAlign: 'center', marginTop: 24 }}>
                 <Button 
                     type="default" 
@@ -155,7 +155,7 @@ export default function LoginPage() {
                         e.currentTarget.style.color = '#6b7280';
                     }}
                 >
-                    ← 返回首页
+                    ← Back to Homepage
                 </Button>
             </div>
         </div>

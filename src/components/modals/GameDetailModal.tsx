@@ -1,4 +1,4 @@
-// 文件路径: @/components/shopping/GameDetailModal.tsx
+// File path: @/components/shopping/GameDetailModal.tsx
 
 import React, { useState } from "react";
 import {
@@ -50,20 +50,20 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
     setLoading(true);
     try {
       await addToCart(game.gameId, quantity);
-      message.success(`已将 ${game.title} ×${quantity} 加入购物车`);
+      message.success(`Added ${game.title} ×${quantity} to cart`);
       setQuantity(1);
       onClose();
     } catch {
-      message.error("加入购物车失败");
+      message.error("Failed to add to cart");
     } finally {
       setLoading(false);
     }
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return "未知";
+    if (!dateString) return "Unknown";
     try {
-      return new Date(dateString).toLocaleDateString("zh-CN", {
+      return new Date(dateString).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -132,7 +132,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
           background: "transparent",
         }}
       >
-        {/* 游戏封面 */}
+        {/* Game Cover */}
         <div
           style={{
             position: "relative",
@@ -143,7 +143,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
             borderRadius: "16px 16px 0 0",
           }}
         >
-          {/* 折扣标签 */}
+          {/* Discount Tag */}
           {game.discountPrice && (
             <div
               style={{
@@ -163,7 +163,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
             </div>
           )}
 
-          {/* 游戏标题和基本信息 */}
+          {/* Game Title and Basic Info */}
           <div
             style={{
               position: "absolute",
@@ -209,14 +209,14 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
                   color={game.isActive ? "success" : "default"}
                   style={{ fontSize: 13, padding: "4px 12px" }}
                 >
-                  {game.isActive ? "在售中" : "已下架"}
+                  {game.isActive ? "Available" : "Discontinued"}
                 </Tag>
               )}
             </Space>
           </div>
         </div>
 
-        {/* 详情内容 */}
+        {/* Detail Content */}
         <div 
           style={{ 
             padding: "32px",
@@ -224,15 +224,15 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
           }}
         >
           <Row gutter={[32, 32]}>
-            {/* 左侧：详细信息 */}
+            {/* Left: Detailed Information */}
             <Col xs={24} md={14}>
-              {/* 开发商 */}
+              {/* Developer */}
               {game.developer && (
                 <div style={{ marginBottom: 20 }}>
                   <Space align="center" style={{ marginBottom: 8 }}>
                     <UserOutlined style={{ color: "#6366f1", fontSize: 16 }} />
                     <Text strong style={{ color: "#e5e7eb", fontSize: 14 }}>
-                      开发商
+                      Developer
                     </Text>
                   </Space>
                   <div style={{ color: "#9ca3af", paddingLeft: 24 }}>
@@ -241,13 +241,13 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
                 </div>
               )}
 
-              {/* 发行日期 */}
+              {/* Release Date */}
               {game.releaseDate && (
                 <div style={{ marginBottom: 20 }}>
                   <Space align="center" style={{ marginBottom: 8 }}>
                     <CalendarOutlined style={{ color: "#6366f1", fontSize: 16 }} />
                     <Text strong style={{ color: "#e5e7eb", fontSize: 14 }}>
-                      发行日期
+                      Release Date
                     </Text>
                   </Space>
                   <div style={{ color: "#9ca3af", paddingLeft: 24 }}>
@@ -256,12 +256,12 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
                 </div>
               )}
 
-              {/* 游戏ID */}
+              {/* Game ID */}
               <div style={{ marginBottom: 20 }}>
                 <Space align="center" style={{ marginBottom: 8 }}>
                   <CodeOutlined style={{ color: "#6366f1", fontSize: 16 }} />
                   <Text strong style={{ color: "#e5e7eb", fontSize: 14 }}>
-                    游戏ID
+                    Game ID
                   </Text>
                 </Space>
                 <div style={{ color: "#9ca3af", paddingLeft: 24, fontFamily: "monospace" }}>
@@ -271,10 +271,10 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
 
               <Divider style={{ borderColor: "rgba(99, 102, 241, 0.2)" }} />
 
-              {/* 游戏描述 */}
+              {/* Game Description */}
               <div>
                 <Text strong style={{ color: "#e5e7eb", fontSize: 16, display: "block", marginBottom: 12 }}>
-                  游戏简介
+                  Game Description
                 </Text>
                 <Paragraph
                   style={{
@@ -284,12 +284,12 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
                     textAlign: "justify",
                   }}
                 >
-                  {game.description || "暂无游戏描述"}
+                  {game.description || "No game description available"}
                 </Paragraph>
               </div>
             </Col>
 
-            {/* 右侧：购买区域 */}
+            {/* Right: Purchase Area */}
             <Col xs={24} md={10}>
               <div
                 style={{
@@ -301,10 +301,10 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
                 }}
               >
                 <Title level={4} style={{ color: "#e5e7eb", marginBottom: 24 }}>
-                  购买选项
+                  Purchase Options
                 </Title>
 
-                {/* 价格展示 */}
+                {/* Price Display */}
                 <div style={{ marginBottom: 28 }}>
                   {game.discountPrice ? (
                     <>
@@ -329,7 +329,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
                           ￥{game.price.toFixed(2)}
                         </Text>
                         <Tag color="red" style={{ margin: 0 }}>
-                          省 ￥{(game.price - game.discountPrice).toFixed(2)}
+                          Save ￥{(game.price - game.discountPrice).toFixed(2)}
                         </Tag>
                       </div>
                     </>
@@ -348,10 +348,10 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
 
                 <Divider style={{ borderColor: "rgba(99, 102, 241, 0.2)", margin: "24px 0" }} />
 
-                {/* 数量选择 */}
+                {/* Quantity Selection */}
                 <div style={{ marginBottom: 24 }}>
                   <Text strong style={{ color: "#e5e7eb", display: "block", marginBottom: 12 }}>
-                    购买数量
+                    Purchase Quantity
                   </Text>
                   <InputNumber
                     min={1}
@@ -363,7 +363,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
                   />
                 </div>
 
-                {/* 总计 */}
+                {/* Total */}
                 <div
                   style={{
                     background: "rgba(99, 102, 241, 0.1)",
@@ -374,14 +374,14 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
                   }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <Text style={{ color: "#9ca3af", fontSize: 14 }}>小计</Text>
+                    <Text style={{ color: "#9ca3af", fontSize: 14 }}>Subtotal</Text>
                     <Text strong style={{ color: "#e5e7eb", fontSize: 20 }}>
                       ￥{((game.discountPrice || game.price) * quantity).toFixed(2)}
                     </Text>
                   </div>
                 </div>
 
-                {/* 购买按钮 */}
+                {/* Purchase Button */}
                 <Button
                   type="primary"
                   size="large"
@@ -403,7 +403,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
                       : undefined,
                   }}
                 >
-                  {game.isActive ? "加入购物车" : "该游戏已下架"}
+                  {game.isActive ? "Add to Cart" : "This game is no longer available"}
                 </Button>
 
                 {game.isActive && (
@@ -417,7 +417,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
                       color: "#6b7280",
                     }}
                   >
-                    购买后立即获得激活码
+                    Get activation codes immediately after purchase
                   </Text>
                 )}
               </div>

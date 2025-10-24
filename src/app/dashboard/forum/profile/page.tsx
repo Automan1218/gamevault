@@ -55,7 +55,7 @@ import { ProfileApi } from '@/lib/api/profile';
 
 const { Title, Text, Paragraph } = Typography;
 
-// 直接使用Post类型，添加额外的可选字段
+// Directly use Post type, add additional optional fields
 interface PostItem extends Post {
     category?: string;
     tags?: string[];
@@ -88,7 +88,7 @@ export default function MyPostsPage() {
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const [mounted, setMounted] = useState(false);
 
-    // 用户信息
+    // User information
     const [userId, setUserId] = useState<number | null>(null);
     const [username, setUsername] = useState<string | null>(null);
     const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
@@ -96,7 +96,7 @@ export default function MyPostsPage() {
     useEffect(() => {
         setMounted(true);
         (async () => {
-            // 清除缓存，确保获取最新的用户信息
+            // Clear cache to ensure getting latest user information
             UsersApi.clearUserCache();
 
             const [id, name] = await Promise.all([
@@ -106,49 +106,49 @@ export default function MyPostsPage() {
             setUserId(id);
             setUsername(name);
 
-            // 获取用户头像
+            // Get user avatar
             try {
                 const profile = await ProfileApi.getProfile();
                 setAvatarUrl(profile.avatarUrl);
             } catch (error) {
-                console.warn('获取用户头像失败:', error);
+                console.warn('Failed to get user avatar:', error);
                 setAvatarUrl(undefined);
             }
         })();
     }, []);
 
-    // 检查登录状态
+    // Check login status
     useEffect(() => {
         if (mounted && !AuthApi.isAuthenticated()) {
-            message.warning('请先登录');
+            message.warning('Please login first');
             router.push('/login');
         }
     }, [mounted]);
 
-    // 获取我的帖子
+    // Get my posts
     const fetchMyPosts = async (page: number = 1) => {
         if (!userId) return;
 
         try {
             setLoading(true);
 
-            // 使用 PostsApi 调用获取用户帖子的API
+            // Use PostsApi to call get user posts API
             const data = await PostsApi.getUserPosts(userId, page - 1, pageSize);
 
             setMyPosts(data.posts as PostItem[] || []);
             setTotalPosts(data.totalCount || 0);
 
-            // 计算统计数据
+            // Calculate statistics
             calculateStats(data.posts as PostItem[] || []);
         } catch (error) {
-            console.error('获取我的帖子失败:', error);
-            message.error('获取帖子列表失败');
+            console.error('Failed to get my posts:', error);
+            message.error('Failed to get post list');
         } finally {
             setLoading(false);
         }
     };
 
-    // 计算统计数据
+    // Calculate statistics
     const calculateStats = (posts: PostItem[]) => {
         const stats = posts.reduce((acc, post) => ({
             totalPosts: acc.totalPosts + 1,
@@ -165,45 +165,45 @@ export default function MyPostsPage() {
         setStats(stats);
     };
 
-    // 删除帖子
+    // Delete post
     const handleDeletePost = async () => {
         if (!selectedPost) return;
 
         try {
             await PostsApi.deletePost(selectedPost.contentId);
-            message.success('删除成功');
+            message.success('Deleted successfully');
             setDeleteModalVisible(false);
             setSelectedPost(null);
             await fetchMyPosts(currentPage);
         } catch (error) {
-            message.error('删除失败');
+            message.error('Delete failed');
         }
     };
 
-    // 编辑帖子
+    // Edit post
     const handleEditPost = (postId: number) => {
         router.push(`/post/edit/${postId}`);
     };
 
-    // 初始化
+    // Initialize
     useEffect(() => {
         if (userId) {
             fetchMyPosts(1);
         }
     }, [userId]);
 
-    // 渲染帖子卡片
+    // Render post card
     const renderPostCard = (post: PostItem) => {
         const menuItems = [
             {
                 key: 'edit',
-                label: '编辑',
+                label: 'Edit',
                 icon: <EditOutlined />,
                 onClick: () => handleEditPost(post.contentId),
             },
             {
                 key: 'delete',
-                label: '删除',
+                label: 'Delete',
                 icon: <DeleteOutlined />,
                 danger: true,
                 onClick: () => {
@@ -227,7 +227,7 @@ export default function MyPostsPage() {
                 styles={{ body: { padding: '24px' } }}
             >
                 <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                    {/* 帖子头部：标签和时间 */}
+                    {/* Post header: tags and time */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Space size="small">
                             {post.isPinned && (
@@ -242,7 +242,7 @@ export default function MyPostsPage() {
                                         fontWeight: 600,
                                     }}
                                 >
-                                    置顶
+                                    Pinned
                                 </Tag>
                             )}
                             {post.isEssence && (
@@ -257,7 +257,7 @@ export default function MyPostsPage() {
                                         fontWeight: 600,
                                     }}
                                 >
-                                    精华
+                                    Featured
                                 </Tag>
                             )}
                             <Tag
@@ -271,7 +271,7 @@ export default function MyPostsPage() {
                                     color: '#fff',
                                 }}
                             >
-                                {post.category || '讨论'}
+                                {post.category || 'Discussion'}
                             </Tag>
                         </Space>
                         <Space>
@@ -302,7 +302,7 @@ export default function MyPostsPage() {
                         </Space>
                     </div>
 
-                    {/* 帖子标题 */}
+                    {/* Post title */}
                     <div onClick={() => {
                         PostStateManager.setCurrentPost(post.contentId);
                         router.push(navigationRoutes.forumDetail);
@@ -321,7 +321,7 @@ export default function MyPostsPage() {
                         </Title>
                     </div>
 
-                    {/* 帖子内容摘要 */}
+                    {/* Post content summary */}
                     {post.bodyPlain && (
                         <Paragraph
                             ellipsis={{ rows: 2 }}
@@ -340,7 +340,7 @@ export default function MyPostsPage() {
                         </Paragraph>
                     )}
 
-                    {/* 标签 */}
+                    {/* Tags */}
                     {post.tags && post.tags.length > 0 && (
                         <Space size={4} wrap>
                             {post.tags.map(tag => (
@@ -362,7 +362,7 @@ export default function MyPostsPage() {
 
                     <Divider style={{ margin: '12px 0', borderColor: 'rgba(99, 102, 241, 0.2)' }} />
 
-                    {/* 帖子底部：互动数据 */}
+                    {/* Post footer: interaction data */}
                     <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                         <Space size="large">
                             <Space size={4} style={{ color: '#9ca3af', fontSize: '14px' }}>
@@ -404,10 +404,10 @@ export default function MyPostsPage() {
 
     return (
         <ConfigProvider theme={darkTheme}>
-            {/* 顶部导航栏 */}
+            {/* Top navigation bar */}
             <Menubar currentPath={navigationRoutes.myPosts} />
 
-            {/* 主内容区 */}
+            {/* Main content area */}
             <div
                 className="animate-fade-in-up"
                 style={{
@@ -427,7 +427,7 @@ export default function MyPostsPage() {
                     margin: '0 auto',
                     padding: '0 60px',
                 }}>
-                    {/* 用户信息卡片 */}
+                    {/* User information card */}
                     <Card
                         className="animate-card-hover"
                         style={{
@@ -443,7 +443,7 @@ export default function MyPostsPage() {
                                     src={getAvatarUrl(avatarUrl)}
                                     icon={<UserOutlined />}
                                     onError={() => {
-                                        handleAvatarError(new Error('头像加载失败'), true);
+                                        handleAvatarError(new Error('Avatar loading failed'), true);
                                         return false;
                                     }}
                                     style={{
@@ -457,10 +457,10 @@ export default function MyPostsPage() {
                             <Col key="user-info" flex="auto">
                                 <Space direction="vertical" size={4}>
                                     <Title level={3} style={{ margin: 0, color: '#f9fafb', fontWeight: 700 }}>
-                                        {username || '用户'}
+                                        {username || 'User'}
                                     </Title>
                                     <Text type="secondary" style={{ fontSize: '14px', color: '#9ca3af' }}>
-                                        用户ID: {userId}
+                                        User ID: {userId}
                                     </Text>
                                 </Space>
                             </Col>
@@ -490,13 +490,13 @@ export default function MyPostsPage() {
                                         e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)';
                                     }}
                                 >
-                                    发布新帖
+                                    Create New Post
                                 </Button>
                             </Col>
                         </Row>
                     </Card>
 
-                    {/* 统计数据 */}
+                    {/* Statistics */}
                     <Row gutter={16} style={{ marginBottom: 24 }}>
                         <Col key="stat-posts" xs={12} sm={6}>
                             <Card
@@ -514,7 +514,7 @@ export default function MyPostsPage() {
                                     {stats.totalPosts}
                                 </div>
                                 <div style={{ fontSize: '14px', color: '#9ca3af' }}>
-                                    总发帖数
+                                    Total Posts
                                 </div>
                             </Card>
                         </Col>
@@ -534,7 +534,7 @@ export default function MyPostsPage() {
                                     {stats.totalViews}
                                 </div>
                                 <div style={{ fontSize: '14px', color: '#9ca3af' }}>
-                                    总浏览量
+                                    Total Views
                                 </div>
                             </Card>
                         </Col>
@@ -554,7 +554,7 @@ export default function MyPostsPage() {
                                     {stats.totalLikes}
                                 </div>
                                 <div style={{ fontSize: '14px', color: '#9ca3af' }}>
-                                    获得点赞
+                                    Total Likes
                                 </div>
                             </Card>
                         </Col>
@@ -574,13 +574,13 @@ export default function MyPostsPage() {
                                     {stats.totalReplies}
                                 </div>
                                 <div style={{ fontSize: '14px', color: '#9ca3af' }}>
-                                    收到回复
+                                    Total Replies
                                 </div>
                             </Card>
                         </Col>
                     </Row>
 
-                    {/* 帖子列表 */}
+                    {/* Post list */}
                     <Card
                         style={cardStyle}
                         styles={{ body: { padding: '24px' } }}
@@ -594,7 +594,7 @@ export default function MyPostsPage() {
                                     key: 'published',
                                     label: (
                                         <span style={{ fontSize: '16px', fontWeight: 600 }}>
-                                            <FileTextOutlined /> 已发布
+                                            <FileTextOutlined /> Published
                                         </span>
                                     ),
                                     children: (
@@ -624,7 +624,7 @@ export default function MyPostsPage() {
                                                 <Empty
                                                     description={
                                                         <span style={{ color: '#9ca3af', fontSize: '16px' }}>
-                                                            还没有发布过帖子
+                                                            No posts published yet
                                                         </span>
                                                     }
                                                     style={{ padding: '60px 0' }}
@@ -645,7 +645,7 @@ export default function MyPostsPage() {
                                                             borderRadius: '12px',
                                                         }}
                                                     >
-                                                        发布第一篇帖子
+                                                        Publish First Post
                                                     </Button>
                                                 </Empty>
                                             )}
@@ -656,14 +656,14 @@ export default function MyPostsPage() {
                                     key: 'drafts',
                                     label: (
                                         <span style={{ fontSize: '16px', fontWeight: 600 }}>
-                                            <EditOutlined /> 草稿箱
+                                            <EditOutlined /> Drafts
                                         </span>
                                     ),
                                     children: (
                                         <Empty
                                             description={
                                                 <span style={{ color: '#9ca3af', fontSize: '16px' }}>
-                                                    暂无草稿
+                                                    No drafts
                                                 </span>
                                             }
                                             style={{ padding: '60px 0' }}
@@ -675,14 +675,14 @@ export default function MyPostsPage() {
                                     key: 'deleted',
                                     label: (
                                         <span style={{ fontSize: '16px', fontWeight: 600 }}>
-                                            <DeleteOutlined /> 回收站
+                                            <DeleteOutlined /> Trash
                                         </span>
                                     ),
                                     children: (
                                         <Empty
                                             description={
                                                 <span style={{ color: '#9ca3af', fontSize: '16px' }}>
-                                                    回收站为空
+                                                    Trash is empty
                                                 </span>
                                             }
                                             style={{ padding: '60px 0' }}
@@ -696,11 +696,11 @@ export default function MyPostsPage() {
                 </div>
             </div>
 
-            {/* 删除确认弹窗 */}
+            {/* Delete confirmation modal */}
             <Modal
                 title={
                     <span style={{ fontSize: '18px', fontWeight: 600, color: '#f9fafb' }}>
-                        确认删除
+                        Confirm Delete
                     </span>
                 }
                 open={deleteModalVisible}
@@ -709,8 +709,8 @@ export default function MyPostsPage() {
                     setDeleteModalVisible(false);
                     setSelectedPost(null);
                 }}
-                okText="确认删除"
-                cancelText="取消"
+                okText="Confirm Delete"
+                cancelText="Cancel"
                 okButtonProps={{
                     danger: true,
                     size: 'large',
@@ -724,10 +724,10 @@ export default function MyPostsPage() {
             >
                 <div style={{ padding: '20px 0' }}>
                     <p style={{ fontSize: '16px', color: '#d1d5db', marginBottom: '8px' }}>
-                        确定要删除帖子《<span style={{ color: '#f9fafb', fontWeight: 600 }}>{selectedPost?.title}</span>》吗？
+                        Are you sure you want to delete the post "<span style={{ color: '#f9fafb', fontWeight: 600 }}>{selectedPost?.title}</span>"?
                     </p>
                     <p style={{ fontSize: '14px', color: '#9ca3af' }}>
-                        删除后将无法恢复。
+                        This action cannot be undone.
                     </p>
                 </div>
             </Modal>

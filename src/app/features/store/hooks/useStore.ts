@@ -28,7 +28,7 @@ export function useStore(initialQuery?: string) {
     }
   };
 
-  // 初始加载
+  // Initial load
   useEffect(() => {
     const q = (initialQuery ?? "").trim();
     if (q) {
@@ -39,7 +39,7 @@ export function useStore(initialQuery?: string) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 查询变化时，调用后端搜索或加载全部
+  // When query changes, call backend search or load all
   useEffect(() => {
     const q = searchQuery.trim();
     if (q) {

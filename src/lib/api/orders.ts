@@ -2,7 +2,7 @@
 import { apiClient } from './client';
 import { ENV } from '@/config/env';
 
-// Orders 相关类型定义
+// Orders related type definitions
 export interface Order {
     orderId: number;
     createdAt: string;
@@ -49,7 +49,7 @@ export interface CreateOrderRequest {
 }
 
 export class OrdersApi {
-    // 获取用户订单列表
+    // Get user order list
     static async getOrders(
         page: number = 0,
         size: number = ENV.DEFAULT_PAGE_SIZE
@@ -59,7 +59,7 @@ export class OrdersApi {
                 method: 'GET'
             });
             
-            // 后端已经按时间排序，直接返回
+            // Backend already sorted by time, return directly
             const items = response.items || [];
             
             return {
@@ -71,11 +71,11 @@ export class OrdersApi {
             };
         } catch (error) {
             console.error('Failed to fetch orders:', error);
-            throw new Error('获取订单列表失败');
+            throw new Error('Failed to get order list');
         }
     }
 
-    // 获取订单详情
+    // Get order details
     static async getOrderById(orderId: number): Promise<Order> {
         try {
             const response = await apiClient.authenticatedRequest<Order>(`/orders/${orderId}`, undefined, {
@@ -84,11 +84,11 @@ export class OrdersApi {
             return response;
         } catch (error) {
             console.error(`Failed to fetch order ${orderId}:`, error);
-            throw new Error('获取订单详情失败');
+            throw new Error('Failed to get order details');
         }
     }
 
-    // 创建新订单
+    // Create new order
     static async createOrder(orderData: CreateOrderRequest): Promise<Order> {
         try {
             const response = await apiClient.authenticatedRequest<OrderDetailResponse>('/orders', orderData, {
@@ -97,11 +97,11 @@ export class OrdersApi {
             return response.order;
         } catch (error) {
             console.error('Failed to create order:', error);
-            throw new Error('创建订单失败');
+            throw new Error('Failed to create order');
         }
     }
 
-    // 取消订单
+    // Cancel order
     static async cancelOrder(orderId: number): Promise<void> {
         try {
             await apiClient.authenticatedRequest(`/orders/${orderId}/cancel`, {}, {
@@ -109,11 +109,11 @@ export class OrdersApi {
             });
         } catch (error) {
             console.error(`Failed to cancel order ${orderId}:`, error);
-            throw new Error('取消订单失败');
+            throw new Error('Failed to cancel order');
         }
     }
 
-    // 获取订单统计
+    // Get order statistics
     static async getOrderStats(): Promise<{
         totalOrders: number;
         totalSpent: number;
@@ -132,11 +132,11 @@ export class OrdersApi {
             return response;
         } catch (error) {
             console.error('Failed to fetch order stats:', error);
-            throw new Error('获取订单统计失败');
+            throw new Error('Failed to get order statistics');
         }
     }
 
-    // 搜索订单
+    // Search orders
     static async searchOrders(
         keyword: string,
         page: number = 0,
@@ -154,7 +154,7 @@ export class OrdersApi {
             return response;
         } catch (error) {
             console.error('Failed to search orders:', error);
-            throw new Error('搜索订单失败');
+            throw new Error('Failed to search orders');
         }
     }
 }

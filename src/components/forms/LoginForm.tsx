@@ -32,7 +32,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     try {
       await onLogin(values);
     } catch (error) {
-      // 错误处理由父组件负责
+      // Error handling is handled by parent component
     }
   };
 
@@ -42,7 +42,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       setActiveTab('login');
       registerForm.resetFields();
     } catch (error) {
-      // 错误处理由父组件负责
+      // Error handling is handled by parent component
     }
   };
 
@@ -161,13 +161,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             name="confirmPassword"
             dependencies={['password']}
             rules={[
-              { required: true, message: '请确认Password' },
+              { required: true, message: 'Please confirm password' },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (!value || getFieldValue('password') === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('两次输入的Password不一致'));
+                  return Promise.reject(new Error('The two passwords do not match'));
                 },
               }),
             ]}

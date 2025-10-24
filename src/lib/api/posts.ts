@@ -3,22 +3,25 @@ import {forumApiClient} from './client';
 import {ENV} from '@/config/env';
 import {ForumReply, ReplyListResponse} from "@/app/features/forum/types/forumTypes";
 
-// 根据后端实际的响应结构定义类型
+// Define types based on actual backend response structure
 export interface Post {
-    contentId: number;  // 匹配后端的contentId
+    contentId: number;  // Match backend contentId
     title: string;
     body: string;
     bodyPlain?: string;
     authorId: number;
-    authorUsername?: string;  // 匹配后端的authorUsername
-    authorEmail?: string;     // 匹配后端的authorEmail
+    authorUsername?: string;  // Match backend authorUsername
+    authorEmail?: string;     // Match backend authorEmail
+    authorName?: string;      // Match backend authorName
+    authorNickname?: string;  // Match backend authorNickname
+    authorAvatar?: string;    // Match backend authorAvatar
     viewCount: number;
     likeCount: number;
-    replyCount?: number;      // 可选，因为后端可能没有实现
+    replyCount?: number;      // Optional, as backend may not implement
     createdDate: string;
     updatedDate: string;
     status: string;
-    isLiked?:boolean// 匹配后端的status字段
+    isLiked?:boolean// Match backend status field
 }
 
 export interface PostListResponse {
@@ -35,7 +38,7 @@ export interface CreatePostRequest {
 }
 
 export class PostsApi {
-    // 获取帖子列表（分页）- 对应 GET /api/forum/posts
+    // Get posts list (paginated) - corresponds to GET /api/forum/posts
     static async getPosts(
         page: number = 0,
         size: number = ENV.DEFAULT_PAGE_SIZE
@@ -47,22 +50,22 @@ export class PostsApi {
             });
         } catch (error) {
             console.error('Failed to fetch posts:', error);
-            throw new Error('获取帖子列表失败');
+            throw new Error('Failed to get posts list');
         }
     }
 
-    // 根据ID获取帖子详情 - 对应 GET /api/forum/posts/{id}
+    // Get post details by ID - corresponds to GET /api/forum/posts/{id}
     static async getPostById(id: number): Promise<Post> {
         try {
             const response = await forumApiClient.get<{ post: Post }>(`/forum/posts/${id}`);
             return response.post;
         } catch (error) {
             console.error(`Failed to fetch post ${id}:`, error);
-            throw new Error('获取帖子详情失败');
+            throw new Error('Failed to get post details');
         }
     }
 
-    // 创建新帖子 - 对应 POST /api/forum/posts
+    // Create new post - corresponds to POST /api/forum/posts
     static async createPost(postData: CreatePostRequest): Promise<Post> {
         try {
             const response = await forumApiClient.authenticatedRequest<{ post: Post }>('/forum/posts', postData,
@@ -73,11 +76,11 @@ export class PostsApi {
             return response.post;
         } catch (error) {
             console.error('Failed to create post:', error);
-            throw new Error('创建帖子失败');
+            throw new Error('Failed to create post');
         }
     }
 
-    // 搜索帖子 - 对应 GET /api/forum/posts/search
+    // Search posts - corresponds to GET /api/forum/posts/search
     static async searchPosts(
         keyword: string,
         page: number = 0,
@@ -91,23 +94,23 @@ export class PostsApi {
             });
         } catch (error) {
             console.error('Failed to search posts:', error);
-            throw new Error('搜索帖子失败');
+            throw new Error('Failed to search posts');
         }
     }
 
-    // 删除帖子 - 对应 DELETE /api/forum/posts/{id}
+    // Delete post - corresponds to DELETE /api/forum/posts/{id}
     static async deletePost(id: number): Promise<void> {
         try {
             await forumApiClient.delete(`/forum/posts/${id}`);
         } catch (error) {
             console.error(`Failed to delete post ${id}:`, error);
-            throw new Error('删除帖子失败');
+            throw new Error('Failed to delete post');
         }
     }
 
-    // 在 PostsApi 类中添加以下方法：
+    // Add the following methods to PostsApi class:
 
-// 更新帖子
+// Update post
     static async updatePost(id: number, postData: Partial<CreatePostRequest>): Promise<Post> {
         try {
             const response = await forumApiClient.authenticatedRequest<{ post: Post }>(
@@ -120,11 +123,11 @@ export class PostsApi {
             return response.post;
         } catch (error) {
             console.error(`Failed to update post ${id}:`, error);
-            throw new Error('更新帖子失败');
+            throw new Error('Failed to update post');
         }
     }
 
-// 获取用户的帖子
+// Get user's posts
     static async getUserPosts(
         userId: number,
         page: number = 0,
@@ -141,11 +144,11 @@ export class PostsApi {
             return response;
         } catch (error) {
             console.error(`Failed to fetch user posts:`, error);
-            throw new Error('获取用户帖子失败');
+            throw new Error('Failed to get user posts');
         }
     }
 
-// 点赞帖子 (暂时注释，等后端实现)
+// Like post (temporarily commented, waiting for backend implementation)
     static async likePost(id: number): Promise<void> {
         try {
             await forumApiClient.authenticatedRequest(`/forum/posts/${id}/like`, undefined, {
@@ -153,11 +156,11 @@ export class PostsApi {
             });
         } catch (error) {
             console.error(`Failed to like post ${id}:`, error);
-            throw new Error('点赞失败');
+            throw new Error('Failed to like post');
         }
     }
 
-// 取消点赞 (暂时注释，等后端实现)
+// Unlike post (temporarily commented, waiting for backend implementation)
     static async unlikePost(id: number): Promise<void> {
         try {
             await forumApiClient.authenticatedRequest(`/forum/posts/${id}/like`, undefined, {
@@ -165,11 +168,11 @@ export class PostsApi {
             });
         } catch (error) {
             console.error(`Failed to unlike post ${id}:`, error);
-            throw new Error('取消点赞失败');
+            throw new Error('Failed to unlike post');
         }
     }
 
-    // 在 PostsApi 类中添加
+    // Add to PostsApi class
     static async toggleLike(postId: number): Promise<{
         liked: boolean;
         likeCount: number;
@@ -189,17 +192,17 @@ export class PostsApi {
             };
         } catch (error) {
             console.error(`Failed to toggle like:`, error);
-            throw new Error('切换点赞状态失败');
+            throw new Error('Failed to toggle like status');
         }
     }
 
     /**
-     * 创建回复
+     * Create reply
      * POST /api/forum/posts/{postId}/replies
      */
     static async createReply(
         postId: number,
-        data: { body: string; replyTo?: number }  // ✅ 接收对象，支持 replyTo
+        data: { body: string; replyTo?: number }  // ✅ Receive object, support replyTo
     ): Promise<ForumReply> {
         try {
             const response = await forumApiClient.authenticatedRequest<{
@@ -207,18 +210,18 @@ export class PostsApi {
                 message: string;
             }>(
                 `/forum/posts/${postId}/replies`,
-                data,  // 传递整个对象 { body: "...", replyTo?: ... }
+                data,  // Pass entire object { body: "...", replyTo?: ... }
                 { method: 'POST' }
             );
             return response.reply;
         } catch (error) {
             console.error(`Failed to create reply:`, error);
-            throw new Error('创建回复失败');
+            throw new Error('Failed to create reply');
         }
     }
 
     /**
-     * 获取帖子的回复列表
+     * Get post's reply list
      * GET /api/forum/posts/{postId}/replies
      */
     static async getReplies(
@@ -233,12 +236,12 @@ export class PostsApi {
             );
         } catch (error) {
             console.error(`Failed to fetch replies:`, error);
-            throw new Error('获取回复列表失败');
+            throw new Error('Failed to get reply list');
         }
     }
 
     /**
-     * 删除回复
+     * Delete reply
      * DELETE /api/forum/posts/{postId}/replies/{replyId}
      */
     static async deleteReply(
@@ -253,12 +256,12 @@ export class PostsApi {
             );
         } catch (error) {
             console.error(`Failed to delete reply:`, error);
-            throw new Error('删除回复失败');
+            throw new Error('Failed to delete reply');
         }
     }
 
     /**
-     * 点赞回复
+     * Like reply
      * POST /api/forum/posts/{postId}/replies/{replyId}/like
      */
     static async likeReply(
@@ -273,12 +276,12 @@ export class PostsApi {
             );
         } catch (error) {
             console.error(`Failed to like reply:`, error);
-            throw new Error('点赞回复失败');
+            throw new Error('Failed to like reply');
         }
     }
 
     /**
-     * 取消点赞回复
+     * Unlike reply
      * DELETE /api/forum/posts/{postId}/replies/{replyId}/like
      */
     static async unlikeReply(
@@ -293,7 +296,37 @@ export class PostsApi {
             );
         } catch (error) {
             console.error(`Failed to unlike reply:`, error);
-            throw new Error('取消点赞回复失败');
+            throw new Error('Failed to unlike reply');
+        }
+    }
+
+    /**
+     * Toggle reply like status
+     * PUT /api/forum/posts/{postId}/replies/{replyId}/like/toggle
+     */
+    static async toggleReplyLike(
+        postId: number,
+        replyId: number
+    ): Promise<{
+        liked: boolean;
+        likeCount: number;
+    }> {
+        try {
+            const response = await forumApiClient.authenticatedRequest<{
+                success: boolean;
+                liked: boolean;
+                likeCount: number;
+            }>(`/forum/posts/${postId}/replies/${replyId}/like/toggle`, undefined, {
+                method: 'PUT'
+            });
+
+            return {
+                liked: response.liked,
+                likeCount: response.likeCount
+            };
+        } catch (error) {
+            console.error(`Failed to toggle reply like:`, error);
+            throw new Error('Failed to toggle reply like status');
         }
     }
 }

@@ -1,7 +1,7 @@
 import { authApiClient, shopApiClient } from "@/lib/api/client";
 import type { OrderDTO } from "@/lib/api/StoreTypes";
 
-// 订单摘要类型（从后端OrderGroupSummaryDTO对应）
+// Order summary type (corresponding to backend OrderGroupSummaryDTO)
 export interface OrderSummary {
   orderId: number;
   createdAt: string;
@@ -9,34 +9,34 @@ export interface OrderSummary {
   total: number;
 }
 
-// 订单列表响应类型
+// Order list response type
 export interface OrdersResponse {
   items: OrderSummary[];
   totalCount?: number;
 }
 
 export const orderApi = {
-  /** 获取当前用户所有订单 - 从商城服务（8081）查询（包含finalAmount）*/
+  /** Get all orders for current user - query from shop service (8081) (includes finalAmount) */
   async getOrders(): Promise<OrderDTO[]> {
     return shopApiClient.get<OrderDTO[]>("/orders");
   },
 
-  /** 获取订单摘要（用于列表展示）- 从商城服务（8081）查询 */
+  /** Get order summary (for list display) - query from shop service (8081) */
   async getOrderSummary(): Promise<OrdersResponse> {
     return shopApiClient.get<OrdersResponse>("/orders/summary");
   },
 
-  /** 获取单个订单详情 - 从商城服务（8081）查询 */
+  /** Get single order details - query from shop service (8081) */
   async getOrderById(orderId: number): Promise<any> {
     return shopApiClient.get<any>(`/orders/${orderId}`);
   },
 
-  /** 模拟支付成功 - 调用商城服务（8081）处理支付和激活码分配 */
+  /** Simulate payment success - call shop service (8081) to handle payment and activation code allocation */
   async payOrder(orderId: number): Promise<OrderDTO> {
     return shopApiClient.post<OrderDTO>(`/orders/${orderId}/pay`);
   },
 
-  /** 模拟支付失败 - 调用商城服务（8081）取消订单 */
+  /** Simulate payment failure - call shop service (8081) to cancel order */
   async failOrder(orderId: number): Promise<void> {
     return shopApiClient.post<void>(`/orders/${orderId}/fail`);
   },

@@ -42,10 +42,10 @@ export default function ChatPage() {
     const [showFriendRequestsModal, setShowFriendRequestsModal] = useState(false);
     const [showAddMembersModal, setShowAddMembersModal] = useState(false);
 
-    // WebSocket 连接
+    // WebSocket connection
     const { isConnected } = useWebSocket();
 
-    // 群聊管理
+    // Group chat management
     const {
         groups,
         loading: groupLoading,
@@ -57,7 +57,7 @@ export default function ChatPage() {
         loadGroups,
     } = useGroupChat();
 
-    // 好友管理 Hook
+    // Friend management Hook
     const {
         friends: friendList,
         receivedRequests,
@@ -68,7 +68,7 @@ export default function ChatPage() {
         loadSentRequests,
     } = useFriend();
 
-    // 消息通知 Hook - 添加群聊参数
+    // Message notification Hook - add group chat parameters
     const {
         unreadMessages,
         unreadGroupMessages,
@@ -88,7 +88,7 @@ export default function ChatPage() {
         groups
     );
 
-    // 转换好友列表，添加未读信息
+    // Convert friend list, add unread information
     const friendConversations: FriendConversation[] = friendList.map(friend => {
         const unreadInfo = unreadMessages.get(friend.userId);
 
@@ -116,7 +116,7 @@ export default function ChatPage() {
         };
     });
 
-    // 添加消息管理
+    // Add message management
     const {
         messages: groupMessages,
         loading: groupMessagesLoading,
@@ -128,7 +128,7 @@ export default function ChatPage() {
             : null
     );
 
-    // 私聊信息管理
+    // Private chat message management
     const {
         messages: privateMessages,
         loading: privateMessagesLoading,
@@ -141,9 +141,9 @@ export default function ChatPage() {
         user?.userId || 0
     );
 
-    // 修改发送消息处理
+    // Modify send message handling
     const handleSendMessage = async (content: string, fileInfo?: FileUploadResponse) => {
-        console.log('🔵 ChatPage.handleSendMessage 被调用:', {
+        console.log('🔵 ChatPage.handleSendMessage called:', {
             content,
             hasFileInfo: !!fileInfo,
             fileInfo,
@@ -151,40 +151,40 @@ export default function ChatPage() {
         });
 
         if (selectedConversation?.type === 'group') {
-            console.log('✅ 发送群聊消息，传递 fileInfo:', fileInfo);
-            await sendGroupMessage(content, fileInfo);  // ✅ 传递 fileInfo
+            console.log('✅ Sending group chat message, passing fileInfo:', fileInfo);
+            await sendGroupMessage(content, fileInfo);  // ✅ Pass fileInfo
         } else if (selectedConversation?.type === 'private') {
-            console.log('✅ 发送私聊消息，传递 fileInfo:', fileInfo);
-            await sendPrivateMessage(content, fileInfo);  // ✅ 传递 fileInfo
+            console.log('✅ Sending private chat message, passing fileInfo:', fileInfo);
+            await sendPrivateMessage(content, fileInfo);  // ✅ Pass fileInfo
         }
     };
 
-    // 创建群聊
+    // Create group chat
     const handleCreateGroup = async (title: string) => {
         try {
             await createGroup(title);
             setShowCreateGroupModal(false);
-            antMessage.success(`群聊 "${title}" 创建成功`);
+            antMessage.success(`Group chat "${title}" created successfully`);
         } catch (error) {
-            console.error('创建群聊失败:', error);
-            antMessage.error(error instanceof Error ? error.message : '创建群聊失败');
+            console.error('Failed to create group chat:', error);
+            antMessage.error(error instanceof Error ? error.message : 'Failed to create group chat');
         }
     };
 
-     // 解散群聊
+     // Dissolve group chat
     const handleDissolveGroup = async (conversationId: number) => {
         try {
             await dissolveGroup(conversationId);
-            antMessage.success('群聊已解散');
+            antMessage.success('Group chat dissolved');
             setShowGroupSettingsModal(false);
             setSelectedConversation(null);
         } catch (error) {
-            console.error('解散群聊失败:', error);
-            antMessage.error(error instanceof Error ? error.message : '解散群聊失败');
+            console.error('Failed to dissolve group chat:', error);
+            antMessage.error(error instanceof Error ? error.message : 'Failed to dissolve group chat');
         }
     };
 
-    // 主题配置 - 与login界面保持一致
+    // Theme configuration - consistent with login interface
     const darkTheme = {
         algorithm: theme.darkAlgorithm,
         token: {
@@ -199,7 +199,7 @@ export default function ChatPage() {
         },
     };
 
-    // 选择会话
+    // Select conversation
     const handleSelectConversation = useCallback((conversation: Conversation) => {
         setSelectedConversation(conversation);
 
@@ -211,23 +211,23 @@ export default function ChatPage() {
         } else {
             unselectGroup();
 
-            // 标记私聊为已读
+            // Mark private chat as read
             const friend = conversation.data as FriendConversation;
             markAsRead(friend.userId);
         }
     }, [selectGroup, unselectGroup, markAsRead, markGroupAsRead]);
 
-    // 添加成员到群聊
+    // Add members to group chat
     const handleAddMembers = async (conversationId: number, userIds: number[]) => {
         await chatApi.addMembersToGroup(conversationId, userIds);
     };
 
-    // 添加成员成功后的回调
+    // Callback after successfully adding members
     const handleAddMembersSuccess = async () => {
-        // 重新加载群成员
+        // Reload group members
         if (selectedConversation?.type === 'group') {
             const group = selectedConversation.data as GroupChat;
-            await selectGroup(group);  // 重新加载成员列表
+            await selectGroup(group);  // Reload member list
         }
     };
 
@@ -247,7 +247,7 @@ export default function ChatPage() {
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
-                请先登录
+                Please login first
             </div>
         );
     }
@@ -269,7 +269,7 @@ export default function ChatPage() {
                         overflow: 'hidden',
                     }}
                 >
-                    {/* 动态背景装饰 */}
+                    {/* Dynamic background decoration */}
                     <div
                         style={{
                             position: 'fixed',
@@ -282,7 +282,7 @@ export default function ChatPage() {
                             overflow: 'hidden',
                         }}
                     >
-                        {/* 浮动光球 */}
+                        {/* Floating light balls */}
                         <div
                             style={{
                                 position: 'absolute',
@@ -311,7 +311,7 @@ export default function ChatPage() {
                         />
                     </div>
 
-                    {/* 固定顶部导航栏 */}
+                    {/* Fixed top navigation bar */}
                     <Header
                         style={{
                             position: 'fixed',
@@ -331,7 +331,7 @@ export default function ChatPage() {
                         <Menubar currentPath="/dashboard/chat" />
                     </Header>
 
-                    {/* 聊天内容区域 */}
+                    {/* Chat content area */}
                     <Content
                         style={{
                             marginTop: 64,
@@ -343,7 +343,7 @@ export default function ChatPage() {
                             height: 'calc(100vh - 64px)',
                             display: 'flex',
                         }}>
-                    {/* 最左侧 - 服务器列表 */}
+                    {/* Leftmost - server list */}
                     <ServerList
                         darkMode={darkMode}
                         onCreateGroup={() => setShowCreateGroupModal(true)}
@@ -351,7 +351,7 @@ export default function ChatPage() {
                         unreadCount={getTotalUnreadCount()}
                     />
 
-                    {/* 中间 - 会话列表 */}
+                    {/* Middle - conversation list */}
                     <ChannelList
                         friends={friendConversations}
                         groups={groupConversations}
@@ -365,7 +365,7 @@ export default function ChatPage() {
                         darkMode={darkMode}
                     />
 
-                    {/* 右侧 - 聊天窗口 */}
+                    {/* Right side - chat window */}
                     <ChatWindow
                         conversation={selectedConversation}
                         messages={currentMessages}
@@ -379,7 +379,7 @@ export default function ChatPage() {
                         darkMode={darkMode}
                     />
 
-                    {/* 创建群聊弹窗 */}
+                    {/* Create group chat modal */}
                     <CreateGroupModal
                         open={showCreateGroupModal}
                         loading={groupLoading}
@@ -409,7 +409,7 @@ export default function ChatPage() {
                         </>
                     )}
 
-                    {/* 搜索用户弹窗 */}
+                    {/* Search user modal */}
                     <SearchUserModal
                         open={showSearchUserModal}
                         onClose={() => setShowSearchUserModal(false)}
@@ -417,7 +417,7 @@ export default function ChatPage() {
                         onSendRequest={sendFriendRequest}
                     />
 
-                    {/* 好友请求弹窗 */}
+                    {/* Friend request modal */}
                     <FriendRequestsModal
                         open={showFriendRequestsModal}
                         onClose={() => setShowFriendRequestsModal(false)}

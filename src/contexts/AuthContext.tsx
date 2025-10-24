@@ -12,7 +12,7 @@ interface AuthContextType {
   login: (token: string, user: User) => void;
   logout: () => void;
   refreshAuth: () => Promise<void>;
-  refetchUser: () => Promise<void>; // 添加别名
+  refetchUser: () => Promise<void>; // Add alias
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,12 +26,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
-  // 初始化认证状态（优化版本）
+  // Initialize authentication state (optimized version)
   const initializeAuth = async () => {
     try {
       setIsLoading(true);
 
-      // 检查是否有 token
+      // Check if token exists
       const token = AuthApi.getToken();
       if (!token) {
         setIsAuthenticated(false);
@@ -44,25 +44,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
             if (cachedUserInfo) {
                 try {
                     const cachedUser = JSON.parse(cachedUserInfo);
-                    setUser(cachedUser);  // 先设置缓存的用户信息
+                    setUser(cachedUser);  // Set cached user info first
                     setIsAuthenticated(true);
                 } catch (error) {
-                    console.error('解析缓存用户信息失败:', error);
+                    console.error('Failed to parse cached user info:', error);
                 }
             } else {
                 console.log("can not get user");
             }
 
-            // 然后验证 token 并获取最新用户信息
+            // Then verify token and get latest user info
             try {
                 const userData = await AuthApi.getCurrentUser();
                 setUser(userData);
                 setIsAuthenticated(true);
-                // 更新缓存
+                // Update cache
                 localStorage.setItem('user_info', JSON.stringify(userData));
             } catch (error) {
-                // Token 无效或过期，清除认证状态
-                console.error('Token 验证失败，清除认证状态:', error);
+                // Token invalid or expired, clear authentication state
+                console.error('Token verification failed, clearing auth state:', error);
                 setUser(null);
                 setIsAuthenticated(false);
                 localStorage.removeItem('auth_token');
@@ -79,9 +79,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     };
 
-  // 登录
+  // Login
   const login = (token: string, userData: User) => {
-    // 清除旧用户的缓存
+    // Clear old user cache
     UsersApi.clearUserCache();
     localStorage.setItem('auth_token', token);
     localStorage.setItem('user_info', JSON.stringify(userData));
@@ -89,14 +89,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setIsAuthenticated(true);
   };
 
-  // 登出
+  // Logout
   const logout = async () => {
     try {
       await AuthApi.logout();
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      // 清除用户缓存
+      // Clear user cache
       UsersApi.clearUserCache();
       localStorage.removeItem('auth_token');
       localStorage.removeItem('user_info')
@@ -105,31 +105,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-    // 刷新认证状态
+    // Refresh authentication status
     const refreshAuth = async () => {
         await initializeAuth();
     };
 
-    // refetchUser别名
+    // refetchUser alias
     const refetchUser = async () => {
         await initializeAuth();
     };
 
-  // 组件挂载时初始化认证状态
+  // Initialize authentication status when component mounts
   useEffect(() => {
     initializeAuth();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 监听 localStorage 变化（用于多标签页同步）
+  // Listen for localStorage changes (for multi-tab synchronization)
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'auth_token') {
         if (e.newValue === null) {
-          // Token 被清除，登出
+          // Token cleared, logout
           setUser(null);
           setIsAuthenticated(false);
         } else {
-          // Token 被设置，重新验证
+          // Token set, re-verify
           initializeAuth();
         }
       }

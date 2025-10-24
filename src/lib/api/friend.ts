@@ -32,49 +32,49 @@ interface FriendResponse {
 
 export class FriendApi {
     /**
-     * 搜索好友列表
+     * Search user list
      */
     async searchUsers(keyword: string): Promise<UserSearchResponse[]> {
         return chatroomApiClient.get<UserSearchResponse[]>('/friend/search', { keyword });
     }
 
     /**
-     * 发送好友请求
+     * Send friend request
      */
     async sendFriendRequest(toUserId: number, message?: string): Promise<void> {
         await chatroomApiClient.post('/friend/request/send', { toUserId, message });
     }
 
     /**
-     * 获取收到的好友请求
+     * Get received friend requests
      */
     async getReceivedRequests(): Promise<FriendRequestResponse[]> {
         return chatroomApiClient.get<FriendRequestResponse[]>('/friend/request/received');
     }
 
     /**
-     * 获取发送的好友请求
+     * Get sent friend requests
      */
     async getSentRequests(): Promise<FriendRequestResponse[]> {
         return chatroomApiClient.get<FriendRequestResponse[]>('/friend/request/sent');
     }
 
     /**
-     * 处理好友请求
+     * Handle friend request
      */
     async handleFriendRequest(requestId: number, accept: boolean): Promise<void> {
         await chatroomApiClient.post('/friend/request/handle', { requestId, accept });
     }
 
     /**
-     * 获取好友列表
+     * Get friend list
      */
     async getFriends(): Promise<FriendResponse[]> {
         return chatroomApiClient.get<FriendResponse[]>('/friend/list');
     }
 
     /**
-     * 删除好友
+     * Delete friend
      */
     async deleteFriend(friendId: number): Promise<void> {
         await chatroomApiClient.delete(`/friend/${friendId}`);

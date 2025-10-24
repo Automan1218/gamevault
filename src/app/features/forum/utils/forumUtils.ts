@@ -1,24 +1,24 @@
 // features/forum/utils/forumUtils.ts
 import { ForumPost, ForumCategory, ForumSortType } from '../types/forumTypes';
 
-// 时间格式化工具
+// Time formatting utility
 export const formatPostTime = (dateString: string): string => {
     const now = new Date();
     const postTime = new Date(dateString);
     const diffInMinutes = Math.floor((now.getTime() - postTime.getTime()) / (1000 * 60));
 
     if (diffInMinutes < 1) {
-        return '刚刚';
+        return 'Just now';
     } else if (diffInMinutes < 60) {
-        return `${diffInMinutes}分钟前`;
-    } else if (diffInMinutes < 1440) { // 24小时
+        return `${diffInMinutes} minutes ago`;
+    } else if (diffInMinutes < 1440) { // 24 hours
         const hours = Math.floor(diffInMinutes / 60);
-        return `${hours}小时前`;
-    } else if (diffInMinutes < 10080) { // 7天
+        return `${hours} hours ago`;
+    } else if (diffInMinutes < 10080) { // 7 days
         const days = Math.floor(diffInMinutes / 1440);
-        return `${days}天前`;
+        return `${days} days ago`;
     } else {
-        return postTime.toLocaleDateString('zh-CN', {
+        return postTime.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
@@ -26,51 +26,51 @@ export const formatPostTime = (dateString: string): string => {
     }
 };
 
-// 格式化数字显示
+// Format number display
 export const formatNumber = (num: number): string => {
     if (num < 1000) {
         return num.toString();
     } else if (num < 10000) {
         return `${(num / 1000).toFixed(1)}K`;
     } else if (num < 100000) {
-        return `${(num / 10000).toFixed(1)}万`;
+        return `${(num / 10000).toFixed(1)}W`;
     } else {
-        return `${Math.floor(num / 10000)}万`;
+        return `${Math.floor(num / 10000)}W`;
     }
 };
 
-// 格式化浏览量
+// Format view count
 export const formatViewCount = (count: number): string => {
-    return `${formatNumber(count)} 浏览`;
+    return `${formatNumber(count)} views`;
 };
 
-// 格式化点赞数
+// Format like count
 export const formatLikeCount = (count: number): string => {
-    return `${formatNumber(count)} 赞`;
+    return `${formatNumber(count)} likes`;
 };
 
-// 格式化回复数
+// Format reply count
 export const formatReplyCount = (count: number): string => {
-    return `${formatNumber(count)} 回复`;
+    return `${formatNumber(count)} replies`;
 };
 
-// 截断文本
+// Truncate text
 export const truncateText = (text: string, maxLength: number = 100): string => {
     if (text.length <= maxLength) return text;
     return text.slice(0, maxLength) + '...';
 };
 
-// 提取帖子摘要
+// Extract post summary
 export const extractPostSummary = (content: string, maxLength: number = 150): string => {
-    // 移除HTML标签
+    // Remove HTML tags
     const plainText = content.replace(/<[^>]*>/g, '');
-    // 移除多余的空白字符
+    // Remove extra whitespace
     const cleanText = plainText.replace(/\s+/g, ' ').trim();
-    // 截断文本
+    // Truncate text
     return truncateText(cleanText, maxLength);
 };
 
-// 生成帖子链接
+// Generate post URL
 export const generatePostUrl = (postId: number, title?: string): string => {
     const baseUrl = `/dashboard/forum/${postId}`;
     if (title) {
@@ -83,32 +83,32 @@ export const generatePostUrl = (postId: number, title?: string): string => {
     return baseUrl;
 };
 
-// 生成分类链接
+// Generate category URL
 export const generateCategoryUrl = (categoryId: string): string => {
     return `/dashboard/forum/category/${categoryId}`;
 };
 
-// 生成用户帖子链接
+// Generate user posts URL
 export const generateUserPostsUrl = (userId: number): string => {
     return `/dashboard/forum/user/${userId}`;
 };
 
-// 计算帖子热度分数
+// Calculate post hot score
 export const calculateHotScore = (post: ForumPost): number => {
     const now = Date.now();
     const postTime = new Date(post.createdDate).getTime();
     const ageInHours = (now - postTime) / (1000 * 60 * 60);
 
-    // 基础分数：点赞数 * 3 + 回复数 * 5 + 浏览数 * 0.1
+    // Base score: likes * 3 + replies * 5 + views * 0.1
     const baseScore = post.likeCount * 3 + post.replyCount * 5 + post.viewCount * 0.1;
 
-    // 时间衰减因子
+    // Time decay factor
     const decayFactor = Math.pow(ageInHours + 2, 1.5);
 
     return baseScore / decayFactor;
 };
 
-// 帖子排序
+// Post sorting
 export const sortPosts = (posts: ForumPost[], sortBy: ForumSortType): ForumPost[] => {
     const sortedPosts = [...posts];
 
@@ -134,7 +134,7 @@ export const sortPosts = (posts: ForumPost[], sortBy: ForumSortType): ForumPost[
     }
 };
 
-// 过滤帖子
+// Filter posts
 export const filterPosts = (
     posts: ForumPost[],
     options: {
@@ -145,12 +145,12 @@ export const filterPosts = (
     }
 ): ForumPost[] => {
     return posts.filter(post => {
-        // 分类过滤
+        // Category filter
         if (options.category && post.category !== options.category) {
             return false;
         }
 
-        // 标签过滤
+        // Tag filter
         if (options.tags && options.tags.length > 0) {
             const hasMatchingTag = post.tags?.some(tag =>
                 options.tags!.includes(tag)
@@ -158,12 +158,12 @@ export const filterPosts = (
             if (!hasMatchingTag) return false;
         }
 
-        // 作者过滤
+        // Author filter
         if (options.authorId && post.authorId !== options.authorId) {
             return false;
         }
 
-        // 关键词过滤
+        // Keyword filter
         if (options.keyword) {
             const keyword = options.keyword.toLowerCase();
             const titleMatch = post.title.toLowerCase().includes(keyword);
@@ -179,7 +179,7 @@ export const filterPosts = (
     });
 };
 
-// 高亮搜索关键词
+// Highlight search terms
 export const highlightSearchTerm = (text: string, searchTerm: string): string => {
     if (!searchTerm.trim()) return text;
 
@@ -187,41 +187,41 @@ export const highlightSearchTerm = (text: string, searchTerm: string): string =>
     return text.replace(regex, '<mark>$1</mark>');
 };
 
-// 验证帖子标题
+// Validate post title
 export const validatePostTitle = (title: string): { valid: boolean; error?: string } => {
     if (!title.trim()) {
-        return { valid: false, error: '标题不能为空' };
+        return { valid: false, error: 'Title cannot be empty' };
     }
 
     if (title.length < 5) {
-        return { valid: false, error: '标题至少需要5个字符' };
+        return { valid: false, error: 'Title must be at least 5 characters' };
     }
 
     if (title.length > 100) {
-        return { valid: false, error: '标题不能超过100个字符' };
+        return { valid: false, error: 'Title cannot exceed 100 characters' };
     }
 
     return { valid: true };
 };
 
-// 验证帖子内容
+// Validate post content
 export const validatePostContent = (content: string): { valid: boolean; error?: string } => {
     if (!content.trim()) {
-        return { valid: false, error: '内容不能为空' };
+        return { valid: false, error: 'Content cannot be empty' };
     }
 
     if (content.length < 10) {
-        return { valid: false, error: '内容至少需要10个字符' };
+        return { valid: false, error: 'Content must be at least 10 characters' };
     }
 
     if (content.length > 10000) {
-        return { valid: false, error: '内容不能超过10000个字符' };
+        return { valid: false, error: 'Content cannot exceed 10000 characters' };
     }
 
     return { valid: true };
 };
 
-// 生成随机颜色
+// Generate random color
 export const generateRandomColor = (): string => {
     const colors = [
         '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
@@ -232,12 +232,12 @@ export const generateRandomColor = (): string => {
     return colors[Math.floor(Math.random() * colors.length)];
 };
 
-// 获取分类颜色
+// Get category color
 export const getCategoryColor = (category: ForumCategory): string => {
     return category.color || generateRandomColor();
 };
 
-// 判断是否为今天的帖子
+// Check if post is from today
 export const isToday = (dateString: string): boolean => {
     const today = new Date();
     const postDate = new Date(dateString);
@@ -245,7 +245,7 @@ export const isToday = (dateString: string): boolean => {
     return today.toDateString() === postDate.toDateString();
 };
 
-// 判断是否为本周的帖子
+// Check if post is from this week
 export const isThisWeek = (dateString: string): boolean => {
     const now = new Date();
     const postDate = new Date(dateString);
@@ -254,7 +254,7 @@ export const isThisWeek = (dateString: string): boolean => {
     return postDate >= oneWeekAgo;
 };
 
-// 判断是否为本月的帖子
+// Check if post is from this month
 export const isThisMonth = (dateString: string): boolean => {
     const now = new Date();
     const postDate = new Date(dateString);
@@ -263,7 +263,7 @@ export const isThisMonth = (dateString: string): boolean => {
         now.getFullYear() === postDate.getFullYear();
 };
 
-// 生成SEO友好的URL slug
+// Generate SEO-friendly URL slug
 export const generateUrlSlug = (title: string): string => {
     return title
         .toLowerCase()
@@ -274,53 +274,53 @@ export const generateUrlSlug = (title: string): string => {
         .replace(/^-|-$/g, '');
 };
 
-// 解析帖子标签
+// Parse post tags
 export const parsePostTags = (content: string): string[] => {
     const tagRegex = /#(\w+)/g;
     const matches = content.match(tagRegex);
     return matches ? matches.map(tag => tag.substring(1)) : [];
 };
 
-// 清理HTML内容
+// Clean HTML content
 export const cleanHtmlContent = (html: string): string => {
-    // 移除脚本标签
+    // Remove script tags
     let cleaned = html.replace(/<script[^>]*>.*?<\/script>/gi, '');
 
-    // 移除样式标签
+    // Remove style tags
     cleaned = cleaned.replace(/<style[^>]*>.*?<\/style>/gi, '');
 
-    // 移除注释
+    // Remove comments
     cleaned = cleaned.replace(/<!--.*?-->/g, '');
 
     return cleaned;
 };
 
-// 估算阅读时间（基于中文字符）
+// Estimate reading time (based on Chinese characters)
 export const estimateReadingTime = (content: string): string => {
     const plainText = content.replace(/<[^>]*>/g, '');
     const characterCount = plainText.length;
 
-    // 中文阅读速度大约每分钟300-400字
+    // Chinese reading speed is about 300-400 characters per minute
     const readingSpeed = 350;
     const minutes = Math.ceil(characterCount / readingSpeed);
 
     if (minutes < 1) {
-        return '1分钟内';
+        return 'Less than 1 minute';
     } else if (minutes === 1) {
-        return '1分钟';
+        return '1 minute';
     } else {
-        return `${minutes}分钟`;
+        return `${minutes} minutes`;
     }
 };
 
-// 检查用户权限
+// Check user permissions
 export const canUserEditPost = (post: ForumPost, currentUserId?: number): boolean => {
     if (!currentUserId) return false;
 
-    // 作者可以编辑
+    // Author can edit
     if (post.authorId === currentUserId) return true;
 
-    // 这里可以添加管理员权限检查
+    // Admin permission check can be added here
     // if (isAdmin(currentUserId)) return true;
 
     return false;
@@ -329,10 +329,10 @@ export const canUserEditPost = (post: ForumPost, currentUserId?: number): boolea
 export const canUserDeletePost = (post: ForumPost, currentUserId?: number): boolean => {
     if (!currentUserId) return false;
 
-    // 作者可以删除
+    // Author can delete
     if (post.authorId === currentUserId) return true;
 
-    // 这里可以添加管理员权限检查
+    // Admin permission check can be added here
     // if (isAdmin(currentUserId)) return true;
 
     return false;

@@ -40,7 +40,7 @@ import { darkTheme, cardStyle } from '@/components/common/theme';
 import '@/components/common/animations.css';
 import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css';
-// 动态导入 ReactQuill,禁用 SSR
+// Dynamically import ReactQuill, disable SSR
 const ReactQuill = dynamic(() => import('react-quill-new'), {
     ssr: false,
     loading: () => <div style={{
@@ -55,7 +55,7 @@ const ReactQuill = dynamic(() => import('react-quill-new'), {
     }}>Loading editor...</div>
 });
 
-// 动态导入样式
+// Dynamically import styles
 
 
 const { Title, Text } = Typography;
@@ -81,10 +81,10 @@ export default function CreatePostPage() {
     }, []);
 
 
-    // 检查登录状态
+    // Check login status
     useEffect(() => {
         if (mounted && !AuthApi.isAuthenticated()) {
-            message.warning('请先登录');
+            message.warning('Please login first');
             router.push(getLoginRedirectUrl(navigationRoutes.postCreate));
         }
     }, [mounted, router]);
@@ -109,12 +109,12 @@ export default function CreatePostPage() {
         'link', 'image'
     ];
 
-    // 提交帖子
+    // Submit post
     const handleSubmit = async (values: CreatePostPageProps) => {
-        // 验证内容不为空
+        // Validate content is not empty
         const strippedContent = content.replace(/<[^>]*>/g, '').trim();
         if (!strippedContent) {
-            message.error('请输入帖子内容');
+            message.error('Please enter post content');
             return;
         }
 
@@ -127,24 +127,24 @@ export default function CreatePostPage() {
             };
 
             await PostsApi.createPost(postData);
-            message.success('发布成功！');
+            message.success('Published successfully!');
 
-            // 跳转到论坛首页
+            // Navigate to forum homepage
             setTimeout(() => {
                 router.push(navigationRoutes.forum);
             }, 500);
         } catch (error: unknown) {
             if (error instanceof Error) {
-                message.error(error.message || '发布失败');
+                message.error(error.message || 'Publish failed');
             } else {
-                message.error('发布失败，请重试');
+                message.error('Publish failed, please try again');
             }
         } finally {
             setLoading(false);
         }
     };
 
-    // 插入格式化文本
+    // Insert formatted text
     const insertFormat = (format: string) => {
         const textarea = document.querySelector('textarea') as HTMLTextAreaElement;
         if (!textarea) return;
@@ -156,22 +156,22 @@ export default function CreatePostPage() {
 
         switch (format) {
             case 'bold':
-                newText = `**${selectedText || '粗体文本'}**`;
+                newText = `**${selectedText || 'Bold text'}**`;
                 break;
             case 'italic':
-                newText = `*${selectedText || '斜体文本'}*`;
+                newText = `*${selectedText || 'Italic text'}*`;
                 break;
             case 'link':
-                newText = `[${selectedText || '链接文本'}](URL)`;
+                newText = `[${selectedText || 'Link text'}](URL)`;
                 break;
             case 'image':
-                newText = `![${selectedText || '图片描述'}](图片URL)`;
+                newText = `![${selectedText || 'Image description'}](Image URL)`;
                 break;
             case 'ul':
-                newText = `\n- ${selectedText || '列表项'}\n`;
+                newText = `\n- ${selectedText || 'List item'}\n`;
                 break;
             case 'ol':
-                newText = `\n1. ${selectedText || '列表项'}\n`;
+                newText = `\n1. ${selectedText || 'List item'}\n`;
                 break;
             default:
                 newText = selectedText;
@@ -191,7 +191,7 @@ export default function CreatePostPage() {
 
     return (
         <ConfigProvider theme={darkTheme}>
-            {/* 顶部导航栏 */}
+            {/* Top navigation bar */}
             <Menubar currentPath="/dashboard/forum/create" />
             
             <div 
@@ -213,7 +213,7 @@ export default function CreatePostPage() {
                     margin: '0 auto', 
                     padding: '0 24px',
                 }}>
-                    {/* 页面标题 */}
+                    {/* Page title */}
                     <Card 
                         className="animate-card-hover"
                         style={{ 
@@ -263,7 +263,7 @@ export default function CreatePostPage() {
                         </div>
                     </Card>
 
-                    {/* 主表单 */}
+                    {/* Main form */}
                     <Form
                         form={form}
                         layout="vertical"
@@ -280,7 +280,7 @@ export default function CreatePostPage() {
                                     }}
                                     styles={{ body: { padding: '32px' } }}
                                 >
-                                    {/* 标题输入 */}
+                                    {/* Title input */}
                                     <Form.Item
                                         label={
                                             <span style={{ color: '#f9fafb', fontSize: '16px', fontWeight: 600 }}>
@@ -312,7 +312,7 @@ export default function CreatePostPage() {
 
                                     <Divider style={{ margin: '24px 0', borderColor: 'rgba(99, 102, 241, 0.2)' }} />
 
-                                    {/* React Quill 编辑器 */}
+                                    {/* React Quill editor */}
                                     <div style={{ marginTop: '24px' }}>
                                         <Text
                                             style={{
@@ -341,10 +341,10 @@ export default function CreatePostPage() {
                                         />
                                     </div>
 
-                                    {/*/!* Markdown 工具栏 *!/*/}
+                                    {/*/!* Markdown toolbar *!/*/}
                                     {/*<div style={{ marginBottom: '12px' }}>*/}
                                     {/*    <Space size="small" wrap>*/}
-                                    {/*        <Tooltip title="粗体 (Ctrl/Cmd + B)">*/}
+                                    {/*        <Tooltip title="Bold (Ctrl/Cmd + B)">*/}
                                     {/*            <Button*/}
                                     {/*                type="text"*/}
                                     {/*                icon={<BoldOutlined />}*/}
@@ -356,7 +356,7 @@ export default function CreatePostPage() {
                                     {/*                }}*/}
                                     {/*            />*/}
                                     {/*        </Tooltip>*/}
-                                    {/*        <Tooltip title="斜体 (Ctrl/Cmd + I)">*/}
+                                    {/*        <Tooltip title="Italic (Ctrl/Cmd + I)">*/}
                                     {/*            <Button*/}
                                     {/*                type="text"*/}
                                     {/*                icon={<ItalicOutlined />}*/}
@@ -368,7 +368,7 @@ export default function CreatePostPage() {
                                     {/*                }}*/}
                                     {/*            />*/}
                                     {/*        </Tooltip>*/}
-                                    {/*        <Tooltip title="插入链接">*/}
+                                    {/*        <Tooltip title="Insert link">*/}
                                     {/*            <Button*/}
                                     {/*                type="text"*/}
                                     {/*                icon={<LinkOutlined />}*/}
@@ -380,7 +380,7 @@ export default function CreatePostPage() {
                                     {/*                }}*/}
                                     {/*            />*/}
                                     {/*        </Tooltip>*/}
-                                    {/*        <Tooltip title="插入图片">*/}
+                                    {/*        <Tooltip title="Insert image">*/}
                                     {/*            <Button*/}
                                     {/*                type="text"*/}
                                     {/*                icon={<PictureOutlined />}*/}
@@ -392,7 +392,7 @@ export default function CreatePostPage() {
                                     {/*                }}*/}
                                     {/*            />*/}
                                     {/*        </Tooltip>*/}
-                                    {/*        <Tooltip title="无序列表">*/}
+                                    {/*        <Tooltip title="Unordered list">*/}
                                     {/*            <Button*/}
                                     {/*                type="text"*/}
                                     {/*                icon={<UnorderedListOutlined />}*/}
@@ -404,7 +404,7 @@ export default function CreatePostPage() {
                                     {/*                }}*/}
                                     {/*            />*/}
                                     {/*        </Tooltip>*/}
-                                    {/*        <Tooltip title="有序列表">*/}
+                                    {/*        <Tooltip title="Ordered list">*/}
                                     {/*            <Button*/}
                                     {/*                type="text"*/}
                                     {/*                icon={<OrderedListOutlined />}*/}
@@ -419,7 +419,7 @@ export default function CreatePostPage() {
                                     {/*    </Space>*/}
                                     {/*</div>*/}
 
-                                    {/* 内容输入 */}
+                                    {/* Content input */}
                                     {/*<Form.Item*/}
                                     {/*    label={*/}
                                     {/*        <span style={{ color: '#f9fafb', fontSize: '16px', fontWeight: 600 }}>*/}
@@ -487,7 +487,7 @@ export default function CreatePostPage() {
                                     </div>
                                 </Card>
 
-                                {/* 操作按钮 */}
+                                {/* Action buttons */}
                                 <Card 
                                     className="animate-card-hover"
                                     style={{ 
@@ -546,13 +546,13 @@ export default function CreatePostPage() {
                                     </Space>
                                 </Card>
 
-                                {/* 发帖须知 */}
+                                {/* Post guidelines */}
 
                             </Col>
                         </Row>
                     </Form>
 
-                    {/* 预览模式 */}
+                    {/* Preview mode */}
                     {previewMode && (
                         <Card 
                             className="animate-fade-in-up"
@@ -572,7 +572,7 @@ export default function CreatePostPage() {
                                 }}>
                                     <EyeOutlined style={{ fontSize: '24px', color: '#6366f1' }} />
                                     <Title level={3} style={{ margin: 0, color: '#f9fafb' }}>
-                                        内容预览
+                                        Content Preview
                                     </Title>
                                 </div>
                                 
@@ -585,7 +585,7 @@ export default function CreatePostPage() {
                                         fontWeight: 600,
                                     }}
                                 >
-                                    {form.getFieldValue('title') || '标题预览'}
+                                    {form.getFieldValue('title') || 'Title Preview'}
                                 </Title>
                                 
                                 <div style={{
@@ -595,7 +595,7 @@ export default function CreatePostPage() {
                                     whiteSpace: 'pre-wrap',
                                     wordBreak: 'break-word',
                                 }}>
-                                    {content || '内容预览...'}
+                                    {content || 'Content preview...'}
                                 </div>
 
                                 {selectedTags.length > 0 && (

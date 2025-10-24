@@ -27,7 +27,7 @@ export class FileUploader {
     private taskId: string | null = null;
     private aborted: boolean = false;
 
-    // 文件大小阈值
+    // File size threshold
     private static readonly CHUNK_THRESHOLD = 10 * 1024 * 1024; // 10MB
     private static readonly DEFAULT_CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -44,7 +44,7 @@ export class FileUploader {
     }
 
     /**
-     * 计算文件MD5
+     * Calculate file MD5
      */
     private async calculateMD5(): Promise<string> {
         return new Promise((resolve, reject) => {
@@ -56,7 +56,7 @@ export class FileUploader {
 
             fileReader.onload = (e) => {
                 if (this.aborted) {
-                    reject(new Error('上传已取消'));
+                    reject(new Error('Upload cancelled'));
                     return;
                 }
 
@@ -67,7 +67,7 @@ export class FileUploader {
                 this.options.onProgress({
                     stage: 'calculating',
                     percent,
-                    message: `计算MD5: ${percent}%`
+                    message: `Calculating MD5: ${percent}%`
                 });
 
                 if (currentChunk < chunks) {
@@ -78,7 +78,7 @@ export class FileUploader {
                 }
             };
 
-            fileReader.onerror = () => reject(new Error('读取文件失败'));
+            fileReader.onerror = () => reject(new Error('Failed to read file'));
 
             const loadNext = () => {
                 const start = currentChunk * chunkSize;
@@ -91,40 +91,40 @@ export class FileUploader {
     }
 
     /**
-     * 智能上传（自动选择上传方式）
+     * Smart upload (automatically choose upload method)
      */
     async upload(): Promise<FileUploadResponse> {
         try {
-            // 计算MD5
+            // Calculate MD5
             this.options.onProgress({
                 stage: 'calculating',
                 percent: 0,
-                message: '正在计算文件指纹...'
+                message: 'Calculating file fingerprint...'
             });
 
             await this.calculateMD5();
 
-            // 根据文件大小选择上传方式
+            // Choose upload method based on file size
             if (this.file.size < FileUploader.CHUNK_THRESHOLD) {
                 return await this.uploadSimple();
             } else {
                 return await this.uploadWithChunks();
             }
         } catch (error) {
-            const err = error instanceof Error ? error : new Error('上传失败');
+            const err = error instanceof Error ? error : new Error('Upload failed');
             this.options.onError(err);
             throw err;
         }
     }
 
     /**
-     * 小文件直接上传
+     * Direct upload for small files
      */
     private async uploadSimple(): Promise<FileUploadResponse> {
         this.options.onProgress({
             stage: 'uploading',
             percent: 0,
-            message: '开始上传...'
+            message: 'Starting upload...'
         });
 
         const result = await fileApi.uploadSimple(this.file, {
@@ -135,7 +135,7 @@ export class FileUploader {
                 this.options.onProgress({
                     stage: 'uploading',
                     percent,
-                    message: `上传中: ${percent}%`
+                    message: `Uploading: ${percent}%`
                 });
             }
         });
@@ -145,12 +145,12 @@ export class FileUploader {
     }
 
     /**
-     * 分片上传
+     * Chunked upload
      */
     private async uploadWithChunks(): Promise<FileUploadResponse> {
         const totalChunks = Math.ceil(this.file.size / this.options.chunkSize);
 
-        // 1. 初始化分片上传
+        // 1. Initialize chunked upload
         const initResponse = await fileApi.initChunkUpload({
             fileName: this.file.name,
             fileSize: this.file.size,
@@ -164,7 +164,7 @@ export class FileUploader {
 
         this.taskId = initResponse.taskId;
 
-        // 2. 准备分片
+        // 2. Prepare chunks
         const chunks = [];
         for (let i = 0; i < totalChunks; i++) {
             const start = i * this.options.chunkSize;
@@ -176,14 +176,14 @@ export class FileUploader {
             });
         }
 
-        // 3. 并发上传分片
+        // 3. Upload chunks concurrently
         const uploadedChunks = await this.uploadChunksConcurrently(chunks, 3);
 
-        // 4. 完成上传
+        // 4. Complete upload
         this.options.onProgress({
             stage: 'merging',
             percent: 100,
-            message: '正在合并文件...'
+            message: 'Merging files...'
         });
 
         const completeResponse = await fileApi.completeChunkUpload({
@@ -208,7 +208,7 @@ export class FileUploader {
     }
 
     /**
-     * 并发上传分片
+     * Upload chunks concurrently
      */
     private async uploadChunksConcurrently(
         chunks: Array<{ number: number; blob: Blob; url: string }>,
@@ -218,7 +218,7 @@ export class FileUploader {
         const executing: Promise<void>[] = [];
 
         for (const chunk of chunks) {
-            if (this.aborted) throw new Error('上传已取消');
+            if (this.aborted) throw new Error('Upload cancelled');
 
             const promise = this.uploadSingleChunk(chunk).then(result => {
                 results.push(result);
@@ -228,7 +228,7 @@ export class FileUploader {
                     percent,
                     current: results.length,
                     total: chunks.length,
-                    message: `上传分片: ${results.length}/${chunks.length}`
+                    message: `Uploading chunks: ${results.length}/${chunks.length}`
                 });
             });
 
@@ -246,7 +246,7 @@ export class FileUploader {
     }
 
     /**
-     * 上传单个分片
+     * Upload single chunk
      */
     private async uploadSingleChunk(chunk: {
         number: number;
@@ -262,7 +262,7 @@ export class FileUploader {
         });
 
         if (!response.ok) {
-            throw new Error(`分片 ${chunk.number} 上传失败`);
+            throw new Error(`Chunk ${chunk.number} upload failed`);
         }
 
         const etag = response.headers.get('ETag')?.replace(/"/g, '') || '';
@@ -274,14 +274,14 @@ export class FileUploader {
     }
 
     /**
-     * 取消上传
+     * Cancel upload
      */
     abort(): void {
         this.aborted = true;
     }
 
     /**
-     * 格式化文件大小
+     * Format file size
      */
     static formatFileSize(bytes: number): string {
         if (bytes < 1024) return bytes + ' B';

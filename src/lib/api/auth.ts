@@ -7,7 +7,7 @@ import {
     User
 } from '@/types/api';
 
-// 临时定义这些类型，直到类型文件更新
+// Temporarily define these types until type files are updated
 interface ChangePasswordRequest {
     oldPassword: string;
     newPassword: string;
@@ -19,7 +19,7 @@ interface ChangeEmailRequest {
 }
 
 export class AuthApi {
-    // 用户登录
+    // User login
     static async login(credentials: LoginRequest): Promise<LoginResponse> {
         try {
             const response = await apiClient.post<LoginResponse>('/auth/login', credentials);
@@ -29,11 +29,11 @@ export class AuthApi {
             return response;
         } catch (error) {
             console.error('Login failed:', error);
-            throw new Error('登录失败，请检查用户名和密码');
+            throw new Error('Login failed, please check username and password');
         }
     }
 
-    // 用户注册
+    // User registration
     static async register(userData: RegisterRequest): Promise<LoginResponse> {
         try {
             const response = await apiClient.post<LoginResponse>('/auth/register', userData);
@@ -43,11 +43,11 @@ export class AuthApi {
             return response;
         } catch (error) {
             console.error('Registration failed:', error);
-            throw new Error('注册失败，请检查输入信息');
+            throw new Error('Registration failed, please check input information');
         }
     }
 
-    // 用户登出
+    // User logout
     static async logout(): Promise<void> {
         try {
             await apiClient.post('/auth/logout');
@@ -58,17 +58,17 @@ export class AuthApi {
         }
     }
 
-    // 获取当前用户信息
+    // Get current user information
     static async getCurrentUser(): Promise<User> {
         try {
             return await apiClient.get<User>('/auth/me');
         } catch (error) {
             console.error('Failed to get current user:', error);
-            throw new Error('获取用户信息失败');
+            throw new Error('Failed to get user information');
         }
     }
 
-    // 刷新令牌
+    // Refresh token
     static async refreshToken(): Promise<LoginResponse> {
         try {
             const response = await apiClient.authenticatedRequest<LoginResponse>('/auth/refresh');
@@ -78,11 +78,11 @@ export class AuthApi {
             return response;
         } catch (error) {
             console.error('Token refresh failed:', error);
-            throw new Error('令牌刷新失败');
+            throw new Error('Token refresh failed');
         }
     }
 
-    // 修改密码
+    // Change password
     static async changePassword(oldPassword: string, newPassword: string): Promise<void> {
         try {
             const request: ChangePasswordRequest = {
@@ -92,11 +92,11 @@ export class AuthApi {
             await apiClient.put('/auth/change-password', request);
         } catch (error) {
             console.error('Password change failed:', error);
-            throw new Error('密码修改失败');
+            throw new Error('Password change failed');
         }
     }
 
-    // 修改邮箱
+    // Change email
     static async changeEmail(password: string, newEmail: string): Promise<void> {
         try {
             const request: ChangeEmailRequest = {
@@ -106,31 +106,31 @@ export class AuthApi {
             await apiClient.put('/auth/change-email', request);
         } catch (error) {
             console.error('Email change failed:', error);
-            throw new Error('邮箱修改失败');
+            throw new Error('Email change failed');
         }
     }
 
-    // 请求密码重置
+    // Request password reset
     static async requestPasswordReset(email: string): Promise<void> {
         try {
             await apiClient.post('/auth/reset-password', { email });
         } catch (error) {
             console.error('Password reset request failed:', error);
-            throw new Error('密码重置请求失败');
+            throw new Error('Password reset request failed');
         }
     }
 
-    // 验证邮箱
+    // Verify email
     static async verifyEmail(token: string): Promise<void> {
         try {
             await apiClient.post('/auth/verify-email', { token });
         } catch (error) {
             console.error('Email verification failed:', error);
-            throw new Error('邮箱验证失败');
+            throw new Error('Email verification failed');
         }
     }
 
-    // 检查邮箱是否存在
+    // Check if email exists
     static async checkEmail(email: string): Promise<{ exists: boolean }> {
         try {
             return await apiClient.get<{ exists: boolean }>(`/auth/check-email?email=${encodeURIComponent(email)}`);

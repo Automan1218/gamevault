@@ -1,12 +1,13 @@
 "use client";
 
 import React from "react";
-import { Card, Typography, Form, Input, Upload, Button, DatePicker, message } from "antd";
-import { UploadOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { Card, Typography, Form, Input, Upload, Button, DatePicker, message, Space } from "antd";
+import { UploadOutlined, ArrowLeftOutlined, CloudUploadOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useDevGames, UploadFormValues } from "@/app/features/devgames/hooks/useDevGames";
+import { cardStyle, titleStyle } from "@/components/common/theme";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 export default function UploadGamePage() {
     const [form] = Form.useForm<UploadFormValues>();
@@ -24,7 +25,7 @@ export default function UploadGamePage() {
         }
     };
 
-    // ✅ 通用大小限制（单位 MB）
+    // ✅ General size limit (unit: MB)
     const MAX_SIZE_MB = 1000;
     const checkFileSize = (file: File) => {
         const isLtMax = file.size / 1024 / 1024 < MAX_SIZE_MB;
@@ -33,81 +34,122 @@ export default function UploadGamePage() {
     };
 
     return (
-        <div
-            style={{
-                background: "#fff",
-                minHeight: "100vh",
-                padding: "40px 80px",
-                fontFamily: "Inter, sans-serif",
-            }}
-        >
-            {/* ===== 顶部标题栏 ===== */}
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "32px",
-                }}
-            >
-                <div>
-                    <Title level={2} style={{ marginBottom: "8px" }}>
-                        Upload New Game
-                    </Title>
-                    <p style={{ color: "#666", margin: 0 }}>
-                        Share your latest creation with the community.
-                    </p>
-                </div>
+        <div style={{ fontFamily: "Inter, sans-serif" }}>
+            {/* ===== Top Title Bar ===== */}
+            <div style={{ marginBottom: "32px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                        <div
+                            style={{
+                                width: "56px",
+                                height: "56px",
+                                borderRadius: "16px",
+                                background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                boxShadow: "0 8px 32px rgba(99, 102, 241, 0.3)",
+                            }}
+                        >
+                            <CloudUploadOutlined style={{ fontSize: "28px", color: "white" }} />
+                        </div>
+                        <div>
+                            <Title level={2} style={{ ...titleStyle, margin: 0 }}>
+                                Upload New Game
+                            </Title>
+                            <Text style={{ color: "#9ca3af", fontSize: "16px" }}>
+                                Share your latest creation with the community
+                            </Text>
+                        </div>
+                    </div>
 
-                <Button
-                    icon={<ArrowLeftOutlined />}
-                    onClick={() => router.push("/dashboard/developer/mygames")}
-                >
-                    Back to My Games
-                </Button>
+                    <Button
+                        icon={<ArrowLeftOutlined />}
+                        onClick={() => router.push("/dashboard/developer/mygames")}
+                        style={{
+                            height: "48px",
+                            padding: "0 24px",
+                            borderRadius: "12px",
+                            background: "rgba(15, 23, 42, 0.8)",
+                            border: "1px solid rgba(99, 102, 241, 0.3)",
+                            color: "#f9fafb",
+                        }}
+                    >
+                        Back to My Games
+                    </Button>
+                </div>
             </div>
 
-            {/* ===== 上传表单主体 ===== */}
+            {/* ===== Upload Form Body ===== */}
             <Card
                 style={{
-                    borderRadius: "10px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                    border: "1px solid #f0f0f0",
+                    ...cardStyle,
                     maxWidth: 800,
                     margin: "0 auto",
-                    background: "#fafafa",
+                    background: "rgba(15, 23, 42, 0.8)",
+                    border: "1px solid rgba(99, 102, 241, 0.2)",
                 }}
             >
                 <Form
                     form={form}
                     layout="vertical"
                     onFinish={handleSubmit}
-                    style={{ padding: "20px 10px" }}
+                    style={{ padding: "8px" }}
                 >
                     <Form.Item
                         name="name"
-                        label="Game Name"
+                        label={<Text style={{ color: "#f9fafb", fontWeight: 600 }}>Game Name</Text>}
                         rules={[{ required: true, message: "Please enter the game name" }]}
                     >
-                        <Input placeholder="Enter your game name" />
+                        <Input 
+                            placeholder="Enter your game name" 
+                            style={{
+                                height: "48px",
+                                borderRadius: "12px",
+                                background: "rgba(15, 23, 42, 0.8)",
+                                border: "1px solid rgba(99, 102, 241, 0.3)",
+                                color: "#f9fafb",
+                            }}
+                        />
                     </Form.Item>
 
-                    <Form.Item name="description" label="Description">
+                    <Form.Item 
+                        name="description" 
+                        label={<Text style={{ color: "#f9fafb", fontWeight: 600 }}>Description</Text>}
+                    >
                         <Input.TextArea
                             placeholder="Describe your game briefly..."
                             rows={4}
                             maxLength={500}
+                            style={{
+                                borderRadius: "12px",
+                                background: "rgba(15, 23, 42, 0.8)",
+                                border: "1px solid rgba(99, 102, 241, 0.3)",
+                                color: "#f9fafb",
+                            }}
                         />
                     </Form.Item>
 
-                    <Form.Item name="releaseDate" label="Release Date">
-                        <DatePicker showTime style={{ width: "100%" }} />
+                    <Form.Item 
+                        name="releaseDate" 
+                        label={<Text style={{ color: "#f9fafb", fontWeight: 600 }}>Release Date</Text>}
+                    >
+                        <DatePicker 
+                            showTime 
+                            style={{ 
+                                width: "100%",
+                                height: "48px",
+                                borderRadius: "12px",
+                                background: "rgba(15, 23, 42, 0.8)",
+                                border: "1px solid rgba(99, 102, 241, 0.3)",
+                            }} 
+                        />
                     </Form.Item>
 
-                    {/* ✅ 上传图片（只允许 image/*） */}
+                    {/* ✅ Upload images (only allow image/*) */}
                     <Form.Item
                         name="image"
-                        label="Game Image"
+                        label={<Text style={{ color: "#f9fafb", fontWeight: 600 }}>Game Image</Text>}
                         valuePropName="fileList"
                         getValueFromEvent={(e) => e?.fileList}
                     >
@@ -125,14 +167,28 @@ export default function UploadGamePage() {
                             maxCount={1}
                             listType="picture"
                         >
-                            <Button icon={<UploadOutlined />}>Select Image</Button>
+                            <Button 
+                                icon={<UploadOutlined />}
+                                style={{
+                                    height: "48px",
+                                    padding: "0 24px",
+                                    borderRadius: "12px",
+                                    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+                                    border: "none",
+                                    color: "white",
+                                    fontWeight: 600,
+                                    boxShadow: "0 8px 32px rgba(99, 102, 241, 0.3)",
+                                }}
+                            >
+                                Select Image
+                            </Button>
                         </Upload>
                     </Form.Item>
 
-                    {/* ✅ 上传视频（只允许 video/*） */}
+                    {/* ✅ Upload videos (only allow video/*) */}
                     <Form.Item
                         name="video"
-                        label="Game Video"
+                        label={<Text style={{ color: "#f9fafb", fontWeight: 600 }}>Game Video</Text>}
                         valuePropName="fileList"
                         getValueFromEvent={(e) => e?.fileList}
                     >
@@ -149,14 +205,28 @@ export default function UploadGamePage() {
                             }}
                             maxCount={1}
                         >
-                            <Button icon={<UploadOutlined />}>Select Video</Button>
+                            <Button 
+                                icon={<UploadOutlined />}
+                                style={{
+                                    height: "48px",
+                                    padding: "0 24px",
+                                    borderRadius: "12px",
+                                    background: "linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%)",
+                                    border: "none",
+                                    color: "white",
+                                    fontWeight: 600,
+                                    boxShadow: "0 8px 32px rgba(139, 92, 246, 0.3)",
+                                }}
+                            >
+                                Select Video
+                            </Button>
                         </Upload>
                     </Form.Item>
 
-                    {/* ✅ 上传ZIP（只允许 .zip） */}
+                    {/* ✅ Upload ZIP (only allow .zip) */}
                     <Form.Item
                         name="zip"
-                        label="Game Package (ZIP)"
+                        label={<Text style={{ color: "#f9fafb", fontWeight: 600 }}>Game Package (ZIP)</Text>}
                         valuePropName="fileList"
                         getValueFromEvent={(e) => e?.fileList}
                     >
@@ -175,25 +245,56 @@ export default function UploadGamePage() {
                             }}
                             maxCount={1}
                         >
-                            <Button icon={<UploadOutlined />}>Select ZIP File</Button>
+                            <Button 
+                                icon={<UploadOutlined />}
+                                style={{
+                                    height: "48px",
+                                    padding: "0 24px",
+                                    borderRadius: "12px",
+                                    background: "linear-gradient(135deg, #06b6d4 0%, #10b981 100%)",
+                                    border: "none",
+                                    color: "white",
+                                    fontWeight: 600,
+                                    boxShadow: "0 8px 32px rgba(6, 182, 212, 0.3)",
+                                }}
+                            >
+                                Select ZIP File
+                            </Button>
                         </Upload>
                     </Form.Item>
 
-                    {/* ===== 提交按钮 ===== */}
+                    {/* ===== Submit Button ===== */}
                     <Form.Item>
-                        <div
-                            style={{
-                                display: "flex",
-                                justifyContent: "flex-end",
-                                gap: "12px",
-                                marginTop: "20px",
-                            }}
-                        >
-                            <Button onClick={() => form.resetFields()}>Reset</Button>
-                            <Button type="primary" htmlType="submit">
-                                Upload
+                        <Space style={{ width: "100%", justifyContent: "flex-end", marginTop: "32px" }}>
+                            <Button 
+                                onClick={() => form.resetFields()}
+                                style={{
+                                    height: "48px",
+                                    padding: "0 24px",
+                                    borderRadius: "12px",
+                                    background: "rgba(15, 23, 42, 0.8)",
+                                    border: "1px solid rgba(99, 102, 241, 0.3)",
+                                    color: "#f9fafb",
+                                }}
+                            >
+                                Reset
                             </Button>
-                        </div>
+                            <Button 
+                                type="primary" 
+                                htmlType="submit"
+                                style={{
+                                    height: "48px",
+                                    padding: "0 32px",
+                                    borderRadius: "12px",
+                                    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+                                    border: "none",
+                                    fontWeight: 600,
+                                    boxShadow: "0 8px 32px rgba(99, 102, 241, 0.3)",
+                                }}
+                            >
+                                Upload Game
+                            </Button>
+                        </Space>
                     </Form.Item>
                 </Form>
             </Card>

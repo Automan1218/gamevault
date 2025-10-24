@@ -1,10 +1,10 @@
 import { shopApiClient } from "@/lib/api/client";
 import type { GameDTO } from "@/lib/api/StoreTypes";
 
-// 游戏API - 使用商城服务客户端（端口8081）
+// Game API - using shop service client (port 8081)
 export const gameApi = {
   /**
-   * 获取游戏列表
+   * Get games list
    */
   async getGames(params?: {
     genre?: string;
@@ -15,56 +15,56 @@ export const gameApi = {
   },
 
   /**
-   * 获取单个游戏详情
+   * Get single game details
    */
   async getGameById(gameId: number): Promise<GameDTO> {
     return shopApiClient.get<GameDTO>(`/games/${gameId}`);
   },
 
   /**
-   * 创建新游戏（管理员功能）
+   * Create new game (admin function)
    */
   async createGame(gameData: Partial<GameDTO>): Promise<GameDTO> {
     return shopApiClient.post<GameDTO>("/games", gameData);
   },
 
   /**
-   * 更新游戏信息（管理员功能）
+   * Update game information (admin function)
    */
   async updateGame(gameId: number, gameData: Partial<GameDTO>): Promise<GameDTO> {
     return shopApiClient.put<GameDTO>(`/games/${gameId}`, gameData);
   },
 
   /**
-   * 删除游戏（管理员功能）
+   * Delete game (admin function)
    */
   async deleteGame(gameId: number): Promise<void> {
     return shopApiClient.delete<void>(`/games/${gameId}`);
   },
 
   /**
-   * 搜索游戏
+   * Search games
    */
   async searchGames(query: string): Promise<GameDTO[]> {
     return shopApiClient.get<GameDTO[]>("/games", { q: query });
   },
 
   /**
-   * 按类型获取游戏
+   * Get games by genre
    */
   async getGamesByGenre(genre: string): Promise<GameDTO[]> {
     return shopApiClient.get<GameDTO[]>("/games", { genre });
   },
 
   /**
-   * 按平台获取游戏
+   * Get games by platform
    */
   async getGamesByPlatform(platform: string): Promise<GameDTO[]> {
     return shopApiClient.get<GameDTO[]>("/games", { platform });
   },
 
   /**
-   * 上传游戏图片
+   * Upload game image
    */
   async uploadGameImage(gameId: number, file: File): Promise<{ success: boolean; imageUrl?: string; message: string }> {
     const formData = new FormData();
@@ -77,7 +77,7 @@ export const gameApi = {
   },
 
   /**
-   * 删除游戏图片
+   * Delete game image
    */
   async deleteGameImage(gameId: number): Promise<{ success: boolean; message: string }> {
     return shopApiClient.delete<{ success: boolean; message: string }>(`/games/${gameId}/image`);

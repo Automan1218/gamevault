@@ -9,26 +9,26 @@ export function useOrders() {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
 
-  /** 📦 获取订单列表（用于订单页面） */
+  /** 📦 Get orders list (for orders page) */
   const fetchOrdersForPage = async () => {
     try {
       setLoading(true);
       const data = await orderApi.getOrders();
       setOrders(data);
     } catch (error) {
-      console.error("获取订单失败:", error);
+      console.error("Failed to get orders:", error);
       setOrders([]);
     } finally {
       setLoading(false);
     }
   };
 
-  /** 📦 获取订单摘要（用于library页面的表格） */
+  /** 📦 Get order summary (for library page table) */
   const fetchOrders = useCallback(async (page: number = 0, size: number = 10) => {
     try {
       const response = await orderApi.getOrderSummary();
 
-      // 处理分页（前端分页）
+      // Handle pagination (frontend pagination)
       const start = page * size;
       const end = start + size;
       const paginatedItems = response.items.slice(start, end);
@@ -39,7 +39,7 @@ export function useOrders() {
         success: true,
       };
     } catch (error) {
-      console.error("获取订单摘要失败:", error);
+      console.error("Failed to get order summary:", error);
       return {
         items: [],
         totalCount: 0,
@@ -48,29 +48,29 @@ export function useOrders() {
     }
   }, []);
 
-  /** 🔍 获取订单详情 */
+  /** 🔍 Get order details */
   const fetchOrderDetail = useCallback(async (orderId: number) => {
     try {
       const orderDetail = await orderApi.getOrderById(orderId);
       setSelectedOrder(orderDetail);
       return orderDetail;
     } catch (error) {
-      console.error("获取订单详情失败:", error);
+      console.error("Failed to get order details:", error);
       throw error;
     }
   }, []);
 
-  /** 💳 支付成功 */
+  /** 💳 Payment success */
   const payOrder = async (orderId: number) => {
     const updatedOrder = await orderApi.payOrder(orderId);
-    await fetchOrdersForPage(); // 刷新列表
+    await fetchOrdersForPage(); // Refresh list
     return updatedOrder;
   };
 
-  /** ❌ 支付失败 */
+  /** ❌ Payment failure */
   const failOrder = async (orderId: number) => {
     await orderApi.failOrder(orderId);
-    await fetchOrdersForPage(); // 刷新列表
+    await fetchOrdersForPage(); // Refresh list
   };
 
   useEffect(() => {
@@ -82,8 +82,8 @@ export function useOrders() {
     loading, 
     selectedOrder,
     setSelectedOrder,
-    fetchOrders,           // 用于library页面的分页查询
-    fetchOrderDetail,      // 用于查询订单详情
+    fetchOrders,           // For library page pagination query
+    fetchOrderDetail,      // For querying order details
     payOrder,
     failOrder
   };

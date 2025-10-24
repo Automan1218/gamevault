@@ -49,7 +49,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           backgroundClip: 'text',
         }}>
           <EyeOutlined style={{ marginRight: 8, color: '#6366f1' }} />
-          订单详情
+          Order Details
         </span>
       } 
       width={720}
@@ -70,10 +70,10 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
             bordered 
             size="small" 
             items={[
-              { key: 'orderId', label: '订单ID', children: orderDetail.orderId },
-              { key: 'createdAt', label: '下单时间', children: new Date(orderDetail.createdAt).toLocaleString() },
-              { key: 'status', label: '状态', children: orderDetail.status },
-              { key: 'total', label: '总额', children: `¥${orderDetail.total}` },
+              { key: 'orderId', label: 'Order ID', children: orderDetail.orderId },
+              { key: 'createdAt', label: 'Order Time', children: new Date(orderDetail.createdAt).toLocaleString() },
+              { key: 'status', label: 'Status', children: orderDetail.status },
+              { key: 'total', label: 'Total', children: `¥${orderDetail.total}` },
             ]} 
             style={{
               backgroundColor: 'rgba(31, 41, 55, 0.8)',
@@ -92,7 +92,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                   marginBottom: 16,
                 }}
               >
-                订单明细
+                Order Items
               </Typography.Title>
               {orderDetail.items.map((item, idx) => (
                 <div 
@@ -109,13 +109,13 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <Typography.Text style={{ color: '#f9fafb', fontSize: '1rem', fontWeight: 500 }}>
-                        游戏ID: {item.gameId}
+                        Game ID: {item.gameId}
                       </Typography.Text>
                       <div style={{ marginTop: 6 }}>
-                        <Typography.Text style={{ color: '#9ca3af' }}>单价: ¥{item.unitPrice}</Typography.Text>
+                        <Typography.Text style={{ color: '#9ca3af' }}>Unit Price: ¥{item.unitPrice}</Typography.Text>
                         {item.discountPrice != null && item.discountPrice !== item.unitPrice && (
                           <Typography.Text style={{ color: '#06b6d4', marginLeft: 12, fontWeight: 500 }}>
-                            {item.discountPrice === 0 ? '折后价: 免费' : `折后价: ¥${item.discountPrice}`}
+                            {item.discountPrice === 0 ? 'Discounted: Free' : `Discounted: ¥${item.discountPrice}`}
                           </Typography.Text>
                         )}
                       </div>
@@ -126,13 +126,13 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                         fontSize: '1.1rem',
                         fontWeight: 600,
                       }}>
-                        {item.discountPrice === 0 ? '免费' : `¥${item.discountPrice || item.unitPrice}`}
+                        {item.discountPrice === 0 ? 'Free' : `¥${item.discountPrice || item.unitPrice}`}
                       </Typography.Text>
                     </div>
                   </div>
                   {item.activationCodes && item.activationCodes.length > 0 && (
                     <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(75, 85, 99, 0.2)' }}>
-                      <Typography.Text style={{ color: '#9ca3af', fontSize: '0.9rem' }}>激活码:</Typography.Text>
+                      <Typography.Text style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Activation Codes:</Typography.Text>
                       {item.activationCodes.map((code, codeIdx) => (
                         <Typography.Paragraph 
                           key={codeIdx} 

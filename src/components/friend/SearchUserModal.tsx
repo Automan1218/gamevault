@@ -38,8 +38,8 @@ export default function SearchUserModal({
     const handleSendRequest = async (user: UserSearchResult) => {
         setSendingTo(user.userId);
         try {
-            await onSendRequest(user.userId, `你好，我想加你为好友`);
-            // 更新本地状态
+            await onSendRequest(user.userId, `Hello, I would like to add you as a friend`);
+            // Update local state
             setSearchResults(prev =>
                 prev.map(u => u.userId === user.userId ? { ...u, hasPending: true } : u)
             );
@@ -56,7 +56,7 @@ export default function SearchUserModal({
 
     return (
         <Modal
-            title="添加好友"
+            title="Add Friend"
             open={open}
             onCancel={handleClose}
             footer={null}
@@ -64,7 +64,7 @@ export default function SearchUserModal({
         >
             <Space direction="vertical" style={{ width: '100%' }} size="large">
                 <Input.Search
-                    placeholder="输入邮箱或用户名搜索"
+                    placeholder="Enter email or username to search"
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
                     onSearch={handleSearch}
@@ -75,7 +75,7 @@ export default function SearchUserModal({
 
                 {searching ? (
                     <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                        <Spin tip="搜索中..." />
+                        <Spin tip="Searching..." />
                     </div>
                 ) : searchResults.length > 0 ? (
                     <List
@@ -84,9 +84,9 @@ export default function SearchUserModal({
                             <List.Item
                                 actions={[
                                     user.isFriend ? (
-                                        <Tag color="green">已是好友</Tag>
+                                        <Tag color="green">Already Friends</Tag>
                                     ) : user.hasPending ? (
-                                        <Tag color="orange">已发送请求</Tag>
+                                        <Tag color="orange">Request Sent</Tag>
                                     ) : (
                                         <Button
                                             type="primary"
@@ -94,7 +94,7 @@ export default function SearchUserModal({
                                             loading={sendingTo === user.userId}
                                             onClick={() => handleSendRequest(user)}
                                         >
-                                            添加好友
+                                            Add Friend
                                         </Button>
                                     ),
                                 ]}
@@ -107,7 +107,7 @@ export default function SearchUserModal({
                         )}
                     />
                 ) : keyword && !searching ? (
-                    <Empty description="未找到相关用户" />
+                    <Empty description="No related users found" />
                 ) : null}
             </Space>
         </Modal>

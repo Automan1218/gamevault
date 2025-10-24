@@ -45,7 +45,7 @@ interface CreateGameFormData {
   discountPrice?: number;
   genre: string;
   platform: string;
-  releaseDate: any; // Ant Design DatePicker 返回的类型
+  releaseDate: any; // Ant Design DatePicker return type
   imageUrl?: string;
   isActive: boolean;
 }
@@ -57,26 +57,26 @@ export default function CreateGamePage() {
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  // 游戏类型选项
+  // Game genre options
   const genreOptions = [
-    { value: "RPG", label: "角色扮演 (RPG)" },
-    { value: "Action", label: "动作游戏" },
-    { value: "Adventure", label: "冒险游戏" },
-    { value: "Strategy", label: "策略游戏" },
-    { value: "Simulation", label: "模拟游戏" },
-    { value: "Sports", label: "体育游戏" },
-    { value: "Racing", label: "竞速游戏" },
-    { value: "Fighting", label: "格斗游戏" },
-    { value: "Puzzle", label: "益智游戏" },
-    { value: "Horror", label: "恐怖游戏" },
-    { value: "Shooter", label: "射击游戏" },
-    { value: "Platformer", label: "平台游戏" },
-    { value: "MMORPG", label: "大型多人在线角色扮演" },
-    { value: "Indie", label: "独立游戏" },
-    { value: "Casual", label: "休闲游戏" },
+    { value: "RPG", label: "Role-Playing Game (RPG)" },
+    { value: "Action", label: "Action Game" },
+    { value: "Adventure", label: "Adventure Game" },
+    { value: "Strategy", label: "Strategy Game" },
+    { value: "Simulation", label: "Simulation Game" },
+    { value: "Sports", label: "Sports Game" },
+    { value: "Racing", label: "Racing Game" },
+    { value: "Fighting", label: "Fighting Game" },
+    { value: "Puzzle", label: "Puzzle Game" },
+    { value: "Horror", label: "Horror Game" },
+    { value: "Shooter", label: "Shooter Game" },
+    { value: "Platformer", label: "Platform Game" },
+    { value: "MMORPG", label: "Massively Multiplayer Online Role-Playing Game" },
+    { value: "Indie", label: "Indie Game" },
+    { value: "Casual", label: "Casual Game" },
   ];
 
-  // 平台选项
+  // Platform options
   const platformOptions = [
     { value: "PC", label: "PC (Windows)" },
     { value: "Mac", label: "Mac" },
@@ -84,53 +84,53 @@ export default function CreateGamePage() {
     { value: "PlayStation", label: "PlayStation" },
     { value: "Xbox", label: "Xbox" },
     { value: "Nintendo Switch", label: "Nintendo Switch" },
-    { value: "Mobile", label: "移动设备" },
-    { value: "VR", label: "VR设备" },
-    { value: "Multi-Platform", label: "多平台" },
+    { value: "Mobile", label: "Mobile Device" },
+    { value: "VR", label: "VR Device" },
+    { value: "Multi-Platform", label: "Multi-Platform" },
   ];
 
-  // 处理图片选择 - 只做预览，不创建游戏
+  // Handle image selection - preview only, don't create game
   const handleImageUpload = (file: File) => {
-    // 验证文件大小（最大5MB）
+    // Validate file size (max 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
-      antdMessage.error("图片大小不能超过5MB，请选择较小的图片");
+      antdMessage.error("Image size cannot exceed 5MB, please select a smaller image");
       return false;
     }
 
-    // 验证文件类型
+    // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      antdMessage.error("只支持 JPG、PNG、GIF、WEBP 格式的图片");
+      antdMessage.error("Only JPG, PNG, GIF, WEBP format images are supported");
       return false;
     }
 
-    // 保存文件引用
+    // Save file reference
     setSelectedFile(file);
     
-    // 创建本地预览URL
+    // Create local preview URL
     const imageUrl = URL.createObjectURL(file);
     form.setFieldsValue({ imageUrl });
-    antdMessage.success("图片选择成功，将在创建游戏时上传");
+    antdMessage.success("Image selected successfully, will be uploaded when creating the game");
     
-    // 返回 false 阻止默认上传行为
+    // Return false to prevent default upload behavior
     return false;
   };
 
-  // 处理表单提交
+  // Handle form submission
   const handleSubmit = async (values: CreateGameFormData) => {
     setLoading(true);
     let createdGameId: number | null = null;
     
     try {
-      // 格式化日期
+      // Format date
       const releaseDate = values.releaseDate 
         ? (values.releaseDate instanceof Date 
             ? values.releaseDate.toISOString().split('T')[0]
             : values.releaseDate.format('YYYY-MM-DD'))
         : undefined;
 
-      // 先创建游戏（不包含图片）
+      // Create game first (without image)
       const gameData = {
         title: values.title,
         developer: values.developer,
@@ -140,56 +140,56 @@ export default function CreateGamePage() {
         genre: values.genre,
         platform: values.platform,
         releaseDate: releaseDate,
-        imageUrl: undefined, // 先不设置图片
+        imageUrl: undefined, // Don't set image first
         isActive: values.isActive,
       };
 
-      // 创建游戏
+      // Create game
       const createdGame = await gameApi.createGame(gameData);
       createdGameId = createdGame.gameId;
       
-      // 如果有选择的图片文件，上传图片
+      // If there's a selected image file, upload it
       if (selectedFile) {
         try {
-          // 上传图片
+          // Upload image
           const uploadResult = await gameApi.uploadGameImage(createdGame.gameId, selectedFile);
           
           if (uploadResult.success && uploadResult.imageUrl) {
-            // 更新游戏信息，添加图片URL
+            // Update game information, add image URL
             await gameApi.updateGame(createdGame.gameId, {
               ...gameData,
               imageUrl: uploadResult.imageUrl
             });
           } else {
-            throw new Error(uploadResult.message || "图片上传失败");
+            throw new Error(uploadResult.message || "Image upload failed");
           }
         } catch (uploadError: any) {
-          // 图片上传失败，删除已创建的游戏
-          console.error("图片上传失败，正在回滚游戏创建:", uploadError);
+          // Image upload failed, delete the created game
+          console.error("Image upload failed, rolling back game creation:", uploadError);
           try {
             await gameApi.deleteGame(createdGame.gameId);
           } catch (deleteError) {
-            console.error("删除游戏失败:", deleteError);
+            console.error("Failed to delete game:", deleteError);
           }
-          throw new Error(`图片上传失败: ${uploadError.message || "未知错误"}。游戏未创建。`);
+          throw new Error(`Image upload failed: ${uploadError.message || "Unknown error"}. Game not created.`);
         }
       }
       
-      antdMessage.success("游戏创建成功！");
+      antdMessage.success("Game created successfully!");
       
-      // 延迟跳转，让用户看到成功消息
+      // Delay redirect to let user see success message
       setTimeout(() => {
         router.push("/dashboard/store");
       }, 1500);
     } catch (error: any) {
-      console.error("创建游戏失败:", error);
-      antdMessage.error(error?.message || "创建游戏失败，请重试");
+      console.error("Failed to create game:", error);
+      antdMessage.error(error?.message || "Failed to create game, please try again");
     } finally {
       setLoading(false);
     }
   };
 
-  // 处理返回
+  // Handle return
   const handleBack = () => {
     router.push("/dashboard/store");
   };
@@ -209,7 +209,7 @@ export default function CreateGamePage() {
         overflow: "hidden",
       }}
     >
-      {/* 动态背景装饰 */}
+      {/* Dynamic background decoration */}
       <div
         style={{
           position: "fixed",
@@ -222,7 +222,7 @@ export default function CreateGamePage() {
           overflow: "hidden",
         }}
       >
-        {/* 网格背景 */}
+        {/* Grid background */}
         <div
           style={{
             position: "absolute",
@@ -236,7 +236,7 @@ export default function CreateGamePage() {
           }}
         />
 
-        {/* 浮动光球 */}
+        {/* Floating light balls */}
         <div
           style={{
             position: "absolute",
@@ -278,7 +278,7 @@ export default function CreateGamePage() {
         />
       </div>
 
-      {/* CSS动画 */}
+      {/* CSS animations */}
       <style jsx>{`
         @keyframes float {
           0%, 100% { transform: translate(0, 0) scale(1); }
@@ -287,7 +287,7 @@ export default function CreateGamePage() {
         }
       `}</style>
 
-      {/* 固定顶部导航栏 */}
+      {/* Fixed top navigation bar */}
       <Header
         style={{
           position: "fixed",
@@ -307,7 +307,7 @@ export default function CreateGamePage() {
         <Menubar currentPath="/dashboard/store" />
       </Header>
 
-      {/* 页面主体内容 */}
+      {/* Main page content */}
       <Content
         style={{
           marginTop: 64,
@@ -317,7 +317,7 @@ export default function CreateGamePage() {
         }}
       >
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          {/* 页面标题和返回按钮 */}
+          {/* Page title and back button */}
           <div
             className="fade-in-up"
             style={{
@@ -339,10 +339,10 @@ export default function CreateGamePage() {
                 }}
               >
                 <PlusOutlined style={{ marginRight: 12 }} />
-                创建新游戏
+                Create New Game
               </div>
               <div style={{ color: "#9ca3af", fontSize: 16 }}>
-                添加新游戏到商店，让玩家发现更多精彩内容
+                Add new games to the store for players to discover more exciting content
               </div>
             </div>
             <Button
@@ -358,11 +358,11 @@ export default function CreateGamePage() {
                 color: "#fff",
               }}
             >
-              返回商店
+              Back to Store
             </Button>
           </div>
 
-          {/* 创建游戏表单 */}
+          {/* Create game form */}
           <Card
             className="fade-in-up"
             style={{
@@ -387,24 +387,24 @@ export default function CreateGamePage() {
               size="large"
             >
               <Row gutter={24}>
-                {/* 左侧：基本信息 */}
+                {/* Left side: Basic information */}
                 <Col xs={24} lg={16}>
                   <Space direction="vertical" size={24} style={{ width: "100%" }}>
-                    {/* 游戏标题 */}
+                    {/* Game title */}
                     <Form.Item
                       label={
                         <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>
-                          游戏标题 *
+                          Game Title *
                         </span>
                       }
                       name="title"
                       rules={[
-                        { required: true, message: "请输入游戏标题" },
-                        { max: 255, message: "标题不能超过255个字符" },
+                        { required: true, message: "Please enter game title" },
+                        { max: 255, message: "Title cannot exceed 255 characters" },
                       ]}
                     >
                       <Input
-                        placeholder="输入游戏标题"
+                        placeholder="Enter game title"
                         style={{
                           background: "rgba(255, 255, 255, 0.1)",
                           border: "1px solid rgba(255, 255, 255, 0.2)",
@@ -413,21 +413,21 @@ export default function CreateGamePage() {
                       />
                     </Form.Item>
 
-                    {/* 开发者 */}
+                    {/* Developer */}
                     <Form.Item
                       label={
                         <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>
-                          开发者 *
+                          Developer *
                         </span>
                       }
                       name="developer"
                       rules={[
-                        { required: true, message: "请输入开发者名称" },
-                        { max: 255, message: "开发者名称不能超过255个字符" },
+                        { required: true, message: "Please enter developer name" },
+                        { max: 255, message: "Developer name cannot exceed 255 characters" },
                       ]}
                     >
                       <Input
-                        placeholder="输入开发者名称"
+                        placeholder="Enter developer name"
                         style={{
                           background: "rgba(255, 255, 255, 0.1)",
                           border: "1px solid rgba(255, 255, 255, 0.2)",
@@ -436,22 +436,22 @@ export default function CreateGamePage() {
                       />
                     </Form.Item>
 
-                    {/* 游戏描述 */}
+                    {/* Game description */}
                     <Form.Item
                       label={
                         <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>
-                          游戏描述 *
+                          Game Description *
                         </span>
                       }
                       name="description"
                       rules={[
-                        { required: true, message: "请输入游戏描述" },
-                        { min: 10, message: "描述至少需要10个字符" },
+                        { required: true, message: "Please enter game description" },
+                        { min: 10, message: "Description must be at least 10 characters" },
                       ]}
                     >
                       <TextArea
                         rows={6}
-                        placeholder="详细描述游戏内容、特色、玩法等..."
+                        placeholder="Describe game content, features, gameplay, etc. in detail..."
                         style={{
                           background: "rgba(255, 255, 255, 0.1)",
                           border: "1px solid rgba(255, 255, 255, 0.2)",
@@ -460,19 +460,19 @@ export default function CreateGamePage() {
                       />
                     </Form.Item>
 
-                    {/* 价格和折扣 */}
+                    {/* Price and discount */}
                     <Row gutter={16}>
                       <Col xs={24} sm={12}>
                         <Form.Item
                           label={
                             <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>
-                              价格 (￥) *
+                              Price (¥) *
                             </span>
                           }
                           name="price"
                           rules={[
-                            { required: true, message: "请输入游戏价格" },
-                            { type: "number", min: 0, message: "价格不能为负数" },
+                            { required: true, message: "Please enter game price" },
+                            { type: "number", min: 0, message: "Price cannot be negative" },
                           ]}
                         >
                           <InputNumber
@@ -493,16 +493,16 @@ export default function CreateGamePage() {
                         <Form.Item
                           label={
                             <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>
-                              折扣价 (￥)
+                              Discount Price (¥)
                             </span>
                           }
                           name="discountPrice"
                           rules={[
-                            { type: "number", min: 0, message: "折扣价不能为负数" },
+                            { type: "number", min: 0, message: "Discount price cannot be negative" },
                           ]}
                         >
                           <InputNumber
-                            placeholder="可选"
+                            placeholder="Optional"
                             min={0}
                             step={0.01}
                             precision={2}
@@ -517,20 +517,20 @@ export default function CreateGamePage() {
                       </Col>
                     </Row>
 
-                    {/* 类型和平台 */}
+                    {/* Type and platform */}
                     <Row gutter={16}>
                       <Col xs={24} sm={12}>
                         <Form.Item
                           label={
                             <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>
-                              游戏类型 *
+                              Game Type *
                             </span>
                           }
                           name="genre"
-                          rules={[{ required: true, message: "请选择游戏类型" }]}
+                          rules={[{ required: true, message: "Please select game type" }]}
                         >
                           <Select
-                            placeholder="选择游戏类型"
+                            placeholder="Select game type"
                             style={{
                               background: "rgba(255, 255, 255, 0.1)",
                             }}
@@ -551,14 +551,14 @@ export default function CreateGamePage() {
                         <Form.Item
                           label={
                             <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>
-                              支持平台 *
+                              Supported Platform *
                             </span>
                           }
                           name="platform"
-                          rules={[{ required: true, message: "请选择支持平台" }]}
+                          rules={[{ required: true, message: "Please select supported platform" }]}
                         >
                           <Select
-                            placeholder="选择支持平台"
+                            placeholder="Select supported platform"
                             style={{
                               background: "rgba(255, 255, 255, 0.1)",
                             }}
@@ -577,15 +577,15 @@ export default function CreateGamePage() {
                       </Col>
                     </Row>
 
-                    {/* 发布日期 */}
+                    {/* Release date */}
                     <Form.Item
                       label={
                         <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>
-                          发布日期 *
+                          Release Date *
                         </span>
                       }
                       name="releaseDate"
-                      rules={[{ required: true, message: "请选择发布日期" }]}
+                      rules={[{ required: true, message: "Please select release date" }]}
                     >
                       <DatePicker
                         style={{
@@ -593,22 +593,22 @@ export default function CreateGamePage() {
                           background: "rgba(255, 255, 255, 0.1)",
                           border: "1px solid rgba(255, 255, 255, 0.2)",
                         }}
-                        placeholder="选择发布日期"
+                        placeholder="Select release date"
                         format="YYYY-MM-DD"
                       />
                     </Form.Item>
 
-                    {/* 图片URL */}
+                    {/* Image URL */}
                     <Form.Item
                       label={
                         <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>
-                          游戏图片URL
+                          Game Image URL
                         </span>
                       }
                       name="imageUrl"
                     >
                       <Input
-                        placeholder="输入游戏图片的URL地址"
+                        placeholder="Enter game image URL address"
                         style={{
                           background: "rgba(255, 255, 255, 0.1)",
                           border: "1px solid rgba(255, 255, 255, 0.2)",
@@ -617,11 +617,11 @@ export default function CreateGamePage() {
                       />
                     </Form.Item>
 
-                    {/* 图片上传 */}
+                    {/* Image upload */}
                     <Form.Item
                       label={
                         <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>
-                          或上传图片
+                          Or upload image
                         </span>
                       }
                     >
@@ -639,15 +639,15 @@ export default function CreateGamePage() {
                               color: "#fff",
                             }}
                           >
-                            选择图片
+                            Select Image
                           </Button>
                         </Upload>
                         
-                        {/* 图片预览 */}
+                        {/* Image preview */}
                         {selectedFile && (
                           <div style={{ marginTop: 16 }}>
                             <div style={{ color: "#9ca3af", fontSize: 14, marginBottom: 8 }}>
-                              当前图片预览：
+                              Current image preview:
                             </div>
                             <div
                               style={{
@@ -692,10 +692,10 @@ export default function CreateGamePage() {
                   </Space>
                 </Col>
 
-                {/* 右侧：设置和预览 */}
+                {/* Right side: Settings and preview */}
                 <Col xs={24} lg={8}>
                   <Space direction="vertical" size={24} style={{ width: "100%" }}>
-                    {/* 游戏状态 */}
+                    {/* Game status */}
                     <Card
                       style={{
                         background: "rgba(31, 41, 55, 0.6)",
@@ -706,7 +706,7 @@ export default function CreateGamePage() {
                       styles={{ body: { padding: 24 } }}
                     >
                       <div style={{ color: "#fff", fontSize: 16, fontWeight: 600, marginBottom: 16 }}>
-                        游戏设置
+                        Game Settings
                       </div>
                       <Form.Item
                         name="isActive"
@@ -714,13 +714,13 @@ export default function CreateGamePage() {
                         style={{ marginBottom: 0 }}
                       >
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                          <span style={{ color: "#9ca3af" }}>立即上架</span>
+                          <span style={{ color: "#9ca3af" }}>List immediately</span>
                           <Switch />
                         </div>
                       </Form.Item>
                     </Card>
 
-                    {/* 预览信息 */}
+                    {/* Preview information */}
                     <Card
                       style={{
                         background: "rgba(31, 41, 55, 0.6)",
@@ -731,10 +731,10 @@ export default function CreateGamePage() {
                       styles={{ body: { padding: 24 } }}
                     >
                       <div style={{ color: "#fff", fontSize: 16, fontWeight: 600, marginBottom: 16 }}>
-                        预览信息
+                        Preview Information
                       </div>
                       <div style={{ color: "#9ca3af", fontSize: 14 }}>
-                        填写完表单后，游戏将按照您设置的信息在商店中展示。
+                        After filling out the form, the game will be displayed in the store according to your settings.
                       </div>
                     </Card>
                   </Space>
@@ -743,7 +743,7 @@ export default function CreateGamePage() {
 
               <Divider style={{ borderColor: "rgba(255, 255, 255, 0.1)", margin: "32px 0" }} />
 
-              {/* 提交按钮 */}
+              {/* Submit buttons */}
               <div style={{ textAlign: "center" }}>
                 <Space size="large">
                   <Button
@@ -759,7 +759,7 @@ export default function CreateGamePage() {
                       minWidth: 120,
                     }}
                   >
-                    取消
+                    Cancel
                   </Button>
                   <Button
                     type="primary"
@@ -774,7 +774,7 @@ export default function CreateGamePage() {
                       minWidth: 120,
                     }}
                   >
-                    {loading ? "创建中..." : "创建游戏"}
+                    {loading ? "Creating..." : "Create Game"}
                   </Button>
                 </Space>
               </div>
