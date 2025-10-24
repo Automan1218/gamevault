@@ -13,20 +13,12 @@ import {
     Input,
     message,
     Row,
-    Select,
     Space,
     Tag,
     Typography,
-    Tooltip,
 } from 'antd';
 import {
     ArrowLeftOutlined,
-    BoldOutlined,
-    ItalicOutlined,
-    LinkOutlined,
-    OrderedListOutlined,
-    PictureOutlined,
-    UnorderedListOutlined,
     SendOutlined,
     EyeOutlined,
     EditOutlined,
@@ -40,7 +32,7 @@ import { darkTheme, cardStyle } from '@/components/common/theme';
 import '@/components/common/animations.css';
 import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css';
-// Dynamically import ReactQuill, disable SSR
+
 const ReactQuill = dynamic(() => import('react-quill-new'), {
     ssr: false,
     loading: () => <div style={{

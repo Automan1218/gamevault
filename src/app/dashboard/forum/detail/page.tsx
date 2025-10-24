@@ -11,7 +11,6 @@ import {
     Col,
     ConfigProvider,
     Divider,
-    Dropdown,
     Empty,
     Form,
     Input,
@@ -29,25 +28,19 @@ import {
     CalendarOutlined,
     CommentOutlined,
     DeleteOutlined,
-    EditOutlined,
-    EllipsisOutlined,
     EyeOutlined,
     FireOutlined,
     LikeOutlined,
     LikeFilled,
     MessageOutlined,
-    ShareAltOutlined,
-    StarOutlined,
-    StarFilled,
     UserOutlined,
     WarningOutlined,
     SendOutlined,
     FlagOutlined,
-    HistoryOutlined, TagOutlined,
+    TagOutlined,
 } from '@ant-design/icons';
 
 import { PostsApi } from '@/lib/api/posts';
-import { AuthApi } from '@/lib/api/auth';
 import { UsersApi } from '@/lib/api/users';
 import { navigationRoutes } from '@/lib/navigation';
 import { darkTheme, cardStyle } from '@/components/common/theme';
@@ -83,7 +76,7 @@ interface PostDetail {
     tags?: string[];
     isLiked?: boolean;
 }
-
+export const dynamic = 'force-dynamic';
 
 export default function PostDetailPage() {
     const router = useRouter();

@@ -1,6 +1,6 @@
 // features/forum/utils/forumUtils.ts
 import { ForumPost, ForumCategory, ForumSortType } from '../types/forumTypes';
-
+export const dynamic = 'force-dynamic';
 // Time formatting utility
 export const formatPostTime = (dateString: string): string => {
     const now = new Date();

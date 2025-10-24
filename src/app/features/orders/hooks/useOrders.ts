@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { orderApi } from "../services/orderApi";
 import type { OrderDTO } from "@/lib/api/StoreTypes";
-
+export const dynamic = 'force-dynamic';
 export function useOrders() {
   const [orders, setOrders] = useState<OrderDTO[]>([]);
   const [loading, setLoading] = useState(true);
