@@ -32,15 +32,15 @@ jobs:
 
           username: ${{ secrets.CLOUD_EC2_USER }}
           key: ${{ secrets.CLOUD_EC2_SSH_KEY }}
-        script: |
-          
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-          sudo docker stop frontend || true
-          sudo docker rm frontend || true
-          sudo docker run -d --name frontend -p 3000:3000 \
-            -e NEXT_PUBLIC_API_URL=http://${{ secrets.CLOUD_EC2_HOST }}:30187 \
-            --restart unless-stopped \
-            ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-          
-          sudo docker ps | grep frontend
+          script: |
+            
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+            sudo docker stop frontend || true
+            sudo docker rm frontend || true
+            sudo docker run -d --name frontend -p 3000:3000 \
+              -e NEXT_PUBLIC_API_URL=http://${{ secrets.CLOUD_EC2_HOST }}:30187 \
+              --restart unless-stopped \
+              ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+            
+            sudo docker ps | grep frontend
 
