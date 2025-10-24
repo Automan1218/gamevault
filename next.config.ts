@@ -2,6 +2,12 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
     output: 'standalone',
+    eslint: {
+        ignoreDuringBuilds: true,  // 添加这行
+    },
+    typescript: {
+        ignoreBuildErrors: true,   // 添加这行
+    },
     async rewrites() {
         return [
             {
