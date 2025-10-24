@@ -1,11 +1,12 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+    output: 'standalone',
     async rewrites() {
         return [
             {
                 source: '/api/:path*',
-                destination: 'http://localhost:8080/api/:path*', // 指向你的后端 API
+                destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/:path*`,
             },
         ]
     },
