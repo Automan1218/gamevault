@@ -17,7 +17,7 @@ interface UserInfo {
   email: string;
   uid: number;
 }
-
+export const dynamic = 'force-dynamic'
 export default function SettingsPage() {
   const { message: messageApi } = App.useApp();
   const router = useRouter();
@@ -434,7 +434,7 @@ export default function SettingsPage() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <CheckCircleOutlined style={{ color: '#10b981', fontSize: '16px' }} />
-                  <Text style={{ color: '#9ca3af' }}>Don't use the same password for multiple accounts</Text>
+                  <Text style={{ color: '#9ca3af' }}>Do not use the same password for multiple accounts</Text>
                 </div>
               </Space>
             </Card>

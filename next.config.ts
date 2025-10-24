@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
         ]
     },
     experimental: {
-        // esmExternals: 'loose'
+        dynamicIO: true,  // 添加这行
     },
     transpilePackages: [
         'antd',
