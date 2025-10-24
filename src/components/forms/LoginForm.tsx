@@ -15,7 +15,7 @@ interface LoginFormProps {
   validateEmail?: (rule: any, value: string) => Promise<void>;
   validateUsername?: (rule: any, value: string) => Promise<void>;
 }
-
+export const dynamic = 'force-dynamic';
 export const LoginForm: React.FC<LoginFormProps> = ({
   onLogin,
   onRegister,

@@ -12,7 +12,7 @@ interface CustomTitleProps {
   centered?: boolean;
   gradient?: boolean;
 }
-
+export const dynamic = 'force-dynamic';
 export const CustomTitle: React.FC<CustomTitleProps> = ({
   level = 1,
   children,

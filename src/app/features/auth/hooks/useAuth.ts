@@ -5,7 +5,7 @@ import { AuthApi } from '@/lib/api/auth';
 import { UsersApi } from '@/lib/api/users';
 import { LoginRequest, RegisterRequest } from '@/types/api';
 import { useAuth as useAuthContext } from '@/contexts/AuthContext';
-
+export const dynamic = 'force-dynamic';
 export const useAuth = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
