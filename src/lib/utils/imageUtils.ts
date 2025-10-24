@@ -1,5 +1,7 @@
 // Image URL processing utility functions
 
+const BASE_URL = 'http://47.130.173.114:8080';
+
 /**
  * Get complete image URL
  * @param imageUrl Relative path image URL
@@ -18,12 +20,12 @@ export function getFullImageUrl(imageUrl?: string | null): string {
   // Determine which service to use based on image path
   // Game images stored in shopping service (8081)
   if (imageUrl.includes('/uploads/games/')) {
-    const shopUrl = process.env.NEXT_PUBLIC_SHOP_API_URL?.replace('/api', '') || 'http://localhost:8080';
+    const shopUrl = process.env.NEXT_PUBLIC_SHOP_API_URL?.replace('/api', '') || BASE_URL;
     return `${shopUrl}${imageUrl}`;
   }
   
   // Other images (like avatars) stored in auth service (8080)
-  const authUrl = process.env.NEXT_PUBLIC_AUTH_API_URL?.replace('/api', '') || 'http://localhost:8080';
+  const authUrl = process.env.NEXT_PUBLIC_AUTH_API_URL?.replace('/api', '') || BASE_URL;
   return `${authUrl}${imageUrl}`;
 }
 
@@ -43,6 +45,6 @@ export function getFullAvatarUrl(avatarUrl?: string | null): string {
   }
   
   // Avatars stored in auth service (8080)
-  const authUrl = process.env.NEXT_PUBLIC_AUTH_API_URL?.replace('/api', '') || 'http://localhost:8080';
+  const authUrl = process.env.NEXT_PUBLIC_AUTH_API_URL?.replace('/api', '') || BASE_URL;
   return `${authUrl}${avatarUrl}`;
 }
