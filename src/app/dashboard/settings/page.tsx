@@ -1,18 +1,17 @@
 "use client";
 
 import React, { useState } from "react";
-import { App, Card, Tabs, Form, Button, Avatar, Upload, Alert, Row, Col, Divider, Typography, Space, Badge, Tooltip } from "antd";
-import { UserOutlined, LockOutlined, MailOutlined, CameraOutlined, ArrowLeftOutlined, ExclamationCircleOutlined, SafetyOutlined, SecurityScanOutlined, KeyOutlined, EditOutlined, CheckCircleOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { App, Card, Tabs, Form, Alert, Row, Col, Divider, Typography, Space } from "antd";
+import { UserOutlined, LockOutlined, MailOutlined, ExclamationCircleOutlined, SafetyOutlined, SecurityScanOutlined, KeyOutlined, EditOutlined, CheckCircleOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { PageContainer, Menubar } from '@/components/layout';
 import { CustomButton, CustomInput, CustomPasswordInput } from '@/components/ui';
 import AvatarUpload from '@/components/forms/AvatarUpload';
 import { useSettings } from '@/app/features/settings/hooks/useSettings';
-import { navigationRoutes } from '@/lib/navigation';
-import { avatarEvents, getAvatarUrl } from '@/lib/api/avatar';
+import { avatarEvents} from '@/lib/api/avatar';
 import '@/components/common/animations.css';
 
 const { Title, Text, Paragraph } = Typography;
-
+export const dynamic = 'force-dynamic';
 export default function SettingsPage() {
   const { message: messageApi } = App.useApp();
   const { userInfo, loading, changePassword, changeEmail, updateAvatar } = useSettings();

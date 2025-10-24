@@ -18,6 +18,7 @@ interface AvatarUploadProps {
  * Display user avatar and support clicking "Edit Avatar" button to upload new avatar
  * Automatically delete old avatar when uploading new avatar
  */
+export const dynamic = 'force-dynamic';
 export default function AvatarUpload({ 
     currentAvatar, 
     onAvatarChange, 
