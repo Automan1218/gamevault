@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { Button, Space, Dropdown, Badge, Input, ConfigProvider } from 'antd';
 import {
   SearchOutlined, 
@@ -42,7 +42,8 @@ type NavItem = DropdownNavItem & {
   hasDropdown?: boolean;
   dropdownItems?: DropdownNavItem[];
 };
-function Menubar({ currentPath = '/' }: MenubarProps) {
+// Component that uses useSearchParams - needs to be wrapped in Suspense
+function MenubarContent({ currentPath = '/' }: MenubarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -590,6 +591,49 @@ function Menubar({ currentPath = '/' }: MenubarProps) {
         </div>
       </div>
     </ConfigProvider>
+  );
+}
+
+// Main Menubar component with Suspense boundary
+function Menubar({ currentPath = '/' }: MenubarProps) {
+  return (
+    <Suspense fallback={
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          background: `
+            linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%)
+          `,
+          backdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(99, 102, 241, 0.2)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+          padding: '0 24px',
+          height: '64px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ fontSize: '32px' }}>🎮</div>
+            <span style={{ fontSize: '24px', fontWeight: 700, color: '#f9fafb' }}>
+              GameVault
+            </span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ width: '280px', height: '40px', background: 'rgba(31, 41, 55, 0.8)', borderRadius: '12px' }} />
+          <div style={{ width: '40px', height: '40px' }} />
+        </div>
+      </div>
+    }>
+      <MenubarContent currentPath={currentPath} />
+    </Suspense>
   );
 }
 

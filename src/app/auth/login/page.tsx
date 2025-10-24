@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { App, Button, Alert } from 'antd';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/app/features/auth/hooks/useAuth';
@@ -11,7 +11,9 @@ import { CustomTitle } from '@/components/ui';
 import { cardStyle } from '@/components/common/theme';
 import '@/components/common/animations.css';
 export const dynamic = 'force-dynamic'
-export default function LoginPage() {
+
+// Component that uses useSearchParams - needs to be wrapped in Suspense
+function LoginPageContent() {
     const { message } = App.useApp();
     const searchParams = useSearchParams();
     const redirect = searchParams.get('redirect') || '/dashboard/library';
@@ -159,5 +161,44 @@ export default function LoginPage() {
                 </Button>
             </div>
         </div>
+    );
+}
+
+// Main LoginPage component with Suspense boundary
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div
+                className="login-card"
+                style={{
+                    width: '100%',
+                    maxWidth: 500,
+                    padding: '48px',
+                    ...cardStyle,
+                }}
+            >
+                <div style={{ textAlign: 'center', marginBottom: 40 }}>
+                    <CustomTitle level={2} style={{ fontSize: '2rem' }}>
+                        Welcome Back
+                    </CustomTitle>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                    <div style={{ 
+                        width: '100%', 
+                        height: '200px', 
+                        background: 'rgba(31, 41, 55, 0.5)', 
+                        borderRadius: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#9ca3af'
+                    }}>
+                        Loading...
+                    </div>
+                </div>
+            </div>
+        }>
+            <LoginPageContent />
+        </Suspense>
     );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { 
   App, 
   Card, 
@@ -23,7 +23,9 @@ import "@/components/common/animations.css";
 
 const { Header, Content } = Layout;
 export const dynamic = 'force-dynamic';
-export default function ShoppingPage() {
+
+// Component that uses useSearchParams - needs to be wrapped in Suspense
+function ShoppingPageContent() {
   const { message } = App.useApp();
   const searchParams = useSearchParams();
   const initialQ = searchParams?.get('q') || '';
@@ -795,5 +797,99 @@ export default function ShoppingPage() {
         onClose={handleModalClose}
       />
     </Layout>
+  );
+}
+
+// Main ShoppingPage component with Suspense boundary
+export default function ShoppingPage() {
+  return (
+    <Suspense fallback={
+      <Layout
+        style={{
+          minHeight: "100vh",
+          background: `
+            linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+            linear-gradient(225deg, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+            radial-gradient(ellipse at top left, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+            radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+            linear-gradient(180deg, #0f172a 0%, #020617 100%)
+          `,
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <Header
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 1000,
+            padding: 0,
+            height: "auto",
+            lineHeight: "normal",
+            background: "rgba(15, 23, 42, 0.8)",
+            backdropFilter: "blur(20px) saturate(180%)",
+            borderBottom: "1px solid rgba(99, 102, 241, 0.3)",
+            boxShadow: "0 4px 24px rgba(99, 102, 241, 0.15), 0 2px 8px rgba(0, 0, 0, 0.3)",
+          }}
+        >
+          <Menubar currentPath="/dashboard/store" />
+        </Header>
+        <Content
+          style={{
+            marginTop: 64,
+            padding: "32px 24px 64px",
+          }}
+        >
+          <div
+            style={{
+              maxWidth: 1600,
+              margin: "0 auto",
+            }}
+          >
+            <Row gutter={[32, 32]}>
+              {[...Array(8)].map((_, i) => (
+                <Col
+                  key={i}
+                  xs={24}
+                  sm={12}
+                  md={12}
+                  lg={8}
+                  xl={6}
+                  xxl={6}
+                >
+                  <Card
+                    style={{
+                      borderRadius: 20,
+                      background: "rgba(255, 255, 255, 0.03)",
+                      backdropFilter: "blur(20px)",
+                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      height: "100%",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <Skeleton.Image
+                      active
+                      style={{ 
+                        width: "100%", 
+                        height: 220, 
+                        marginBottom: 0,
+                        borderRadius: 0,
+                      }}
+                    />
+                    <div style={{ padding: 24 }}>
+                      <Skeleton active paragraph={{ rows: 3 }} />
+                    </div>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </div>
+        </Content>
+      </Layout>
+    }>
+      <ShoppingPageContent />
+    </Suspense>
   );
 }
