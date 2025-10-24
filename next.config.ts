@@ -16,9 +16,6 @@ const nextConfig: NextConfig = {
             },
         ]
     },
-    experimental: {
-        dynamicIO: true,  // 添加这行
-    },
     transpilePackages: [
         'antd',
         '@ant-design/pro-components',
