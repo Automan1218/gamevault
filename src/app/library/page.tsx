@@ -22,7 +22,7 @@ type OwnedGame = {
     code: string;
   }[];
 };
-
+export const dynamic = 'force-dynamic'
 export default function LibraryPage() {
   const { message } = App.useApp();
   const router = useRouter();

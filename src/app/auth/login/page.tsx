@@ -10,7 +10,7 @@ import { LoginForm } from '@/components/forms';
 import { CustomTitle } from '@/components/ui';
 import { cardStyle } from '@/components/common/theme';
 import '@/components/common/animations.css';
-
+export const dynamic = 'force-dynamic'
 export default function LoginPage() {
     const { message } = App.useApp();
     const searchParams = useSearchParams();
