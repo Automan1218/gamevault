@@ -1,5 +1,5 @@
 // src/config/env.ts
-const BASE_URL = 'http://47.130.173.114:8080';
+const BASE_URL = 'http://52.77.169.8:30187';
 
 export const ENV = {
     // 认证服务 API - 用户认证、资料、订单查询、游戏库 (端口8080)

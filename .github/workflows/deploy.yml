@@ -3,9 +3,7 @@ name: Deploy Frontend to EC2
 on:
   push:
     branches:
-      - main
-      - master
-      - dev/master_10_19
+      - prod/master_cloud
   workflow_dispatch:
 
 jobs:
@@ -30,14 +28,14 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          host: ${{ secrets.CLOUD_EC2_HOST }}
+          username: ${{ secrets.CLOUD_EC2_USER }}
+          key: ${{ secrets.CLOUD_EC2_SSH_KEY }}
           script: |
             docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
             docker stop frontend || true
             docker rm frontend || true
             docker run -d --name frontend -p 3000:3000 \
-              -e NEXT_PUBLIC_API_URL=http://${{ secrets.EC2_HOST }}:8080 \
+              -e NEXT_PUBLIC_API_URL=http://${{ secrets.CLOUD_EC2_HOST }}:8080 \
               ${{ secrets.DOCKER_USERNAME }}/frontend:latest
 
