@@ -76,6 +76,24 @@ jobs:
           kubectl cluster-info
           kubectl get nodes
 
+      - name: Install Ingress Controller (if not exists)
+        run: |
+          echo "Checking if Ingress Controller exists..."
+          if ! kubectl get namespace ingress-nginx > /dev/null 2>&1; then
+            echo "Installing Ingress Nginx Controller..."
+            kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/cloud/deploy.yaml
+          
+            echo "⏳ Waiting for Ingress Controller to be ready..."
+            kubectl wait --namespace ingress-nginx \
+              --for=condition=ready pod \
+              --selector=app.kubernetes.io/component=controller \
+              --timeout=300s
+          
+            echo "Ingress Controller installed successfully!"
+          else
+            echo "Ingress Controller already exists"
+          fi
+
       - name: Deploy Frontend to K8s
         run: |
           DOCKER_REGISTRY="${{ secrets.DOCKER_USERNAME }}"
@@ -85,87 +103,51 @@ jobs:
           echo "  DOCKER_REGISTRY: $DOCKER_REGISTRY"
           echo "  IMAGE_TAG: $IMAGE_TAG"
           
-          # 替换环境变量并部署
+          # 替换环境变量并部署 Frontend
           cat k8s/frontend.yaml | \
             sed "s|\${DOCKER_REGISTRY}|$DOCKER_REGISTRY|g" | \
             sed "s|\${IMAGE_TAG}|$IMAGE_TAG|g" | \
             kubectl apply -f -
 
+      - name: Deploy Ingress
+        run: |
+          echo "Deploying Ingress..."
+          kubectl apply -f k8s/ingress.yaml
+          
+          echo "Ingress Status:"
+          kubectl get ingress -n gamevault
+
       - name: Restart Frontend Deployment
         run: |
-          echo "🔄 Restarting frontend deployment to pull latest image..."
+          echo "Restarting frontend deployment to pull latest image..."
           kubectl rollout restart deployment gamevault-frontend -n gamevault
 
       - name: Wait for deployment to be ready
         run: |
-          echo "⏳ Waiting for frontend to be ready..."
+          echo "Waiting for frontend to be ready..."
           kubectl wait --for=condition=available deployment/gamevault-frontend -n gamevault --timeout=300s
-          echo "✅ Frontend is ready!"
+          echo "Frontend is ready!"
 
-      - name: Configure Nginx on EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.CLOUD_EC2_HOST }}
-          username: ${{ secrets.CLOUD_EC2_USER }}
-          key: ${{ secrets.CLOUD_EC2_SSH_KEY }}
-          script: |
-            # 配置 Nginx
-            sudo tee /etc/nginx/sites-available/gamevault > /dev/null <<'NGINX_EOF'
-            server {
-                listen 80;
-                server_name _;
-                client_max_body_size 50M;
-
-                location /uploads/ {
-                    proxy_pass http://localhost:30187/uploads/;
-                    proxy_set_header Host $host;
-                    proxy_set_header X-Real-IP $remote_addr;
-                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto $scheme;
-                    expires 30d;
-                    add_header Cache-Control "public, immutable";
-                }
-
-                location /api {
-                    proxy_pass http://localhost:30187;
-                    proxy_http_version 1.1;
-                    proxy_set_header Upgrade $http_upgrade;
-                    proxy_set_header Connection 'upgrade';
-                    proxy_set_header Host $host;
-                    proxy_set_header X-Real-IP $remote_addr;
-                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto $scheme;
-                    proxy_cache_bypass $http_upgrade;
-                    proxy_read_timeout 300s;
-                    proxy_connect_timeout 75s;
-                }
-
-                location / {
-                    proxy_pass http://localhost:30080;
-                    proxy_http_version 1.1;
-                    proxy_set_header Upgrade $http_upgrade;
-                    proxy_set_header Connection 'upgrade';
-                    proxy_set_header Host $host;
-                    proxy_set_header X-Real-IP $remote_addr;
-                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto $scheme;
-                    proxy_cache_bypass $http_upgrade;
-                }
-            }
-            NGINX_EOF
-            
-            sudo ln -sf /etc/nginx/sites-available/gamevault /etc/nginx/sites-enabled/gamevault
-            sudo rm -f /etc/nginx/sites-enabled/default
-            sudo nginx -t && sudo systemctl reload nginx
-            sudo chmod -R 755 /gamevault/uploads/ || true
-            
-            echo "✅ Nginx configured!"
+      - name: Get Ingress LoadBalancer IP
+        run: |
+          echo "Waiting for Ingress LoadBalancer IP..."
+          sleep 10
+          
+          INGRESS_IP=$(kubectl get ingress gamevault-ingress -n gamevault -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "Pending")
+          
+          if [ "$INGRESS_IP" = "Pending" ] || [ -z "$INGRESS_IP" ]; then
+            echo "LoadBalancer IP not yet assigned, checking NodePort..."
+            INGRESS_PORT=$(kubectl get svc ingress-nginx-controller -n ingress-nginx -o jsonpath='{.spec.ports[?(@.name=="http")].nodePort}')
+            echo "INGRESS_URL=http://${{ secrets.CLOUD_EC2_HOST }}:${INGRESS_PORT}" >> $GITHUB_ENV
+          else
+            echo "INGRESS_URL=http://${INGRESS_IP}" >> $GITHUB_ENV
+          fi
 
       - name: Get deployment status
         run: |
           echo "## Frontend Deployment" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Frontend deployed to production" >> $GITHUB_STEP_SUMMARY
+          echo "Frontend deployed to production via Ingress" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Environment**: Production" >> $GITHUB_STEP_SUMMARY
           echo "**Image**: ${{ secrets.DOCKER_USERNAME }}/frontend:latest" >> $GITHUB_STEP_SUMMARY
@@ -175,17 +157,22 @@ jobs:
           kubectl get pods -n gamevault | grep frontend >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Frontend Service:" >> $GITHUB_STEP_SUMMARY
+          echo "### Services:" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          kubectl get svc -n gamevault | grep frontend >> $GITHUB_STEP_SUMMARY
+          kubectl get svc -n gamevault >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Ingress:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          kubectl get ingress -n gamevault >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Access URL:" >> $GITHUB_STEP_SUMMARY
-          echo "- **Frontend**: http://${{ secrets.CLOUD_EC2_HOST }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Application**: ${{ env.INGRESS_URL }}" >> $GITHUB_STEP_SUMMARY
 
       - name: Rollback on failure
         if: failure()
         run: |
-          echo "❌ Deployment failed! Rolling back..." >> $GITHUB_STEP_SUMMARY
+          echo "Deployment failed! Rolling back..." >> $GITHUB_STEP_SUMMARY
           kubectl rollout undo deployment gamevault-frontend -n gamevault
           kubectl wait --for=condition=available deployment/gamevault-frontend -n gamevault --timeout=300s

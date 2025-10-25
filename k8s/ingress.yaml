@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gamevault-ingress
+  namespace: gamevault
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          # API 请求 → Gateway
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: gamevault-gateway
+                port:
+                  number: 80
+
+          # 上传文件 → Gateway
+          - path: /uploads
+            pathType: Prefix
+            backend:
+              service:
+                name: gamevault-gateway
+                port:
+                  number: 80
+
+          # 前端页面 → Frontend
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gamevault-frontend
+                port:
+                  number: 3000
