@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: your-registry/frontend:latest   # ← 改成你的真实镜像地址
+          image: ${DOCKER_REGISTRY}/frontend:${IMAGE_TAG}
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -36,7 +36,7 @@ metadata:
   name: gamevault-frontend
   namespace: gamevault
 spec:
-  type: NodePort            # ← 如果你要让外部访问，改成 NodePort
+  type: NodePort
   selector:
     app: gamevault-frontend
   ports:
@@ -44,4 +44,4 @@ spec:
       protocol: TCP
       port: 3000
       targetPort: 3000
-      nodePort: 30130       # ← 外部访问端口 (浏览器访问 http://EC2_IP:30130)
+      nodePort: 30130
