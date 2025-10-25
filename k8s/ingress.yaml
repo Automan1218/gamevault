@@ -5,7 +5,9 @@ metadata:
   namespace: gamevault
   annotations:
 #    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "http://52.77.169.8:30131"
 spec:
   ingressClassName: nginx
   rules:
