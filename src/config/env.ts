@@ -2,44 +2,17 @@
 const BASE_URL = 'http://52.77.169.8:30131';
 
 export const ENV = {
-    // // 认证服务 API - 用户认证、资料、订单查询、游戏库 (端口8080)
-    // // AUTH_API_URL: process.env.NEXT_PUBLIC_AUTH_API_URL || `${BASE_URL}/api`,
-    // AUTH_API_URL: '/api',
-    //
-    // // 商城服务 API - 游戏商城、购物车、支付、激活码 (端口8081)
-    // SHOP_API_URL:'/api',
-    //
-    // // 论坛API - 论坛服务 (端口8082)
-    // FORUM_API_URL:'/api',
-    //
-    // // 聊天室服务 API - 群聊、好友、消息 (端口8083)
-    // CHATROOM_API_URL: '/api',
-    //
-    // // 文件服务 API - 文件上传、下载、管理 (端口8080，与认证服务同端口)
-    // FILE_API_URL: '/api',
-    //
-    // // WebSocket URL - 实时消息推送 (端口8083)
-    // WS_URL: '/api',
-    //
-    // DEVGAMES_API_URL: '/api',
-
     // 用户认证 / 用户资料
-    AUTH_API_URL: `${BASE_URL}/api`,
-
+    AUTH_API_URL: process.env.NEXT_PUBLIC_AUTH_API_URL || `${BASE_URL}/api`,
     // 商城
     SHOP_API_URL: `${BASE_URL}/api`,
-
     // 论坛
     FORUM_API_URL: `${BASE_URL}/api`,
-
     // 聊天室
     CHATROOM_API_URL: `${BASE_URL}/api`,
-
     // 文件服务
     FILE_API_URL: `${BASE_URL}/api`,
-
     WS_URL:  BASE_URL,
-
     DEVGAMES_API_URL: `${BASE_URL}/api/developer`,
 
     // Application Configuration
