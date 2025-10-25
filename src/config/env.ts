@@ -3,8 +3,9 @@ const BASE_URL = 'http://52.77.169.8:30187';
 
 export const ENV = {
     // 认证服务 API - 用户认证、资料、订单查询、游戏库 (端口8080)
-    AUTH_API_URL: process.env.NEXT_PUBLIC_AUTH_API_URL || `${BASE_URL}/api`,
-    
+    // AUTH_API_URL: process.env.NEXT_PUBLIC_AUTH_API_URL || `${BASE_URL}/api`,
+    AUTH_API_URL: '/api',
+
     // 商城服务 API - 游戏商城、购物车、支付、激活码 (端口8081)
     SHOP_API_URL: process.env.NEXT_PUBLIC_SHOP_API_URL || `${BASE_URL}/api`,
     

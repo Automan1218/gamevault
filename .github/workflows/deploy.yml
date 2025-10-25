@@ -1,4 +1,4 @@
-name: Deploy Frontend to EC2
+name: Deploy Frontend to K8s
 
 on:
   push:
@@ -25,80 +25,55 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/frontend:latest
 
-      - name: Deploy to EC2
+      - name: Copy config files to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.CLOUD_EC2_HOST }}
+          username: ${{ secrets.CLOUD_EC2_USER }}
+          key: ${{ secrets.CLOUD_EC2_SSH_KEY }}
+          source: "k8s/*"
+          target: "/tmp/gamevault-frontend/"
+
+      - name: Deploy to K8s and configure Nginx
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.CLOUD_EC2_HOST }}
-
           username: ${{ secrets.CLOUD_EC2_USER }}
           key: ${{ secrets.CLOUD_EC2_SSH_KEY }}
           script: |
+            echo "开始部署前端到 K8s..."
             
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-            sudo docker stop frontend || true
-            sudo docker rm frontend || true
-            sudo docker run -d --name frontend -p 3000:3000 \
-              -e NEXT_PUBLIC_API_URL=http://${{ secrets.CLOUD_EC2_HOST }}:30187 \
-              --restart unless-stopped \
-              ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+            sed -i 's|DOCKER_USERNAME_PLACEHOLDER|${{ secrets.DOCKER_USERNAME }}|g' /tmp/gamevault-frontend/k8s/frontend.yaml
             
+            echo "应用 K8s 配置..."
+            kubectl apply -f /tmp/gamevault-frontend/k8s/frontend.yaml
             
-             sudo tee /etc/nginx/sites-available/gamevault > /dev/null <<'EOF'
-            server {
-                listen 80;
-                server_name _;
+            echo "重启 Deployment..."
+            kubectl rollout restart deployment gamevault-frontend -n gamevault
             
-                client_max_body_size 50M;
+            echo "等待部署完成..."
+            kubectl rollout status deployment gamevault-frontend -n gamevault --timeout=300s
             
-                location /games/ {
-                    alias /gamevault/uploads/games/;
-                    expires 30d;
-                    add_header Cache-Control "public, immutable";
-                    add_header Access-Control-Allow-Origin *;
-                    try_files $uri =404;
-                }
-            
-                location /avatars/ {
-                    alias /gamevault/uploads/avatars/;
-                    expires 30d;
-                    add_header Cache-Control "public, immutable";
-                    add_header Access-Control-Allow-Origin *;
-                    try_files $uri =404;
-                }
-            
-                location /api/ {
-                    proxy_pass http://localhost:30187;
-                    proxy_http_version 1.1;
-                    proxy_set_header Upgrade \$http_upgrade;
-                    proxy_set_header Connection 'upgrade';
-                    proxy_set_header Host \$host;
-                    proxy_set_header X-Real-IP \$remote_addr;
-                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto \$scheme;
-                    proxy_cache_bypass \$http_upgrade;
-                }
-            
-                location / {
-                    proxy_pass http://localhost:3000;
-                    proxy_http_version 1.1;
-                    proxy_set_header Upgrade \$http_upgrade;
-                    proxy_set_header Connection 'upgrade';
-                    proxy_set_header Host \$host;
-                    proxy_set_header X-Real-IP \$remote_addr;
-                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto \$scheme;
-                    proxy_cache_bypass \$http_upgrade;
-                }
-            }
-            EOF
-            
-            # 启用Nginx配置
+            echo "配置 Nginx..."
+            sudo cp /tmp/gamevault-frontend/k8s/nginx.conf /etc/nginx/sites-available/gamevault
             sudo ln -sf /etc/nginx/sites-available/gamevault /etc/nginx/sites-enabled/gamevault
             sudo rm -f /etc/nginx/sites-enabled/default
-            sudo chmod -R 755 /gamevault/uploads/ || true
-            sudo nginx -t && sudo systemctl reload nginx
             
-            echo "✅ Cloud EC2 部署完成!"
+            echo "测试 Nginx 配置..."
+            sudo nginx -t
+            sudo systemctl reload nginx
+            
+            sudo chmod -R 755 /gamevault/uploads/ || true
+            
+            rm -rf /tmp/gamevault-frontend
+            
+            echo ""
+            echo "前端部署完成!"
+            echo ""
+            echo "Pod 状态:"
+            kubectl get pods -n gamevault | grep frontend
+            echo ""
+            echo "Service 状态:"
+            kubectl get svc -n gamevault | grep frontend
+            echo ""
             echo "访问地址: http://${{ secrets.CLOUD_EC2_HOST }}"
-            sudo docker ps | grep frontend
-

@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gamevault-frontend
+  namespace: gamevault
+  labels:
+    app: gamevault-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gamevault-frontend
+  template:
+    metadata:
+      labels:
+        app: gamevault-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ${DOCKER_REGISTRY}/frontend:${IMAGE_TAG}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: NODE_ENV
+              value: "production"
+          # resources:
+          #   requests:
+          #     memory: "256Mi"
+          #     cpu: "250m"
+          #   limits:
+          #     memory: "512Mi"
+          #     cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gamevault-frontend
+  namespace: gamevault
+  labels:
+    app: gamevault-frontend
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30080      # 前端暴露在 30080 端口
+      protocol: TCP
+      name: http
+  selector:
+    app: gamevault-frontend
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: gamevault-frontend-hpa
+  namespace: gamevault
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: gamevault-frontend
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
