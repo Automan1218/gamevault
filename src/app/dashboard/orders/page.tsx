@@ -188,7 +188,7 @@ export default function OrdersPage() {
                 textAlign: "right",
               }}
             >
-              ￥{order.finalAmount.toFixed(2)}
+              ${order.finalAmount.toFixed(2)}
             </div>
             <div style={{ color: "#9ca3af", fontSize: 13, textAlign: "right" }}>
               Payment Method: {order.paymentMethod || "Not Selected"}
@@ -232,15 +232,15 @@ export default function OrdersPage() {
                     {item.discountPrice && item.discountPrice < item.unitPrice ? (
                       <>
                         <span style={{ color: "#6b7280", textDecoration: "line-through" }}>
-                          ￥{item.unitPrice.toFixed(2)}
+                          ${item.unitPrice.toFixed(2)}
                         </span>
                         <span style={{ color: "#22c55e", fontWeight: 600 }}>
-                          ￥{item.discountPrice.toFixed(2)}
+                          ${item.discountPrice.toFixed(2)}
                         </span>
                       </>
                     ) : (
                       <span style={{ color: "#fff", fontWeight: 600 }}>
-                        ￥{item.unitPrice.toFixed(2)}
+                        ${item.unitPrice.toFixed(2)}
                       </span>
                     )}
                   </Space>
@@ -546,7 +546,7 @@ export default function OrdersPage() {
                     Total Spent
                   </div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: "#22c55e" }}>
-                    ￥{stats.totalAmount.toFixed(0)}
+                    ${stats.totalAmount.toFixed(0)}
                   </div>
                 </Card>
               </Col>

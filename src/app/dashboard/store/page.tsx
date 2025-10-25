@@ -277,7 +277,7 @@ function ShoppingPageContent() {
                   fontSize: 24,
                   lineHeight: 1
                 }}>
-                ￥{game.discountPrice.toFixed(2)}
+                ${game.discountPrice.toFixed(2)}
               </div>
               <div
                 style={{
@@ -287,7 +287,7 @@ function ShoppingPageContent() {
                     marginTop: 4,
                 }}
               >
-                ￥{game.price.toFixed(2)}
+                ${game.price.toFixed(2)}
               </div>
             </>
           ) : (
@@ -297,7 +297,7 @@ function ShoppingPageContent() {
                 fontSize: 24,
                 lineHeight: 1
               }}>
-              ￥{game.price.toFixed(2)}
+              ${game.price.toFixed(2)}
             </div>
           )}
       </div>
