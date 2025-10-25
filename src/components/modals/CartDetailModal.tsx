@@ -77,13 +77,13 @@ export const CartDetailModal: React.FC<CartDetailModalProps> = ({
                   }
                   description={
                     <Text style={{ color: "#9ca3af" }}>
-                      Unit Price: ￥{item.unitPrice.toFixed(2)}
+                      Unit Price: ${item.unitPrice.toFixed(2)}
                     </Text>
                   }
                 />
                 <div style={{ textAlign: "right" }}>
                   <Text strong style={{ color: "#a5b4fc" }}>
-                    Subtotal: ￥{(item.unitPrice * (item.quantity ?? 1)).toFixed(2)}
+                    Subtotal: ${(item.unitPrice * (item.quantity ?? 1)).toFixed(2)}
                   </Text>
                 </div>
               </List.Item>
@@ -110,7 +110,7 @@ export const CartDetailModal: React.FC<CartDetailModalProps> = ({
               level={4}
               style={{ margin: 0, color: "#a5b4fc", fontWeight: 700 }}
             >
-              ￥{cart.finalAmount?.toFixed(2) ?? "0.00"}
+              ${cart.finalAmount?.toFixed(2) ?? "0.00"}
             </Title>
           </div>
 

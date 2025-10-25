@@ -316,7 +316,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
                           marginBottom: 8,
                         }}
                       >
-                        ￥{game.discountPrice.toFixed(2)}
+                        ${game.discountPrice.toFixed(2)}
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <Text
@@ -326,10 +326,10 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
                             color: "#6b7280",
                           }}
                         >
-                          ￥{game.price.toFixed(2)}
+                          ${game.price.toFixed(2)}
                         </Text>
                         <Tag color="red" style={{ margin: 0 }}>
-                          Save ￥{(game.price - game.discountPrice).toFixed(2)}
+                          Save ${(game.price - game.discountPrice).toFixed(2)}
                         </Tag>
                       </div>
                     </>
@@ -341,7 +341,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
                         color: "#e5e7eb",
                       }}
                     >
-                      ￥{game.price.toFixed(2)}
+                      ${game.price.toFixed(2)}
                     </div>
                   )}
                 </div>
@@ -376,7 +376,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Text style={{ color: "#9ca3af", fontSize: 14 }}>Subtotal</Text>
                     <Text strong style={{ color: "#e5e7eb", fontSize: 20 }}>
-                      ￥{((game.discountPrice || game.price) * quantity).toFixed(2)}
+                      ${((game.discountPrice || game.price) * quantity).toFixed(2)}
                     </Text>
                   </div>
                 </div>

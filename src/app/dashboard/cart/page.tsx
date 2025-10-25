@@ -207,7 +207,7 @@ export default function CartPage() {
                 marginBottom: 12,
               }}
             >
-              ￥{item.subtotal.toFixed(2)}
+              ${item.subtotal.toFixed(2)}
             </div>
             <Button
               type="text"
@@ -251,13 +251,13 @@ export default function CartPage() {
           </Row>
           <Row justify="space-between" style={{ marginBottom: 12 }}>
             <Col style={{ color: "#9ca3af" }}>Total Price</Col>
-            <Col style={{ color: "#fff", fontWeight: 600 }}>￥{total.toFixed(2)}</Col>
+            <Col style={{ color: "#fff", fontWeight: 600 }}>${total.toFixed(2)}</Col>
           </Row>
           {cart?.discountAmount && cart.discountAmount > 0 && (
             <Row justify="space-between" style={{ marginBottom: 12 }}>
               <Col style={{ color: "#ef4444" }}>Discount</Col>
               <Col style={{ color: "#ef4444", fontWeight: 600 }}>
-                -￥{cart.discountAmount.toFixed(2)}
+                -${cart.discountAmount.toFixed(2)}
               </Col>
             </Row>
           )}
@@ -268,7 +268,7 @@ export default function CartPage() {
         <Row justify="space-between" style={{ marginBottom: 24 }}>
           <Col style={{ fontSize: 18, color: "#fff", fontWeight: 600 }}>Total Amount Due</Col>
           <Col style={{ fontSize: 24, color: "#22c55e", fontWeight: 700 }}>
-            ￥{(cart?.finalAmount || total).toFixed(2)}
+            ${(cart?.finalAmount || total).toFixed(2)}
           </Col>
         </Row>
 
@@ -583,20 +583,20 @@ export default function CartPage() {
           <div>
             <Row justify="space-between" style={{ fontSize: 16, marginBottom: 8 }}>
               <Col>Total Items:</Col>
-              <Col style={{ fontWeight: 600 }}>￥{calculateTotal().toFixed(2)}</Col>
+              <Col style={{ fontWeight: 600 }}>${calculateTotal().toFixed(2)}</Col>
             </Row>
             {cart?.discountAmount && cart.discountAmount > 0 && (
               <Row justify="space-between" style={{ fontSize: 16, marginBottom: 8 }}>
                 <Col style={{ color: "#ef4444" }}>Discount:</Col>
                 <Col style={{ color: "#ef4444", fontWeight: 600 }}>
-                  -￥{cart.discountAmount.toFixed(2)}
+                  -${cart.discountAmount.toFixed(2)}
                 </Col>
               </Row>
             )}
             <Row justify="space-between" style={{ fontSize: 20, fontWeight: 700, marginTop: 16 }}>
               <Col>Total Amount Due:</Col>
               <Col style={{ color: "#22c55e" }}>
-                ￥{(cart?.finalAmount || calculateTotal()).toFixed(2)}
+                ${(cart?.finalAmount || calculateTotal()).toFixed(2)}
               </Col>
             </Row>
           </div>
