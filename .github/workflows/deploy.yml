@@ -41,11 +41,12 @@ jobs:
           username: ${{ secrets.CLOUD_EC2_USER }}
           key: ${{ secrets.CLOUD_EC2_SSH_KEY }}
           script: |
-            echo "开始部署前端到 K8s..."
+            sed -i "s|DOCKER_USERNAME_PLACEHOLDER|${{ secrets.DOCKER_USERNAME }}|g" /tmp/gamevault-frontend/k8s/frontend.yaml
             
-            sed -i 's|DOCKER_USERNAME_PLACEHOLDER|${{ secrets.DOCKER_USERNAME }}|g' /tmp/gamevault-frontend/k8s/frontend.yaml
+            echo "📄 K8s 配置文件内容："
+            cat /tmp/gamevault-frontend/k8s/frontend.yaml | grep image:
             
-            echo "应用 K8s 配置..."
+            echo "📦 应用 K8s 配置..."
             kubectl apply -f /tmp/gamevault-frontend/k8s/frontend.yaml
             
             echo "重启 Deployment..."
