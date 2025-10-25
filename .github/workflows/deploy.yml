@@ -94,6 +94,12 @@ jobs:
             echo "Ingress Controller already exists"
           fi
 
+      - name: Force set Ingress Controller Service to NodePort
+        run: |
+          echo "Forcing Ingress Controller Service type to NodePort..."
+          kubectl patch svc ingress-nginx-controller -n ingress-nginx -p '{"spec": {"type": "NodePort"}}'
+          kubectl get svc -n ingress-nginx
+
       - name: Deploy Frontend to K8s
         run: |
           DOCKER_REGISTRY="${{ secrets.DOCKER_USERNAME }}"

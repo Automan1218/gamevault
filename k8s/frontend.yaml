@@ -42,11 +42,10 @@ metadata:
   labels:
     app: gamevault-frontend
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
     - port: 3000
       targetPort: 3000
-      nodePort: 30080      # 前端暴露在 30080 端口
       protocol: TCP
       name: http
   selector:
