@@ -2,7 +2,6 @@
 const BASE_URL = 'http://52.77.169.8:30131';
 
 export const ENV = {
-    // 用户认证 / 用户资料
     AUTH_API_URL: process.env.NEXT_PUBLIC_AUTH_API_URL || `${BASE_URL}/api`,
     // 商城
     SHOP_API_URL: `${BASE_URL}/api`,
