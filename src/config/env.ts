@@ -1,5 +1,5 @@
 // src/config/env.ts
-const BASE_URL = 'http://52.77.169.8:30131';
+const BASE_URL = 'http://52.77.169.8:30132';
 
 export const ENV = {
     AUTH_API_URL: process.env.NEXT_PUBLIC_AUTH_API_URL || `${BASE_URL}/api`,
