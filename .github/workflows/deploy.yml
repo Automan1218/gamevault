@@ -54,7 +54,7 @@ jobs:
         with:
           host: ${{ secrets.CLOUD_EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key: ${{ secrets.CLOUD_EC2_SSH_KEY }}
           script: |
             echo "🚀 部署 Frontend 到 EC2 实例..."
             echo "DOCKER_REGISTRY=${{ secrets.DOCKER_USERNAME }}"
