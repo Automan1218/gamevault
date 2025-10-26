@@ -125,8 +125,8 @@ jobs:
             sudo nginx -t && sudo systemctl reload nginx
 
             echo "部署完成!"
-            echo "访问地址: http://${{ secrets.CLOUD_EC2_HOST }}"
-            sudo docker ps | grep frontend
+#            echo "访问地址: http://${{ secrets.CLOUD_EC2_HOST }}"
+#            sudo docker ps | grep frontend
 
       # --------------------------
       # Summary
