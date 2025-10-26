@@ -1,53 +1,82 @@
-name: Deploy Frontend to EC2
+# ==========================================
+# CD Workflow - Deploy Frontend to EC2
+# ==========================================
+
+name: "CD - Deploy Frontend to EC2"
 
 on:
   push:
     branches:
-      - main
-      - master
-      - dev/master_10_19
+      - prod/master
   workflow_dispatch:
+
+env:
+  DOCKER_REGISTRY: ${{ secrets.DOCKER_USERNAME }}
+  IMAGE_TAG: latest
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    name: Build and Deploy Frontend (EC2 via SSH)
 
     steps:
+      # --------------------------
+      # Checkout & Build
+      # --------------------------
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/frontend:${{ env.IMAGE_TAG }}
+          platforms: linux/amd64
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/frontend:${{ env.IMAGE_TAG }}
+          cache-to: type=inline
 
+      # --------------------------
+      # Deploy to EC2
+      # --------------------------
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: ${{ secrets.CLOUD_EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+            echo "🚀 部署 Frontend 到 EC2 实例..."
+            echo "DOCKER_REGISTRY=${{ secrets.DOCKER_USERNAME }}"
+            echo "IMAGE_TAG=${{ env.IMAGE_TAG }}"
+            
+            docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:${{ env.IMAGE_TAG }}
             docker stop frontend || true
             docker rm frontend || true
+
+            echo "启动新的前端容器..."
             docker run -d --name frontend -p 3000:3000 \
-              -e NEXT_PUBLIC_API_URL=http://${{ secrets.EC2_HOST }}:8080 \
-              ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-            
+              -e NEXT_PUBLIC_API_URL=http://${{ secrets.CLOUD_EC2_HOST }}:8080 \
+              ${{ secrets.DOCKER_USERNAME }}/frontend:${{ env.IMAGE_TAG }}
+
+            echo "更新 Nginx 配置..."
             sudo tee /etc/nginx/sites-available/gamevault > /dev/null <<'EOF'
             server {
                 listen 80;
                 server_name _;
-            
+
                 client_max_body_size 50M;
-            
+
                 location /games/ {
                     alias /gamevault/uploads/games/;
                     expires 30d;
@@ -55,7 +84,7 @@ jobs:
                     add_header Access-Control-Allow-Origin *;
                     try_files $uri =404;
                 }
-            
+
                 location /avatars/ {
                     alias /gamevault/uploads/avatars/;
                     expires 30d;
@@ -63,7 +92,7 @@ jobs:
                     add_header Access-Control-Allow-Origin *;
                     try_files $uri =404;
                 }
-            
+
                 location /api/ {
                     proxy_pass http://localhost:8080;
                     proxy_http_version 1.1;
@@ -75,7 +104,7 @@ jobs:
                     proxy_set_header X-Forwarded-Proto \$scheme;
                     proxy_cache_bypass \$http_upgrade;
                 }
-            
+
                 location / {
                     proxy_pass http://localhost:3000;
                     proxy_http_version 1.1;
@@ -89,13 +118,25 @@ jobs:
                 }
             }
             EOF
-            
-            # 启用Nginx配置
+
             sudo ln -sf /etc/nginx/sites-available/gamevault /etc/nginx/sites-enabled/gamevault
             sudo rm -f /etc/nginx/sites-enabled/default
             sudo chmod -R 755 /gamevault/uploads/ || true
             sudo nginx -t && sudo systemctl reload nginx
-            
-            echo "✅ Local EC2 部署完成!"
-            echo "访问地址: http://${{ secrets.EC2_HOST }}"
+
+            echo "部署完成!"
+            echo "访问地址: http://${{ secrets.CLOUD_EC2_HOST }}"
             sudo docker ps | grep frontend
+
+      # --------------------------
+      # Summary
+      # --------------------------
+      - name: Show Deployment Summary
+        run: |
+          echo "## Frontend Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Host:** ${{ secrets.CLOUD_EC2_HOST }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** ${{ secrets.DOCKER_USERNAME }}/frontend:${{ env.IMAGE_TAG }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Access URL:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frontend:** http://${{ secrets.CLOUD_EC2_HOST }}" >> $GITHUB_STEP_SUMMARY
