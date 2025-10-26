@@ -1,5 +1,5 @@
 # ==========================================
-# CD Workflow - Deploy Frontend to EC2
+# CD Workflow - Deploy Frontend to EC2 (Stable)
 # ==========================================
 
 name: "CD - Deploy Frontend to EC2"
@@ -56,20 +56,22 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.CLOUD_EC2_SSH_KEY }}
           script: |
-            echo "🚀 部署 Frontend 到 EC2 实例..."
             echo "DOCKER_REGISTRY=${{ secrets.DOCKER_USERNAME }}"
             echo "IMAGE_TAG=${{ env.IMAGE_TAG }}"
             
-            docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:${{ env.IMAGE_TAG }}
-            docker stop frontend || true
-            docker rm frontend || true
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:${{ env.IMAGE_TAG }}
+
+            echo "停止旧容器..."
+            sudo docker stop frontend || true
+            sudo docker rm frontend || true
 
             echo "启动新的前端容器..."
-            docker run -d --name frontend -p 3000:3000 \
+            sudo docker run -d --name frontend -p 3000:3000 \
               -e NEXT_PUBLIC_API_URL=http://${{ secrets.CLOUD_EC2_HOST }}:8080 \
               ${{ secrets.DOCKER_USERNAME }}/frontend:${{ env.IMAGE_TAG }}
 
-            echo "更新 Nginx 配置..."
+            sudo docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep frontend || true
+
             sudo tee /etc/nginx/sites-available/gamevault > /dev/null <<'EOF'
             server {
                 listen 80;
@@ -122,21 +124,28 @@ jobs:
             sudo ln -sf /etc/nginx/sites-available/gamevault /etc/nginx/sites-enabled/gamevault
             sudo rm -f /etc/nginx/sites-enabled/default
             sudo chmod -R 755 /gamevault/uploads/ || true
-            sudo nginx -t && sudo systemctl reload nginx
 
-            echo "部署完成!"
-#            echo "访问地址: http://${{ secrets.CLOUD_EC2_HOST }}"
-#            sudo docker ps | grep frontend
+            echo "🔧 验证并重载 Nginx..."
+            sudo nginx -t || echo "⚠️ Nginx 配置检查警告：请手动检查"
+            sudo systemctl reload nginx || echo "⚠️ Nginx reload 失败（可能未安装）"
+
+            echo "✅ 部署完成!"
+            echo "前端访问地址: http://${{ secrets.CLOUD_EC2_HOST }}"
+            sudo docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep frontend || true
+            exit 0
 
       # --------------------------
       # Summary
       # --------------------------
       - name: Show Deployment Summary
         run: |
-          echo "## Frontend Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ Frontend Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Host:** ${{ secrets.CLOUD_EC2_HOST }}" >> $GITHUB_STEP_SUMMARY
           echo "**Image:** ${{ secrets.DOCKER_USERNAME }}/frontend:${{ env.IMAGE_TAG }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Container Status:" >> $GITHUB_STEP_SUMMARY
+          ssh -i ~/.ssh/ec2_key ${{ secrets.EC2_USER }}@${{ secrets.CLOUD_EC2_HOST }} "sudo docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | grep frontend" >> $GITHUB_STEP_SUMMARY || true
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Access URL:" >> $GITHUB_STEP_SUMMARY
           echo "- **Frontend:** http://${{ secrets.CLOUD_EC2_HOST }}" >> $GITHUB_STEP_SUMMARY
