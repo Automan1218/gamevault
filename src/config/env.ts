@@ -1,5 +1,5 @@
 // src/config/env.ts
-const BASE_URL = 'http://52.77.169.8:8080';
+const BASE_URL = 'http://52.77.169.8';
 
 
 export const ENV = {

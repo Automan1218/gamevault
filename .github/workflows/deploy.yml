@@ -67,8 +67,8 @@ jobs:
 
             echo "启动新的前端容器..."
             sudo docker run -d --name frontend -p 3000:3000 \
-              -e NEXT_PUBLIC_API_URL=http://${{ secrets.CLOUD_EC2_HOST }}:8080 \
-              ${{ secrets.DOCKER_USERNAME }}/frontend:${{ env.IMAGE_TAG }}
+            -e NEXT_PUBLIC_API_URL=http://${{ secrets.CLOUD_EC2_HOST }}/api \
+            ${{ secrets.DOCKER_USERNAME }}/frontend:${{ env.IMAGE_TAG }}
 
             sudo docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep frontend || true
 
