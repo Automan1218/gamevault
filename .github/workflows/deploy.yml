@@ -58,7 +58,7 @@ jobs:
           script: |
             echo "DOCKER_REGISTRY=${{ secrets.DOCKER_USERNAME }}"
             echo "IMAGE_TAG=${{ env.IMAGE_TAG }}"
-            
+
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:${{ env.IMAGE_TAG }}
 
             echo "停止旧容器..."
@@ -72,6 +72,7 @@ jobs:
 
             sudo docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep frontend || true
 
+            # ✅ 修复后的Nginx配置 - 删除CORS，让Gateway统一处理
             sudo tee /etc/nginx/sites-available/gamevault > /dev/null <<'EOF'
             server {
                 listen 80;
@@ -95,6 +96,7 @@ jobs:
                     try_files $uri =404;
                 }
 
+                # API代理 - 让Gateway统一处理CORS
                 location /api/ {
                     proxy_pass http://localhost:8080;
                     proxy_http_version 1.1;
@@ -104,20 +106,11 @@ jobs:
                     proxy_set_header X-Real-IP \$remote_addr;
                     proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
                     proxy_set_header X-Forwarded-Proto \$scheme;
+                    proxy_set_header Origin \$http_origin;
                     proxy_cache_bypass \$http_upgrade;
-            
-                    add_header Access-Control-Allow-Origin "http://52.77.169.8";
-                    add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, PATCH, OPTIONS";
-                    add_header Access-Control-Allow-Headers "Authorization, Content-Type, X-Requested-With";
-            
-                    if ($request_method = 'OPTIONS') {
-                    add_header Access-Control-Allow-Origin "http://52.77.169.8";
-                    add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, PATCH, OPTIONS";
-                    add_header Access-Control-Allow-Headers "Authorization, Content-Type, X-Requested-With";
-                    return 204;
-                  }
                 }
 
+                # 前端应用代理
                 location / {
                     proxy_pass http://localhost:3000;
                     proxy_http_version 1.1;
@@ -144,7 +137,6 @@ jobs:
             echo "前端访问地址: http://${{ secrets.CLOUD_EC2_HOST }}"
             sudo docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep frontend || true
             exit 0
-
       # --------------------------
       # Summary
       # --------------------------
