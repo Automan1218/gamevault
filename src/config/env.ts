@@ -1,8 +1,8 @@
 // src/config/env.ts
-const BASE_URL = 'http://3.0.15.128:30132';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://3.0.15.128:30132';
 
 export const ENV = {
-    AUTH_API_URL: process.env.NEXT_PUBLIC_AUTH_API_URL || `${BASE_URL}/api`,
+    AUTH_API_URL: `${BASE_URL}/api`,
     // 商城
     SHOP_API_URL: `${BASE_URL}/api`,
     // 论坛
@@ -45,6 +45,7 @@ export const ENV = {
 } as const;
 if (process.env.NODE_ENV === 'development') {
     console.log('Environment configuration:', {
+        BASE_URL: BASE_URL,
         AUTH_API_URL: ENV.AUTH_API_URL,
         SHOP_API_URL: ENV.SHOP_API_URL,
         FORUM_API_URL: ENV.FORUM_API_URL,
