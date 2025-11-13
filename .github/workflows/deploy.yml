@@ -1,4 +1,4 @@
-name: Deploy Frontend to EC2 (Docker Compose)
+name: Deploy Frontend to EC2
 
 on:
   push:
@@ -41,41 +41,76 @@ jobs:
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.CLOUD_EC2_SSH_KEY }}" > ~/.ssh/ec2_key
+          # 使用前端仓库的 secret 名称
+          echo "${{ secrets.CLOUD_EC2_SSH_KEY }}" | tr -d '\r' > ~/.ssh/ec2_key
           chmod 600 ~/.ssh/ec2_key
+          
+          # 验证密钥格式
+          if ! grep -q "BEGIN.*PRIVATE KEY" ~/.ssh/ec2_key; then
+            echo "Error: Invalid SSH key format"
+            exit 1
+          fi
+          
+          # 添加 known_hosts
           ssh-keyscan -H ${{ secrets.CLOUD_EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy Frontend on EC2
         run: |
-          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.CLOUD_EC2_HOST }} << 'EOF'
-            cd ~/gamevault-cloud
+          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no ubuntu@${{ secrets.CLOUD_EC2_HOST }} << 'EOF'
+            echo "🔄 Pulling latest frontend image..."
+            docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
           
-            echo "Pulling latest frontend image..."
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+            echo "🛑 Stopping old frontend container..."
+            docker stop gamevault-frontend 2>/dev/null || true
+            docker rm gamevault-frontend 2>/dev/null || true
           
-            echo "Stopping old frontend container..."
-            sudo docker compose stop frontend || true
-            sudo docker compose rm -f frontend || true
+            echo "🚀 Starting new frontend container..."
+            docker run -d \
+              --name gamevault-frontend \
+              --restart unless-stopped \
+              -p 3000:80 \
+              -e NODE_ENV=production \
+              ${{ secrets.DOCKER_USERNAME }}/frontend:latest
           
-            echo "Starting frontend..."
-            sudo docker compose up -d frontend
+            echo "⏳ Waiting for frontend to start..."
+            sleep 5
           
-            echo "Waiting for frontend to start..."
-            sleep 10
-          
-            echo "Deployment complete!"
-            sudo docker compose ps
+            echo "✅ Deployment complete!"
+            docker ps | grep frontend
           EOF
 
-      - name: Show Deployment Info
+      - name: Verify Deployment
         run: |
-          echo "## Frontend Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no ubuntu@${{ secrets.CLOUD_EC2_HOST }} << 'EOF'
+            echo "📊 Frontend Status:"
+            docker ps --filter name=gamevault-frontend --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+          
+            echo ""
+            echo "📝 Recent Logs:"
+            docker logs --tail=20 gamevault-frontend
+          EOF
+
+      - name: Test Frontend Endpoint
+        run: |
+          echo "🧪 Testing frontend endpoint..."
+          sleep 3
+          curl -f http://${{ secrets.CLOUD_EC2_HOST }}:3000 || echo "⚠️ Frontend not responding yet"
+
+      - name: Show Deployment Info
+        if: success()
+        run: |
+          echo "## ✅ Frontend Deployment Successful" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** Frontend (Separate Repo)" >> $GITHUB_STEP_SUMMARY
           echo "**Image:** ${{ secrets.DOCKER_USERNAME }}/frontend:latest" >> $GITHUB_STEP_SUMMARY
+          echo "**Container:** gamevault-frontend" >> $GITHUB_STEP_SUMMARY
+          echo "**Port:** 3000" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Access URL:" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 Access URL:" >> $GITHUB_STEP_SUMMARY
           echo "- **Frontend:** http://${{ secrets.CLOUD_EC2_HOST }}:3000" >> $GITHUB_STEP_SUMMARY
-          echo "- **Backend Gateway:** http://${{ secrets.CLOUD_EC2_HOST }}:8080" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Backend APIs:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Gateway:** http://${{ secrets.CLOUD_EC2_HOST }}:8080" >> $GITHUB_STEP_SUMMARY
 
       - name: Cleanup SSH key
         if: always()
