@@ -1,6 +1,6 @@
 // Image URL processing utility functions
 
-const BASE_URL = 'http://52.77.169.8:30187';
+const BASE_URL = 'http://3.0.15.128:30187';
 
 /**
  * Get complete image URL
