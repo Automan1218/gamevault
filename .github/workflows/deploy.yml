@@ -1,4 +1,4 @@
-name: Deploy Frontend to K8s (No Ingress)
+name: Deploy Frontend to EC2 (Docker Compose)
 
 on:
   push:
@@ -7,13 +7,12 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_REGISTRY: ${{ secrets.DOCKER_USERNAME }}
   IMAGE_TAG: latest
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    name: Build and Deploy Frontend to K8s
+    name: Build and Deploy Frontend
 
     steps:
       - name: Checkout code
@@ -39,61 +38,45 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/frontend:latest
           cache-to: type=inline
 
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'v1.28.0'
-
-      - name: Configure kubeconfig
+      - name: Configure SSH
         run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBE_CONFIG_PRODUCTION }}" | base64 -d > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
-          kubectl config set-cluster default --insecure-skip-tls-verify=true
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/ec2_key
+          chmod 600 ~/.ssh/ec2_key
+          ssh-keyscan -H ${{ secrets.CLOUD_EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Verify cluster connection
+      - name: Deploy Frontend on EC2
         run: |
-          kubectl cluster-info
-          kubectl get nodes
-
-      - name: Deploy Frontend to K8s
-        run: |
-          DOCKER_REGISTRY="${{ secrets.DOCKER_USERNAME }}"
-          IMAGE_TAG="${{ env.IMAGE_TAG }}"
+          ssh -i ~/.ssh/ec2_key ubuntu@${{ secrets.CLOUD_EC2_HOST }} << 'EOF'
+            cd ~/gamevault-cloud
           
-          echo "Deploying Frontend..."
-          echo "  DOCKER_REGISTRY: $DOCKER_REGISTRY"
-          echo "  IMAGE_TAG: $IMAGE_TAG"
+            echo "Pulling latest frontend image..."
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
           
-          cat k8s/frontend.yaml | \
-            sed "s|\${DOCKER_REGISTRY}|$DOCKER_REGISTRY|g" | \
-            sed "s|\${IMAGE_TAG}|$IMAGE_TAG|g" | \
-            kubectl apply -f -
-
-      - name: Restart Deployment
-        run: |
-          echo "Restarting frontend deployment..."
-          kubectl rollout restart deployment gamevault-frontend -n gamevault
-          kubectl wait --for=condition=available deployment/gamevault-frontend -n gamevault --timeout=300s
+            echo "Stopping old frontend container..."
+            sudo docker compose stop frontend || true
+            sudo docker compose rm -f frontend || true
+          
+            echo "Starting frontend..."
+            sudo docker compose up -d frontend
+          
+            echo "Waiting for frontend to start..."
+            sleep 10
+          
+            echo "Deployment complete!"
+            sudo docker compose ps
+          EOF
 
       - name: Show Deployment Info
         run: |
           echo "## Frontend Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Namespace:** gamevault" >> $GITHUB_STEP_SUMMARY
           echo "**Image:** ${{ secrets.DOCKER_USERNAME }}/frontend:latest" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Pods:" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          kubectl get pods -n gamevault | grep frontend >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Services:" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          kubectl get svc -n gamevault >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          
-          NODEPORT=$(kubectl get svc gamevault-frontend -n gamevault -o jsonpath='{.spec.ports[0].nodePort}')
-          echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Access URL:" >> $GITHUB_STEP_SUMMARY
-          echo "- **Frontend:** http://${{ secrets.CLOUD_EC2_HOST }}:${NODEPORT}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frontend:** http://${{ secrets.CLOUD_EC2_HOST }}:3000" >> $GITHUB_STEP_SUMMARY
+          echo "- **Backend Gateway:** http://${{ secrets.CLOUD_EC2_HOST }}:8080" >> $GITHUB_STEP_SUMMARY
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/ec2_key
