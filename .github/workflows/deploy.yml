@@ -61,7 +61,7 @@ jobs:
           DOCKER_REGISTRY="${{ secrets.DOCKER_USERNAME }}"
           IMAGE_TAG="${{ env.IMAGE_TAG }}"
           
-          echo "🚀 Deploying Frontend..."
+          echo "Deploying Frontend..."
           echo "  DOCKER_REGISTRY: $DOCKER_REGISTRY"
           echo "  IMAGE_TAG: $IMAGE_TAG"
           
