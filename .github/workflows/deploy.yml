@@ -1,4 +1,4 @@
-name: Deploy Frontend to EC2
+name: Deploy Frontend to K8s (No Ingress)
 
 on:
   push:
@@ -7,12 +7,13 @@ on:
   workflow_dispatch:
 
 env:
+  DOCKER_REGISTRY: ${{ secrets.DOCKER_USERNAME }}
   IMAGE_TAG: latest
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    name: Build and Deploy Frontend
+    name: Build and Deploy Frontend to K8s
 
     steps:
       - name: Checkout code
@@ -38,80 +39,54 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/frontend:latest
           cache-to: type=inline
 
-      - name: Configure SSH
-        run: |
-          mkdir -p ~/.ssh
-          # 使用前端仓库的 secret 名称
-          echo "${{ secrets.CLOUD_EC2_SSH_KEY }}" | tr -d '\r' > ~/.ssh/ec2_key
-          chmod 600 ~/.ssh/ec2_key
-          
-          # 验证密钥格式
-          if ! grep -q "BEGIN.*PRIVATE KEY" ~/.ssh/ec2_key; then
-            echo "Error: Invalid SSH key format"
-            exit 1
-          fi
-          
-          # 添加 known_hosts
-          ssh-keyscan -H ${{ secrets.CLOUD_EC2_HOST }} >> ~/.ssh/known_hosts
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
 
-      - name: Deploy Frontend on EC2
+      - name: Verify cluster connection
         run: |
-          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no ubuntu@${{ secrets.CLOUD_EC2_HOST }} << 'EOF'
-            echo "🔄 Pulling latest frontend image..."
-            docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-          
-            echo "🛑 Stopping old frontend container..."
-            docker stop gamevault-frontend 2>/dev/null || true
-            docker rm gamevault-frontend 2>/dev/null || true
-          
-            echo "🚀 Starting new frontend container..."
-            docker run -d \
-              --name gamevault-frontend \
-              --restart unless-stopped \
-              -p 3000:3000 \
-              -e NODE_ENV=production \
-              ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-          
-            echo "⏳ Waiting for frontend to start..."
-            sleep 5
-          
-            echo "✅ Deployment complete!"
-            docker ps | grep frontend
-          EOF
+          kubectl cluster-info
+          kubectl get nodes
 
-      - name: Verify Deployment
+      - name: Deploy Frontend to K8s
         run: |
-          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no ubuntu@${{ secrets.CLOUD_EC2_HOST }} << 'EOF'
-            echo "📊 Frontend Status:"
-            docker ps --filter name=gamevault-frontend --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+          DOCKER_REGISTRY="${{ secrets.DOCKER_USERNAME }}"
+          IMAGE_TAG="${{ env.IMAGE_TAG }}"
           
-            echo ""
-            echo "📝 Recent Logs:"
-            docker logs --tail=20 gamevault-frontend
-          EOF
+          echo "Deploying Frontend..."
+          echo "  DOCKER_REGISTRY: $DOCKER_REGISTRY"
+          echo "  IMAGE_TAG: $IMAGE_TAG"
+          
+          cat k8s/frontend.yaml | \
+            sed "s|\${DOCKER_REGISTRY}|$DOCKER_REGISTRY|g" | \
+            sed "s|\${IMAGE_TAG}|$IMAGE_TAG|g" | \
+            kubectl apply -f -
 
-      - name: Test Frontend Endpoint
+      - name: Restart Deployment
         run: |
-          echo "🧪 Testing frontend endpoint..."
-          sleep 3
-          curl -f http://${{ secrets.CLOUD_EC2_HOST }}:3000 || echo "⚠️ Frontend not responding yet"
+          echo "Restarting frontend deployment..."
+          kubectl rollout restart deployment gamevault-frontend -n gamevault
+          kubectl wait --for=condition=available deployment/gamevault-frontend -n gamevault --timeout=300s
 
       - name: Show Deployment Info
-        if: success()
         run: |
-          echo "## ✅ Frontend Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "## Frontend Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Repository:** Frontend (Separate Repo)" >> $GITHUB_STEP_SUMMARY
+          echo "**Namespace:** gamevault" >> $GITHUB_STEP_SUMMARY
           echo "**Image:** ${{ secrets.DOCKER_USERNAME }}/frontend:latest" >> $GITHUB_STEP_SUMMARY
-          echo "**Container:** gamevault-frontend" >> $GITHUB_STEP_SUMMARY
-          echo "**Port:** 3000" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🌐 Access URL:" >> $GITHUB_STEP_SUMMARY
-          echo "- **Frontend:** http://${{ secrets.CLOUD_EC2_HOST }}:3000" >> $GITHUB_STEP_SUMMARY
+          echo "### Pods:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          kubectl get pods -n gamevault | grep frontend >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🔗 Backend APIs:" >> $GITHUB_STEP_SUMMARY
-          echo "- **Gateway:** http://${{ secrets.CLOUD_EC2_HOST }}:8080" >> $GITHUB_STEP_SUMMARY
-
-      - name: Cleanup SSH key
-        if: always()
-        run: rm -f ~/.ssh/ec2_key
+          echo "### Services:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          kubectl get svc -n gamevault >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          
+          NODEPORT=$(kubectl get svc gamevault-frontend -n gamevault -o jsonpath='{.spec.ports[0].nodePort}')
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Access URL:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frontend:** http://${{ secrets.CLOUD_EC2_HOST }}:${NODEPORT}" >> $GITHUB_STEP_SUMMARY
