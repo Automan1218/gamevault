@@ -68,7 +68,7 @@ jobs:
             docker run -d \
               --name gamevault-frontend \
               --restart unless-stopped \
-              -p 3000:80 \
+              -p 3000:3000 \
               -e NODE_ENV=production \
               ${{ secrets.DOCKER_USERNAME }}/frontend:latest
           
